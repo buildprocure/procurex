@@ -16,7 +16,7 @@ stages:
       - job: Build
         displayName: 'Build and Push'
         pool:
-          name: 'DO-Agent-Pool'
+          name: 'Default'
         steps:
           - checkout: self  # Check out the GitHub repository
 
