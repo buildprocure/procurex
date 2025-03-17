@@ -20,8 +20,6 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: '@Shova595Bhandari'
       MYSQL_DATABASE: "ilife"
-      MYSQL_USER: "root"
-      MYSQL_PASSWORD: '@Shova595Bhandari'
     volumes:
       - db_data:/var/lib/mysql
 
