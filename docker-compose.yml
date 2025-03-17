@@ -1,5 +1,12 @@
 
 services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: '@Shova595Bhandari'
+      MYSQL_DATABASE: "ilife"
+    volumes:
+      - db_data:/var/lib/mysql
   web:
     image: ilifesregistry.azurecr.io/ilifesregistry.azurecr.io/ilifes-store:latest  # Use the fully qualified image name
     ports:
@@ -15,13 +22,6 @@ services:
     command: >
       /bin/bash -c "a2enmod ssl && a2ensite default-ssl && apache2-foreground"
 
-  db:
-    image: mysql:8.0
-    environment:
-      MYSQL_ROOT_PASSWORD: '@Shova595Bhandari'
-      MYSQL_DATABASE: "ilife"
-    volumes:
-      - db_data:/var/lib/mysql
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin

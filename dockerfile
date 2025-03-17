@@ -2,6 +2,8 @@ FROM php:8.2-apache
 
 # Install necessary PHP extensions and tools
 RUN docker-php-ext-install mysqli
+# Install necessary packages (e.g., MySQL client)
+RUN apt-get update && apt-get install -y default-mysql-client
 
 # Enable Apache modules
 RUN a2enmod rewrite ssl headers
