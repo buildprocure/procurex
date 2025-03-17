@@ -93,13 +93,13 @@ stages:
                 ls -la
                 echo "Pulling latest image"
                 docker pull ilifesregistry.azurecr.io/ilifesregistry.azurecr.io/ilifes-store:latest
-                bash -c '
-                  container_count=$(docker ps -q | wc -l)  # Define container_count
-                  echo "Container count: $container_count"
-                  if [ "$container_count" -gt 0 ]; then
-                    docker-compose down || true  # Gracefully handle failure
-                  fi
-                  echo "Starting containers with docker-compose"
-                  docker-compose -f $(appDirectory)/docker-compose.yml up -d 2>&1
-                '
+                
+                container_count=$(docker ps -q | wc -l)  # Define container_count
+                echo "Container count: $container_count"
+                if [ "$container_count" -gt 0 ]; then
+                  docker-compose down || true  # Gracefully handle failure
+                fi
+                echo "Starting containers with docker-compose"
+                docker-compose -f $(appDirectory)/docker-compose.yml up -d 2>&1
+                
               readyTimeout: '60000'
