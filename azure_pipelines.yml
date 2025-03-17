@@ -48,7 +48,7 @@ stages:
       - job: Deploy
         displayName: 'Deploy on Remote Server'
         pool:
-          name: 'DO-Agent-Pool'
+          name: 'Default'
         steps:
           - checkout: self  # Check out the GitHub repository
 
@@ -93,6 +93,10 @@ stages:
                 ls -la
                 echo "Pulling latest image"
                 docker pull ilifesregistry.azurecr.io/ilifesregistry.azurecr.io/ilifes-store:latest
+                if [ "$container_count" -gt 0 ]; then
+                  echo "Stopping and removing existing containers"
+                  docker-compose down || true  # Gracefully handle failure
+                fi
                 echo "Starting containers with docker-compose"
                 docker-compose -f $(appDirectory)/docker-compose.yml up -d 2>&1
               readyTimeout: '60000'
