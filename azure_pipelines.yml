@@ -104,10 +104,6 @@ stages:
                 echo "Checking Docker version:"
                 docker --version || echo "Docker is not installed"
 
-                # Debug: Check if Docker is accessible
-                echo "Checking Docker status..."
-                docker info || { echo "Docker is not accessible"; exit 1; }
-
                 echo "Starting containers with docker-compose"
                 docker-compose -f $(appDirectory)/docker-compose.yml up -d 2>&1 | tee docker-compose.log
                 
