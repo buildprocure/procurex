@@ -3,7 +3,7 @@ ob_start();
 /* $update = false;
 $delete = false; */
   // Connect to the database
-  $servername = "localhost";
+  $servername = "html-db-1";
   $username = "root";
   $password = "@Shova595Bhandari";
   $database = "ilife";
