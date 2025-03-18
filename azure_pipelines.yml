@@ -97,6 +97,13 @@ stages:
                 container_count=$(docker ps -q | wc -l | tr -d ' ')
                 echo "Container count: '$container_count'"
                 
+                echo "Checking whoami:"
+                whoami
+                echo "Checking groups:"
+                groups $(whoami)
+                echo "Checking Docker version:"
+                docker --version || echo "Docker is not installed"
+
                 # Debug: Check if Docker is accessible
                 echo "Checking Docker status..."
                 docker info || { echo "Docker is not accessible"; exit 1; }
