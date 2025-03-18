@@ -78,7 +78,7 @@ stages:
           
           - script: |
               echo "Waiting for the image to be available in ACR..."
-              sleep 30  # Wait for 30 seconds
+              sleep 10  # Wait for 10 seconds
             displayName: 'Wait for Image Availability'
 
           - task: SSH@0
@@ -92,7 +92,7 @@ stages:
                 echo "Listing files in $(appDirectory)"
                 ls -la
                 echo "Pulling latest image"
-                docker pull $(acrName)/$(imageName):latest
+                docker pull ilifesregistry.azurecr.io/ilifesregistry.azurecr.io/ilifes-store:latest
                 container_count=$(docker ps -q | wc -l)
                 echo "Container count: $container_count"
                 [ "$container_count" -gt 0 ] && docker-compose down || true
