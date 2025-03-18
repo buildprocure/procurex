@@ -87,16 +87,16 @@ stages:
               sshEndpoint: $(sshServiceConnection)
               runOptions: 'commands'
               commands: |
-                echo "Changing to $(appDirectory)" && \
-                cd $(appDirectory) && ls -la && \
-                echo "Listing files in $(appDirectory)" && \
-                ls -la && \
-                echo "Pulling latest image" && \
-                docker pull $(acrName)/$(imageName):latest && \
-                container_count=$(docker ps -q | wc -l) && \
-                echo "Container count: $container_count" && \
-                [ "$container_count" -gt 0 ] && docker-compose down || true && \
-                echo "Starting containers with docker-compose" && \
-                docker-compose -f $(appDirectory)/docker-compose.yml up -d 2>&1
+                echo "Changing to $(appDirectory)"
+                cd $(appDirectory) && ls -la
+                echo "Listing files in $(appDirectory)"
+                ls -la
+                echo "Pulling latest image"
+                docker pull $(acrName)/$(imageName):latest
+                container_count=$(docker ps -q | wc -l)
+                echo "Container count: $container_count"
+                [ "$container_count" -gt 0 ] && docker-compose down || true
+                echo "Starting containers with docker-compose"
+                docker-compose -f $(appDirectory)/docker-compose.yml up -d 2>&1 | tee docker-compose.log
                 
               readyTimeout: '60000'
