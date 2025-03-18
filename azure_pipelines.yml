@@ -74,6 +74,8 @@ stages:
               commands: |
                 echo "Listing files in $(appDirectory)"
                 ls -la $(appDirectory)
+                echo "Listing files in $(Build.SourcesDirectory)"
+                ls -la $(build.sourcesdirectory)
 
           - task: Docker@2
             displayName: 'Login to ACR on Remote Server'
