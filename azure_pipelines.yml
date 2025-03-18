@@ -96,6 +96,13 @@ stages:
                 # Trim whitespace and make sure container_count is an integer
                 container_count=$(docker ps -q | wc -l | tr -d ' ')
                 echo "Container count: '$container_count'"
+                
+                # Debug: Check if Docker is accessible
+                echo "Checking Docker status..."
+                docker info || { echo "Docker is not accessible"; exit 1; }
+
+                echo "Checking running containers..."
+                docker ps -a  # Show all containers for debugging
 
                 if [ "$container_count" -gt 0 ] 2>/dev/null; then
                   echo "Stopping and removing existing containers"
