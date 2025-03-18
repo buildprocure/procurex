@@ -65,7 +65,15 @@ stages:
               commands: |
                 echo "Copying docker-compose.yml to $(appDirectory)"
                 scp -i /root/.ssh/id_rsa $(Build.SourcesDirectory)/docker-compose.yml root@143.198.64.132:$(appDirectory)
-
+          - task: SSH@0
+            displayName: 'Check Files in Container'
+            inputs:
+              sshEndpoint: $(sshServiceConnection)
+              runOptions: 'commands'
+              commands: |
+                echo "Running Docker container for debugging..."
+                docker run --rm -it ilifesregistry.azurecr.io/ilifes-store:latest bash -c "ls -la /var/www/html"
+                
           - task: SSH@0
             displayName: 'Debugging: List Files in App Directory'
             inputs:
