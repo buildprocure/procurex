@@ -93,9 +93,14 @@ stages:
                 ls -la
                 echo "Pulling latest image"
                 docker pull ilifesregistry.azurecr.io/ilifesregistry.azurecr.io/ilifes-store:latest
-                container_count=$(docker ps -q | wc -l)
-                echo "Container count: $container_count"
-                [ "$container_count" -gt 0 ] && docker-compose down || true
+                # Trim whitespace and make sure container_count is an integer
+                container_count=$(docker ps -q | wc -l | tr -d ' ')
+                echo "Container count: '$container_count'"
+
+                if [ "$container_count" -gt 0 ] 2>/dev/null; then
+                  echo "Stopping and removing existing containers"
+                  docker-compose down || true
+                fi
                 echo "Starting containers with docker-compose"
                 docker-compose -f $(appDirectory)/docker-compose.yml up -d 2>&1 | tee docker-compose.log
                 
