@@ -1,6 +1,6 @@
 trigger:
   - main
-  
+
 parameters:
   - name: environment
     type: string
@@ -106,10 +106,10 @@ stages:
                 echo "Deploying environment: ${{ parameters.environment }}"
 
                 # Conditionally choose the environment file based on the parameter
-                if [ "${{ parameters.environment }}" == "prod" ]; then
+                if [ "$(environment)" == "prod" ]; then
                   echo "Using production environment"
                   cp /var/www/html/php-env-prod.env /var/www/html/php-env.env
-                elif [ "${{ parameters.environment }}" == "local" ]; then
+                elif [ "$(environment)" == "local" ]; then
                   echo "Using local environment"
                   cp /var/www/html/php-env-local.env /var/www/html/php-env.env
                 else
