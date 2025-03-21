@@ -104,7 +104,7 @@ stages:
               commands: |
 
                 # copy the env file to php-env.env
-                cp php-env-{{ parameters.environment }}.env php-env.env
+                cp /var/www/html/php-env-{{ parameters.environment }}.env /var/www/html/php-env.env
                 
 
                 echo "Changing to $(appDirectory)"
