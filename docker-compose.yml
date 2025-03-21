@@ -5,12 +5,16 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: '@Shova595Bhandari'
       MYSQL_DATABASE: "ilife"
+    env_file:
+      - php-env.env
     volumes:
       - db_data:/var/lib/mysql
     ports:
     - "3306:3306"  # Add this to expose MySQL
   web:
     image: ilifesregistry.azurecr.io/ilifesregistry.azurecr.io/ilifes-store:latest  # Use the fully qualified image name
+    env_file:
+      - php-env.env
     ports:
       - "80:80"
       - "443:443"

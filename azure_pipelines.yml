@@ -1,6 +1,12 @@
 trigger:
   - main
 
+- resources:
+    repositories:
+      - repository: simplesamlphp
+        type: git
+        name: ilifes/ilifes-store  # Replace with your repository name
+
 variables:  
   dockerRegistryServiceConnection: 'ilifesregistry'
   imageName: 'ilifes-store'
@@ -94,6 +100,21 @@ stages:
               sshEndpoint: $(sshServiceConnection)
               runOptions: 'commands'
               commands: |
+
+                echo "Deploying environment: ${{ parameters.environment }}"
+
+                # Conditionally choose the environment file based on the parameter
+                if [ "${{ parameters.environment }}" == "prod" ]; then
+                  echo "Using production environment"
+                  cp /var/www/html/php-env-prod.env /var/www/html/php-env.env
+                elif [ "${{ parameters.environment }}" == "local" ]; then
+                  echo "Using local environment"
+                  cp /var/www/html/php-env-local.env /var/www/html/php-env.env
+                else
+                  echo "Invalid environment. Exiting."
+                  exit 1
+                  fi
+
                 echo "Changing to $(appDirectory)"
                 cd $(appDirectory) && ls -la
                 echo "Listing files in $(appDirectory)"
@@ -115,3 +136,4 @@ stages:
                 docker-compose -f $(appDirectory)/docker-compose.yml up -d 2>&1 | tee docker-compose.log
                 
               readyTimeout: '60000'
+
