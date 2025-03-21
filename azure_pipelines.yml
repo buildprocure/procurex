@@ -103,22 +103,9 @@ stages:
               runOptions: 'commands'
               commands: |
 
-                echo "Deploying environment: ${{ parameters.environment }}"
-                export ENVIRONMENT=${{ parameters.environment }}
-
-                # Conditionally choose the environment file based on the parameter
-                ${{ if eq(parameters.environment, 'prod') }}:
-                  -bash: |
-                    echo "Using production environment"
-                    cp /var/www/html/php-env-prod.env /var/www/html/php-env.env
-                ${{ if eq(parameters.environment, 'local') }}:
-                  -bash: |
-                    echo "Using local environment"
-                    cp /var/www/html/php-env-local.env /var/www/html/php-env.env
-                else
-                  echo "Invalid environment. Exiting."
-                  exit 1
-                fi
+                # copy the env file to php-env.env
+                cp php-env-{{ parameters.environment }}.env php-env.env
+                
 
                 echo "Changing to $(appDirectory)"
                 cd $(appDirectory) && ls -la
