@@ -1,11 +1,13 @@
 trigger:
   - main
-
-- resources:
-    repositories:
-      - repository: simplesamlphp
-        type: git
-        name: ilifes/ilifes-store  # Replace with your repository name
+  
+parameters:
+  - name: environment
+    type: string
+    default: 'prod'  # Default environment is 'prod'
+    values:
+      - prod
+      - local
 
 variables:  
   dockerRegistryServiceConnection: 'ilifesregistry'
