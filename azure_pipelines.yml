@@ -97,6 +97,30 @@ stages:
             displayName: 'Wait for Image Availability'
 
           - task: SSH@0
+            displayName: 'Debugging: List Files in App Directory'
+            inputs:
+              sshEndpoint: $(sshServiceConnection)
+              runOptions: 'commands'
+              commands: |
+                echo "Listing files in $(appDirectory)"
+                ls -la $(appDirectory)
+                echo "Checking if php-env-prod.env exists"
+                if [ -f "$(appDirectory)/php-env-prod.env" ]; then
+                  echo "php-env-prod.env exists"
+                else
+                  echo "php-env-prod.env is missing!"
+                fi
+          - task: SSH@0
+            displayName: 'Copy Environment File to Server'
+            inputs:
+              sshEndpoint: $(sshServiceConnection)
+              runOptions: 'commands'
+              commands: |
+                echo "Copying php-env-${{ parameters.environment }}.env to php-env.env"
+                cp /var/www/html/php-env-${{ parameters.environment }}.env /var/www/html/php-env.env
+                ls -la /var/www/html/  # Verify the file exists
+                
+          - task: SSH@0
             displayName: 'Pull and Restart Docker Containers'
             inputs:
               sshEndpoint: $(sshServiceConnection)
@@ -104,7 +128,7 @@ stages:
               commands: |
 
                 # copy the env file to php-env.env
-                cp $(Build.SourceDirectory)/php-env-${{ parameters.environment }}.env $(Build.SourceDirectory)php-env.env
+                cp /var/www/html/php-env-${{ parameters.environment }}.env /var/www/html/php-env.env
                 echo "Copying php-env-${{ parameters.environment }}.env to php-env.env"
 
                 echo "Changing to $(appDirectory)"
