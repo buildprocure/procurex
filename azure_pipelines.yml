@@ -92,8 +92,8 @@ stages:
               containerRegistry: $(dockerRegistryServiceConnection)
           
           - script: |
-              echo "Waiting for the image to be available in ACR..."
-              sleep 10  # Wait for 10 seconds
+              echo "Waiting for the image to be available in ACR....and print env name: php-env-{{ parameters.environment }}.env"
+              sleep 10  # Wait for 10 seconds 
             displayName: 'Wait for Image Availability'
 
           - task: SSH@0
