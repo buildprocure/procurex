@@ -84,7 +84,9 @@ stages:
               commands: |
                 echo "Copying docker-compose.yml to $(appDirectory)"
                 scp -i /root/.ssh/id_rsa $(Build.SourcesDirectory)/docker-compose.yml root@143.198.64.132:$(appDirectory)
-          
+                echo "Copying php-env.env to $(appDirectory)"
+                scp -i /root/.ssh/id_rsa $(Build.SourceDirecotry)/php-env-${{ parameter.environment}}.env root@143.198.64.132
+
           - task: SSH@0
             displayName: 'Debugging: List Files in Build Source Directory'
             inputs:
