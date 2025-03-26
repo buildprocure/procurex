@@ -47,6 +47,17 @@ stages:
               ls -la $(Build.SourcesDirectory)
             displayName: "Check Source Files Before Build"
 
+          - script: |
+              echo "Environment: $(Environment)"
+              if [ "$(Environment)" = "prod" ]; then
+                  cp php-env-prod.env php-env.env
+              elif [ "$(Environment)" = "qa" ]; then
+                  cp php-env-qa.env php-env.env
+              else
+                  cp php-env-prod.env php-env.env
+              fi
+            displayName: 'Select and Copy Environment File'
+
           - task: Docker@2
             displayName: 'Push Docker Image to ACR'
             inputs:
@@ -75,7 +86,7 @@ stages:
                 scp -i /root/.ssh/id_rsa $(Build.SourcesDirectory)/docker-compose.yml root@143.198.64.132:$(appDirectory)
           
           - task: SSH@0
-            displayName: 'Debugging: List Files in App Directory'
+            displayName: 'Debugging: List Files in Build Source Directory'
             inputs:
               sshEndpoint: $(sshServiceConnection)
               runOptions: 'commands'
@@ -97,36 +108,11 @@ stages:
             displayName: 'Wait for Image Availability'
 
           - task: SSH@0
-            displayName: 'Debugging: List Files in App Directory'
-            inputs:
-              sshEndpoint: $(sshServiceConnection)
-              runOptions: 'commands'
-              commands: |
-                echo "Listing files in $(appDirectory)"
-                ls -la $(appDirectory)
-                echo "Checking if php-env-prod.env exists"
-
-          - task: SSH@0
-            displayName: 'Copy Environment File to Server'
-            inputs:
-              sshEndpoint: $(sshServiceConnection)
-              runOptions: 'commands'
-              commands: |
-                echo "Copying php-env-${{ parameters.environment }}.env to php-env.env"
-                cp /var/www/html/php-env-${{ parameters.environment }}.env /var/www/html/php-env.env
-                ls -la /var/www/html/  # Verify the file exists
-                
-          - task: SSH@0
             displayName: 'Pull and Restart Docker Containers'
             inputs:
               sshEndpoint: $(sshServiceConnection)
               runOptions: 'commands'
               commands: |
-
-                # copy the env file to php-env.env
-                cp /var/www/html/php-env-${{ parameters.environment }}.env /var/www/html/php-env.env
-                echo "Copying php-env-${{ parameters.environment }}.env to php-env.env"
-
                 echo "Changing to $(appDirectory)"
                 cd $(appDirectory) && ls -la
                 echo "Listing files in $(appDirectory)"
