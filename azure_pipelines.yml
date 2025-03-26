@@ -47,17 +47,6 @@ stages:
               ls -la $(Build.SourcesDirectory)
             displayName: "Check Source Files Before Build"
 
-          - script: |
-              echo "Environment: $(Environment)"
-              if [ "$(Environment)" = "prod" ]; then
-                  cp php-env-prod.env php-env.env
-              elif [ "$(Environment)" = "qa" ]; then
-                  cp php-env-qa.env php-env.env
-              else
-                  cp php-env-prod.env php-env.env
-              fi
-            displayName: 'Select and Copy Environment File'
-
           - task: Docker@2
             displayName: 'Push Docker Image to ACR'
             inputs:
@@ -85,7 +74,7 @@ stages:
                 echo "Copying docker-compose.yml to $(appDirectory)"
                 scp -i /root/.ssh/id_rsa $(Build.SourcesDirectory)/docker-compose.yml root@143.198.64.132:$(appDirectory)
                 echo "Copying php-env.env to $(appDirectory)"
-                scp -i /root/.ssh/id_rsa $(Build.SourcesDirectory)/php-env-${{ parameters.environment}}.env root@143.198.64.132:$(appDirectory)/php-env.env
+                scp -i /root/.ssh/id_rsa $(Build.SourcesDirectory)/php-env-${{ parameters.environment }}.env root@143.198.64.132:$(appDirectory)/php-env.env
 
           - task: SSH@0
             displayName: 'Debugging: List Files in Build Source Directory'
@@ -103,7 +92,7 @@ stages:
             inputs:
               command: login
               containerRegistry: $(dockerRegistryServiceConnection)
-          
+
           - script: |
               echo "Waiting for the image to be available in ACR....and print env name: php-env-${{ parameters.environment }}.env"
               sleep 10  # Wait for 10 seconds 
@@ -123,13 +112,13 @@ stages:
                 echo "### Stopping existing containers ###"
                 [ "$(docker ps -q)" ] && docker-compose -f $(appDirectory)/docker-compose.yml down -v 2>&1 | tee docker-compose.log || echo "No running containers to stop."
 
-
                 echo "### Removing old Docker images ###"
-                docker rmi $(acrName)/$(imageName):latest || echo "No old image to remove"  # Removes the old image if it exists
-
+                # Check if the image exists before removing
+                docker images -q $(acrName)/$(imageName):latest && docker rmi $(acrName)/$(imageName):latest || echo "No old image to remove"
 
                 echo "Pulling latest image"
                 docker pull $(acrName)/$(imageName):latest  # Correct the pull command
+
                 # Trim whitespace and make sure container_count is an integer
                 container_count=$(docker ps -q | wc -l | tr -d ' ')
                 echo "Container count: '$container_count'"
@@ -144,7 +133,6 @@ stages:
                 echo "### Checking existing containers ###"
                 container_count=$(docker ps -q | wc -l | tr -d ' ')
                 
-                
                 echo "Starting containers with docker-compose"
                 docker-compose -f $(appDirectory)/docker-compose.yml up -d 2>&1 | tee docker-compose.log
-              readyTimeout: '60000'
+            readyTimeout: '60000'
