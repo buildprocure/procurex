@@ -136,14 +136,15 @@ stages:
                 container_count=$(docker ps -q | wc -l | tr -d ' ')
                 
                 # If container_count is empty or 0, set it to 0
-                if [ -z "$container_count" ]; then
+                if [[ -z "$container_count" || "$container_count" -eq 0 ]]; then
                   container_count=0
                 fi
+
 
                 echo "Running containers count: $container_count"
 
                 echo "### Stopping existing containers ###"
-                if [ "$container_count" -gt 0 ]; then
+                if [[ "$container_count" -gt 0 ]]; then
                   docker-compose -f $(appDirectory)/docker-compose.yml down 2>&1 | tee docker-compose.log
                 else
                   echo "No running containers to stop."
