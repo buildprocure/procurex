@@ -12,7 +12,7 @@ parameters:
 variables:  
   dockerRegistryServiceConnection: 'ilifesregistry'
   imageName: 'ilifes-store'
-  acrName: 'ilifesregistry.azurecr.io/ilifesregistry.azurecr.io'  # Full image path including the registry name
+  acrName: 'ilifesregistry.azurecr.io'  # Full image path including the registry name
   sshServiceConnection: 'ilifes-ssh-connection'
   appDirectory: '/var/www/html'
   containerName: 'ilifes_web'

@@ -12,7 +12,7 @@ services:
     ports:
     - "3306:3306"  # Add this to expose MySQL
   web:
-    image: ilifesregistry.azurecr.io/ilifesregistry.azurecr.io/ilifes-store:latest  # Use the fully qualified image name
+    image: ilifesregistry.azurecr.io/ilifes-store:latest  # Use the fully qualified image name
     env_file:
       - php-env.env
     ports:
