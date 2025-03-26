@@ -119,6 +119,10 @@ stages:
                 cd $(appDirectory) && ls -la
                 echo "Listing files in $(appDirectory)"
                 ls -la
+                echo "### Removing old Docker images ###"
+                docker rmi $(acrName)/$(imageName):latest || echo "No old image to remove"  # Removes the old image if it exists
+
+
                 echo "Pulling latest image"
                 docker pull $(acrName)/$(imageName):latest  # Correct the pull command
                 # Trim whitespace and make sure container_count is an integer
