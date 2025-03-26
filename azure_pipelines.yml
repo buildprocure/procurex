@@ -119,6 +119,11 @@ stages:
                 cd $(appDirectory) && ls -la
                 echo "Listing files in $(appDirectory)"
                 ls -la
+
+                echo "### Stopping existing containers ###"
+                [ "$(docker ps -q)" ] && docker-compose -f $(appDirectory)/docker-compose.yml down -v 2>&1 | tee docker-compose.log || echo "No running containers to stop."
+
+
                 echo "### Removing old Docker images ###"
                 docker rmi $(acrName)/$(imageName):latest || echo "No old image to remove"  # Removes the old image if it exists
 
@@ -139,9 +144,7 @@ stages:
                 echo "### Checking existing containers ###"
                 container_count=$(docker ps -q | wc -l | tr -d ' ')
                 
-                 echo "### Stopping existing containers ###"
-                [ "$(docker ps -q)" ] && docker-compose -f $(appDirectory)/docker-compose.yml down -v 2>&1 | tee docker-compose.log || echo "No running containers to stop."
-
+                
                 echo "Starting containers with docker-compose"
                 docker-compose -f $(appDirectory)/docker-compose.yml up -d 2>&1 | tee docker-compose.log
               readyTimeout: '60000'
