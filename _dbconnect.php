@@ -1,6 +1,6 @@
 <?php
 ob_start();
-include_once 'config.php';
+include_once '_config.php';
 /* $update = false;
 $delete = false; */
   // Connect to the database
