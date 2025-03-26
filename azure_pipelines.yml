@@ -134,6 +134,12 @@ stages:
 
                 echo "### Checking existing containers ###"
                 container_count=$(docker ps -q | wc -l | tr -d ' ')
+                
+                # If container_count is empty or 0, set it to 0
+                if [ -z "$container_count" ]; then
+                  container_count=0
+                fi
+
                 echo "Running containers count: $container_count"
 
                 echo "### Stopping existing containers ###"
