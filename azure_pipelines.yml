@@ -132,6 +132,9 @@ stages:
                 echo "Checking Docker version:"
                 docker --version || echo "Docker is not installed"
 
+                echo "Stopping existing containers..."
+                docker-compose -f $(appDirectory)/docker-compose.yml down
+
                 echo "Starting containers with docker-compose"
                 docker-compose -f $(appDirectory)/docker-compose.yml up -d 2>&1 | tee docker-compose.log
               readyTimeout: '60000'
