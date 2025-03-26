@@ -132,8 +132,12 @@ stages:
                 echo "Checking Docker version:"
                 docker --version || echo "Docker is not installed"
 
-                echo "Stopping existing containers..."
-                if [ "$(docker ps -q)" ]; then
+                echo "### Checking existing containers ###"
+                container_count=$(docker ps -q | wc -l | tr -d ' ')
+                echo "Running containers count: $container_count"
+
+                echo "### Stopping existing containers ###"
+                if [ "$container_count" -gt 0 ]; then
                   docker-compose -f $(appDirectory)/docker-compose.yml down 2>&1 | tee docker-compose.log
                 else
                   echo "No running containers to stop."
