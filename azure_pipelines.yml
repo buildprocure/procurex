@@ -135,4 +135,3 @@ stages:
                 
                 echo "Starting containers with docker-compose"
                 docker-compose -f $(appDirectory)/docker-compose.yml up -d 2>&1 | tee docker-compose.log
-            readyTimeout: '60000'
