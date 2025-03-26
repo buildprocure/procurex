@@ -140,8 +140,7 @@ stages:
                           container_count=0
                         fi'
 
-
-                echo "Running containers count: $container_count"
+                echo "Updated container count: $container_count"
 
                 echo "### Stopping existing containers ###"
                 bash -c 'if [[ "$container_count" -gt 0 ]]; then
