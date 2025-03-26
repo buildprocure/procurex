@@ -136,7 +136,7 @@ stages:
                 container_count=$(docker ps -q | wc -l | tr -d ' ')
                 
                  echo "### Stopping existing containers ###"
-                [ "$(docker ps -q)" ] && docker-compose -f $(appDirectory)/docker-compose.yml down 2>&1 | tee docker-compose.log || echo "No running containers to stop."
+                [ "$(docker ps -q)" ] && docker-compose -f $(appDirectory)/docker-compose.yml down -v 2>&1 | tee docker-compose.log || echo "No running containers to stop."
 
                 echo "Starting containers with docker-compose"
                 docker-compose -f $(appDirectory)/docker-compose.yml up -d 2>&1 | tee docker-compose.log
