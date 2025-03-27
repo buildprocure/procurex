@@ -106,32 +106,18 @@ stages:
               commands: |
                 echo "Changing to $(appDirectory)"
                 cd $(appDirectory) && ls -la
-                echo "Listing files in $(appDirectory)"
-                ls -la
 
                 echo "### Stopping existing containers ###"
                 [ "$(docker ps -q)" ] && docker-compose -f $(appDirectory)/docker-compose.yml down -v 2>&1 | tee docker-compose.log || echo "No running containers to stop."
 
                 echo "### Removing old Docker images ###"
-                # Check if the image exists before removing
-                docker rmi $(acrName)/$(imageName):latest || echo "No old image to remove"
+                docker images -q $(acrName)/$(imageName):latest | grep . > /dev/null && docker rmi -f $(acrName)/$(imageName):latest || echo "No old image '$(acrName)/$(imageName):latest' to remove."
 
-                echo "Pulling latest image"
-                docker pull $(acrName)/$(imageName):latest  # Correct the pull command
+                echo "### Pulling latest image ###"
+                docker pull $(acrName)/$(imageName):latest || { echo "Failed to pull image"; exit 1; }
 
-                # Trim whitespace and make sure container_count is an integer
-                container_count=$(docker ps -q | wc -l | tr -d ' ')
-                echo "Container count: '$container_count'"
-                
-                echo "Checking whoami:"
-                whoami
-                echo "Checking groups:"
-                groups $(whoami)
-                echo "Checking Docker version:"
-                docker --version || echo "Docker is not installed"
+                echo "### Starting containers with docker-compose ###"
+                docker-compose -f $(appDirectory)/docker-compose.yml up -d 2>&1 | tee docker-compose.log || { echo "Failed to start containers"; exit 1; }
 
-                echo "### Checking existing containers ###"
-                container_count=$(docker ps -q | wc -l | tr -d ' ')
-                
-                echo "Starting containers with docker-compose"
-                docker-compose -f $(appDirectory)/docker-compose.yml up -d 2>&1 | tee docker-compose.log
+                echo "### Verifying running containers ###"
+                docker ps -a
