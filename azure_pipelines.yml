@@ -38,7 +38,7 @@ stages:
             displayName: 'Build Docker Image'
             inputs:
               command: build
-              repository: $(acrName)/$(imageName)
+              repository: $(imageName)
               dockerfile: dockerfile
               tags: latest
 
