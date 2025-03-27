@@ -114,7 +114,7 @@ stages:
 
                 echo "### Removing old Docker images ###"
                 # Check if the image exists before removing
-                docker images -q $(acrName)/$(imageName):latest && docker rmi $(acrName)/$(imageName):latest || echo "No old image to remove"
+                docker rmi $(acrName)/$(imageName):latest || echo "No old image to remove"
 
                 echo "Pulling latest image"
                 docker pull $(acrName)/$(imageName):latest  # Correct the pull command
