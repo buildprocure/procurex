@@ -114,10 +114,10 @@ stages:
                 docker images -q $(acrName)/$(imageName):latest | grep . > /dev/null && docker rmi -f $(acrName)/$(imageName):latest || echo "No old image '$(acrName)/$(imageName):latest' to remove."
 
                 echo "### Pulling latest image ###"
-                docker pull $(acrName)/$(imageName):latest || { echo "Failed to pull image"; }
+                docker pull $(acrName)/$(imageName):latest || { echo "Failed to pull image" }
 
                 echo "### Starting containers with docker-compose ###"
-                docker-compose -f $(appDirectory)/docker-compose.yml up -d 2>&1 | tee docker-compose.log || { echo "Failed to start containers"; }
+                docker-compose -f $(appDirectory)/docker-compose.yml up -d 2>&1 | tee docker-compose.log || { echo "Failed to start containers" }
 
                 echo "### Verifying running containers ###"
                 docker ps -a
