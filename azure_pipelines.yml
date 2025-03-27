@@ -51,7 +51,7 @@ stages:
             displayName: 'Push Docker Image to ACR'
             inputs:
               command: push
-              repository: $(acrName)/$(imageName)
+              repository: $(imageName)
               tags: latest
 
   - stage: Deploy
