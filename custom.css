@@ -64,7 +64,7 @@ body {
 
 /* Vertical Navigation Bar */
 .navbar-vertical {
-    width: 200px;
+    width: 168px;
     background-color: #f4f4f4;
     padding: 20px;
     position: fixed;
@@ -115,3 +115,61 @@ body {
     background-color: #dad5d5;
     padding-left: 8px;
   }
+
+
+
+  
+  .view-as-buyer {
+    display: inline-block;
+    vertical-align: middle;
+    }
+
+    .view-as-buyer form {
+        display: flex;
+        align-items: center;
+        gap: 5px; /* Adds spacing between dropdown and button */
+    }
+
+    .view-as-buyer select, 
+    .view-as-buyer button {
+        padding: 5px 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    .view-as-buyer button {
+        background-color: #007bff;
+        color: white;
+        cursor: pointer;
+    }
+
+    .view-as-buyer button:hover {
+        background-color: #0056b3;
+    }
+
+    .user-dropdown {
+        display: inline-block;
+        position: relative;
+    }
+
+    .dropdown-button {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+    }
+
+    .dropdown-menu {
+        display: none;
+        position: absolute;
+        right: 0;
+        background-color: #f9f9f9;
+        min-width: 200px;
+        box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+        z-index: 1;
+        border-radius: 5px;
+    }
+
+    .user-dropdown:hover .dropdown-menu {
+        display: block;
+    }

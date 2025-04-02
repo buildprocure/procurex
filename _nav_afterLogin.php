@@ -2,62 +2,7 @@
 // error_reporting(E_ALL);
 // ini_set('display_errors', 1);
 include 'view_as_buyer.php'; ?>
-<style>
-    .view-as-buyer {
-    display: inline-block;
-    vertical-align: middle;
-}
-
-.view-as-buyer form {
-    display: flex;
-    align-items: center;
-    gap: 5px; /* Adds spacing between dropdown and button */
-}
-
-.view-as-buyer select, 
-.view-as-buyer button {
-    padding: 5px 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
-
-.view-as-buyer button {
-    background-color: #007bff;
-    color: white;
-    cursor: pointer;
-}
-
-.view-as-buyer button:hover {
-    background-color: #0056b3;
-}
-
-.user-dropdown {
-    display: inline-block;
-    position: relative;
-}
-
-.dropdown-button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-}
-
-.dropdown-menu {
-    display: none;
-    position: absolute;
-    right: 0;
-    background-color: #f9f9f9;
-    min-width: 200px;
-    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
-    z-index: 1;
-    border-radius: 5px;
-}
-
-.user-dropdown:hover .dropdown-menu {
-    display: block;
-}
-</style>
+<link rel="stylesheet" href="../custom.css">
 <div class="navbar-horizontal">
     <div class="company-name" style="color: red; font-family: Verdana, Geneva, Tahoma, sans-serif; font-size: 1.8em;">
         ilife
