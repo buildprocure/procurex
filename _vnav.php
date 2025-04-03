@@ -42,7 +42,7 @@
         <a href="../<?php echo htmlspecialchars($_SESSION['role']) ?>/createInvoice.php">Create Invoice</a>
         <a href="../<?php echo htmlspecialchars($_SESSION['role']) ?>/submittedInvoice.php">Submitted Invoice</a>
       </div>
-      <a href="../<?php echo htmlspecialchars($_SESSION['role']) ?>/notesDetails.php">Note Details</a>
+      <a href="../<?php echo htmlspecialchars($_SESSION['role']) ?>/invoicePayment.php">Invoice Payment</a>
     <?php
     }
     ?>
@@ -58,7 +58,7 @@
       </div>
       <a href="../<?php echo htmlspecialchars($_SESSION['role']) ?>/PO.php">Received PO</a>
       <a href="#invoice.php">Invoice</a>
-      <a href="../<?php echo htmlspecialchars($_SESSION['role']) ?>/notesDetails.php">Note Details</a>
+      <a href="../<?php echo htmlspecialchars($_SESSION['role']) ?>/invoicePayment.php">Invoice Payment</a>
     <?php
     }
     ?>
