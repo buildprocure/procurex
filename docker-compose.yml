@@ -19,6 +19,7 @@ services:
       - "80:80"
       - "443:443"
     volumes:
+      - /mnt/ilifes_store/files:/var/www/html/files  # Bind mount for saving PDF files
       - /etc/letsencrypt/live/ilifes.store/fullchain.pem:/etc/ssl/certs/ilifes.store.crt:ro
       - /etc/letsencrypt/live/ilifes.store/privkey.pem:/etc/ssl/private/ilifes.store.key:ro
       - /etc/apache2/sites-available/default-ssl.conf:/etc/apache2/sites-available/default-ssl.conf:ro
