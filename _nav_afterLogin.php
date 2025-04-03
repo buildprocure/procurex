@@ -19,8 +19,8 @@ include 'view_as_buyer.php'; ?>
                 <img src="../img/user.png" style="width: 30px;" class="rounded-pill">
             </button>
             <div class="dropdown-menu">
-                <a href="#">Hi <?php echo htmlspecialchars($_SESSION['username']); ?></a>
-                <a href="#">As <?php echo htmlspecialchars($_SESSION['role']); ?></a>
+                <a href="#">Hi <?php echo $_SESSION['username']; ?></a>
+                <a href="#">As <?php echo $_SESSION['role']; ?></a>
 
                 <?php if ($vpab->isImpersonating()): ?>
                     <!-- Return to Admin -->
