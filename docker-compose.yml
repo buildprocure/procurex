@@ -25,11 +25,9 @@ services:
       - /etc/apache2/sites-available/default-ssl.conf:/etc/apache2/sites-available/default-ssl.conf:ro
     depends_on:
       - db
+    network_mode: "host"  # Use host network
     command: >
       /bin/bash -c "a2enmod ssl && a2ensite default-ssl && apache2-foreground"
-    dns:
-      - 8.8.8.8  # Use Google's DNS for resolution inside the container
-      - 8.8.4.4
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
