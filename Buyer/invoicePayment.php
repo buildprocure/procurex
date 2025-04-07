@@ -63,7 +63,7 @@ $history_result = $conn->query($history_sql);
                             <td><?php echo $row["supplierName"]; ?></td>
                             <td><?php echo number_format($row["amount"], 2); ?></td>
                             <td><?php echo $row["status"]; ?></td>
-                            <td><button onclick="payInvoice(<?php echo $row['invoice_number']; ?>)">Pay</button></td>
+                            <td><button onclick="payInvoice('<?= htmlspecialchars($row['id'], ENT_QUOTES, 'UTF-8'); ?>')">Pay</button></td>
                         </tr>
                     <?php } ?>
                 </table>
@@ -103,7 +103,9 @@ $history_result = $conn->query($history_sql);
     </div>
     <script>
         function payInvoice(invoiceId) {
-            if (confirm("Are you sure you want to pay this invoice?")) {
+            if (confirm("Are you sure you want to pay this invoice-"+ invoiceId + "?")) {
+                 // Redirect to the payment processing page
+                 3
                 window.location.href = "processPayment.php?invoice_id=" + invoiceId;
             }
         }
