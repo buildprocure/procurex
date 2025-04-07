@@ -41,7 +41,7 @@
             if(!$pdfFile){
                 echo '<p class="message" style="color: red;">Error generating PDF</p>';
             }
-            sendmail('connect2ilife@gmail.com', 'PO Request', 'PO Request has been submitted. Please check the attached PDF.', $pdfFile); 
+            //sendmail('connect2ilife@gmail.com', 'PO Request', 'PO Request has been submitted. Please check the attached PDF.', $pdfFile); 
         }
     }
     
