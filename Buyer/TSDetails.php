@@ -58,6 +58,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 $POupdateFailed = true;
             }
+            if ($status == "Accepted"){
+                $query = "INSERT INTO payments (id, invoice_number, buyer_id, amount, payment_date, supplier_id, method, status, created_at)
+                    SELECT UUID() AS id, i.id AS invoice_number, b.buyer_id, i.amount, NOW() AS payment_date, 
+                           s.supplier_id, 'Bank Transfer' AS method, 'Completed' AS status, NOW() AS created_at
+                    FROM invoice i
+                    JOIN buyer_list_table b ON i.buyerName = b.username
+                    JOIN supplier_list_table s ON i.supplier = s.username
+                    WHERE i.ID = '$TSID'";
+            }
         }
     }
 }
