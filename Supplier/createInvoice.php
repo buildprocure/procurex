@@ -6,7 +6,10 @@
     // ini_set('error_reporting', E_ALL);
 
     //include './nocatche.php';
-    session_start();
+    if(session_status() == PHP_SESSION_NONE) {
+        session_start();
+    }
+
     if(!isset($_SESSION['loggedin'])|| $_SESSION['loggedin'] != true){
         header("location: index.php");
         exit;
@@ -184,8 +187,8 @@
         require 'createInvoice_controller.php';      
         require '../_nav_afterLogin.php';
         require '../_vnav.php';
-        include 'functions.php';
-        include '../config.php';
+        include_once 'functions.php';
+        include_once '../_config.php';
         
         $tableName = 'Invoice';
         $prefix = 'INV';

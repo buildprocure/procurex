@@ -2,7 +2,7 @@
 // error_reporting(E_ALL);
 // ini_set('display_errors', 1);
 include '../../_dbconnect.php';
-include '../../config.php';
+include_once '../../_config.php';
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
@@ -19,7 +19,7 @@ if (isset($_GET['query'])) {
     // Fetch timesheets within date range and matching input query
     $sql = "SELECT ID 
     FROM Timesheet 
-    WHERE ID LIKE ? AND BuyerName = ? AND user = ?";
+    WHERE ID LIKE ? AND BuyerName = ? AND user = ? AND Invoice_Generated = ? And Status = 'Accepted'";
 
     // Prepare the SQL statement
     $stmt = mysqli_prepare($conn, $sql);
@@ -28,9 +28,10 @@ if (isset($_GET['query'])) {
     if ($stmt === false) {
     die('Error preparing the SQL query: ' . mysqli_error($conn));
     }
-
+    
     // Bind the parameters to the prepared statement
-    mysqli_stmt_bind_param($stmt, 'sss', $query, $buyer_name, $supplier_name);
+    $invoice_generated = 'No';
+    mysqli_stmt_bind_param($stmt, 'ssss', $query, $buyer_name, $supplier_name, $invoice_generated);
 
     // Execute the statement
     mysqli_stmt_execute($stmt);
