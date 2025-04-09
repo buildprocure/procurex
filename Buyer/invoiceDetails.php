@@ -53,8 +53,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $update_query = "UPDATE Invoice SET Status = '$status', comments = '$comment' WHERE ID = '$invoiceID'";
             $resu = mysqli_query($conn, $update_query);
             //Insert record into the payment table
-            $insert_query = "INSERT INTO payments (id, invoice_number, buyer_id, amount, payment_date, supplier_id, method, status, payment_due_date created_at)
-            SELECT UUID(), i.id, b.buyer_id, i.amount, Null, s.supplier_id, 'Bank Transfer', 'Pending', DATE_ADD(NOW(), INTERVAL 7 DAY), NOW()
+            $insert_query = "INSERT INTO payments (id, invoice_number, buyer_id, amount, payment_date, supplier_id, method, status, payment_due_date, created_at)
+            SELECT CONCAT('PyID-', LEFT(UUID(), 10)), i.id, b.buyer_id, i.amount, Null, s.supplier_id, 'Bank Transfer', 'Pending', DATE_ADD(NOW(), INTERVAL 7 DAY), NOW()
             FROM Invoice i
             JOIN buyer_list_table b ON i.buyerName = b.username
             JOIN supplier_list_table s ON i.supplier = s.username
