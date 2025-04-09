@@ -102,11 +102,11 @@ $history_result = $conn->query($history_sql);
         </div>
     </div>
     <script>
-        function payInvoice(invoiceId) {
-            if (confirm("Are you sure you want to pay this invoice-"+ invoiceId + "?")) {
+        function payInvoice(paymentId) {
+            if (confirm("Are you sure you want to pay this invoice-"+ paymentId + "?")) {
                  // Redirect to the payment processing page
                  3
-                window.location.href = "processPayment.php?invoice_id=" + invoiceId;
+                window.location.href = "processPayment.php?payment_id=" + paymentId;
             }
         }
     </script>
