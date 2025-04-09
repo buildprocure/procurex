@@ -3,23 +3,14 @@
  include '../../_dbconnect.php'; 
  session_start();
 
-//  ini_set('display_errors', 1);
-//  ini_set('display_startup_errors', 1);
-//  error_reporting(E_ALL);
-
  $username = $_SESSION['username'];
  //why I'm getting $username null
 
-
-
-
- 
  //check if data was sent via POST method
  if ($_SERVER['REQUEST_METHOD']=='POST'){
     //Get the requestID and supplierName from the POST request
     $requestID = isset($_POST['requestID']) ? $_POST['requestID'] : '';
     $supplierName = isset($_POST['supplierName']) ? $_POST['supplierName']: '';
-    
 
     $conditions = [];
     if(!empty($requestID)){
@@ -70,6 +61,7 @@
             <th scope='col'>Status</th>
             <th scope='col'>Submitted Date</th>
             <th scope='col'>Comments</th>
+            <th scope='col'>Invoice Generated</th>
             </tr>
         </thead>";
         echo "<tbody>";
@@ -99,6 +91,7 @@
                     <td style='background-color: " . $bgColor . ";'>".$row['Status']."</td>
                     <td>".$row['Datestamo']."</td>
                     <td>".$row['Comments']."</td>
+                    <td>".$row['Invoice_Generated']."</td>
                 </tr>";
         }
         echo " </tbody>";
