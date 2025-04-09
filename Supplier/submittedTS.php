@@ -1,14 +1,13 @@
 <?php
 include '../_dbconnect.php'; 
-session_start();
+if(session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 
 if(!isset($_SESSION['loggedin'])|| $_SESSION['loggedin'] != true){
     header("location: ../index.php");
     exit;
 }
-// error_reporting(-1);
-// ini_set("display_errors", 1);
-// ini_set('error_reporting', E_ALL);
 ?>
 
 <!doctype html>
