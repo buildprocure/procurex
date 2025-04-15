@@ -1,8 +1,9 @@
 <?php 
 // error_reporting(E_ALL);
 // ini_set('display_errors', 1);
+include_once __DIR__ . '/_dbconnect.php';
 include 'view_as_buyer.php'; ?>
-<link rel="stylesheet" href="../custom.css">
+<link rel="stylesheet" href="<?php echo SITE_URL.'custom.css';?>">
 <div class="navbar-horizontal">
     <div class="company-name" style="color: red; font-family: Verdana, Geneva, Tahoma, sans-serif; font-size: 1.8em;">
         ilife
@@ -16,7 +17,7 @@ include 'view_as_buyer.php'; ?>
         <!-- User Icon Dropdown -->
         <div class="user-dropdown" style="display: inline-block;">
             <button class="dropdown-button">
-                <img src="../img/user.png" style="width: 30px;" class="rounded-pill">
+                <img src="<?php echo SITE_URL.'img/user.png';?>" style="width: 30px;" class="rounded-pill">
             </button>
             <div class="dropdown-menu">
                 <a href="#">Hi <?php echo $_SESSION['username']; ?></a>

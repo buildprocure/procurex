@@ -1,4 +1,6 @@
 <?php
+global $conn;
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }

@@ -37,6 +37,7 @@ if($_SERVER['REQUEST_METHOD']=='POST'){
         session_start();
         $_SESSION['loggedin'] = true;
         $_SESSION['username'] = $username;
+        $_SESSION['has_duplicate_payment_access'] = $rows['as_duplicate_payment_access'];
         $sql = "SELECT Role FROM user WHERE username= '$username'";
         $result = mysqli_query($conn, $sql);
         while($role = mysqli_fetch_assoc($result)){

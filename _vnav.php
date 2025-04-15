@@ -20,6 +20,7 @@
       <a href="../<?php echo htmlspecialchars($_SESSION['role']) ?>/timeSheet.php">Timesheet</a>
       <a href="../<?php echo htmlspecialchars($_SESSION['role']) ?>/receivedInvoice.php">Invoice</a>
       <a href="../<?php echo htmlspecialchars($_SESSION['role']) ?>/invoicePayment.php">Invoice Payment</a>
+      <a href="/modules/duplicate_payment/index.php">Duplicate Payment</a>
     <?php
     }
     ?>
@@ -43,6 +44,8 @@
         <a href="../<?php echo htmlspecialchars($_SESSION['role']) ?>/submittedInvoice.php">Submitted Invoice</a>
       </div>
       <a href="../<?php echo htmlspecialchars($_SESSION['role']) ?>/invoicePayment.php">Invoice Payment</a>
+      <a href="/modules/duplicate_payment/index.php">Duplicate Payment</a>
+
     <?php
     }
     ?>
@@ -59,6 +62,8 @@
       <a href="../<?php echo htmlspecialchars($_SESSION['role']) ?>/PO.php">Received PO</a>
       <a href="#invoice.php">Invoice</a>
       <a href="../<?php echo htmlspecialchars($_SESSION['role']) ?>/invoicePayment.php">Invoice Payment</a>
+      <a href="/modules/duplicate_payment/index.php">Duplicate Payment</a>
+
     <?php
     }
     ?>
