@@ -32,8 +32,8 @@ if (isset($_POST['restore_role'])) {
 // Function to Render the Dropdown Menu for Buyers
 function renderViewAsBuyerDropdown($vpab) {
     if ($_SESSION['role'] === 'Admin'): ?>
-        <form method="POST" action="" style="padding: 5px;">
-            <select name="buyer_id" style="width: 152px; margin-bottom: 5px;" required>
+        <form method="POST" action="" style="display: flex; flex-direction: column;">
+            <select name="buyer_id" required>
                 <option value="">View as Buyer</option>
                 <?php foreach ($vpab->getAllBuyers() as $buyer): ?>
                     <option id ='SN' value="<?php echo $buyer['SN']; ?>">
@@ -41,7 +41,7 @@ function renderViewAsBuyerDropdown($vpab) {
                     </option>
                 <?php endforeach; ?>
             </select>
-            <button type="submit" name="switch_to_buyer" style="width: 100%; cursor: pointer;">
+            <button type="submit" name="switch_to_buyer" style="width: 152px; background: #007bff; color: white; cursor: pointer;">
                 Switch
             </button>
         </form>
