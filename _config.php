@@ -9,6 +9,6 @@
     define('MYSQL_DATABASE', getenv('MYSQL_DATABASE') ?: 'default_db');
     define ('MYSQL_USER', getenv('MYSQL_USER') ?: 'root');
     define ('MYSQL_PASSWORD', getenv('MYSQL_PASSWORD') ?: '');
-
-   
+    define ('INFOPAGE_USER', getenv('INFOPAGE_USER'));
+    define ('INFOPAGE_PASS', getenv('INFOPAGE_PASS'));  
 ?>
