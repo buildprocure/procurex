@@ -9,7 +9,8 @@ class DuplicatePaymentController {
     }
 
     public function index() {
-        $duplicates = $this->model->getPossibleDuplicates();
+        $duplicates = $this->model->getDuplicatePayment();
+        $possibleDuplicates = $this->model->getPossibleDuplicatePayment();
         include __DIR__ . '/../view/Duplicate_Payment_List.php';
     }
 }
