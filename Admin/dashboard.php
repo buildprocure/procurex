@@ -26,5 +26,6 @@ if(!isset($_SESSION['loggedin'])|| $_SESSION['loggedin'] != true){
     <?php require '../header.php'; ?>
     <div class = "main-content" >Hi, <?php echo $_SESSION['username'];?><br><br>- Welcome  to Admin dashboard</div>
     <!-- <script src = "../vnavdropdown.js"></script> -->
+     <?php include __DIR__ .'/../footer.php'; ?>
 </body>
 </html>
