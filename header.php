@@ -129,6 +129,10 @@ $isImpersonating = $vpab->isImpersonating();
       <a class="nav-link" href="#invoice.php">Invoice</a>
       <a class="nav-link" href="../<?php echo htmlspecialchars($role) ?>/invoicePayment.php">Invoice Payment</a>
       <a class="nav-link" href="/modules/duplicate_payment/index.php">Duplicate Payment</a>
+      <a href="/public/items-frontend/" target="_blank">
+        <i class="fas fa-boxes"></i> <!-- Font Awesome icon for "items", adjust as needed -->
+        <span>Items</span>
+      </a>
     <?php endif; ?>
   </div>
 </div>

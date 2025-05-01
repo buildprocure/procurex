@@ -21,6 +21,10 @@
       <a href="../<?php echo htmlspecialchars($_SESSION['role']) ?>/receivedInvoice.php">Invoice</a>
       <a href="../<?php echo htmlspecialchars($_SESSION['role']) ?>/invoicePayment.php">Invoice Payment</a>
       <a href="/modules/duplicate_payment/index.php">Duplicate Payment</a>
+      <a href="/public/items-frontend/" target="_blank">
+        <i class="fas fa-boxes"></i> <!-- Font Awesome icon for "items", adjust as needed -->
+        <span>Items</span>
+      </a>
     <?php
     }
     ?>
@@ -45,7 +49,10 @@
       </div>
       <a href="../<?php echo htmlspecialchars($_SESSION['role']) ?>/invoicePayment.php">Invoice Payment</a>
       <a href="/modules/duplicate_payment/index.php">Duplicate Payment</a>
-
+      <a href="/public/items-frontend/" target="_blank">
+        <i class="fas fa-boxes"></i> <!-- Font Awesome icon for "items", adjust as needed -->
+        <span>Items</span>
+      </a>
     <?php
     }
     ?>
@@ -63,6 +70,12 @@
       <a href="#invoice.php">Invoice</a>
       <a href="../<?php echo htmlspecialchars($_SESSION['role']) ?>/invoicePayment.php">Invoice Payment</a>
       <a href="/modules/duplicate_payment/index.php">Duplicate Payment</a>
+
+      <a href="/public/items-frontend/" target="_blank">
+        <i class="fas fa-boxes"></i> <!-- Font Awesome icon for "items", adjust as needed -->
+        <span>Items</span>
+      </a>
+
 
     <?php
     }
