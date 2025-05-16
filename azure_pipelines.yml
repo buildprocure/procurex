@@ -11,7 +11,7 @@ parameters:
 
 resources:
   repositories:
-    - repository:ilifes-style-css
+    - repository: ilifes-style-css
       type: git
       name: 'style'
       branch: 'main'
