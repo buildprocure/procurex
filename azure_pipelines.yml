@@ -9,17 +9,6 @@ parameters:
       - prod
       - local
 
-resources:
-  repositories:
-    - repository: ilifes-style-css
-      type: git
-      name: 'style'
-      branch: 'refs/heads/main'
-    - repository: ilife-items-frontend
-      type: git
-      name: 'ilife-items-frontend'  # Update to your actual repo name
-      ref: 'refs/heads/main'
-
 variables:
   dockerRegistryServiceConnection: 'ilifesregistry'
   imageName: 'ilifes-store'
