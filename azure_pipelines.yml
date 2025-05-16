@@ -27,7 +27,6 @@ stages:
           name: 'Default'
         steps:
           - checkout: self
-          - checkout: ilife-items-frontend
 
           - task: NodeTool@0
             inputs:
