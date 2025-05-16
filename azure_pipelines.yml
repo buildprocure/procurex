@@ -14,10 +14,10 @@ resources:
     - repository: ilifes-style-css
       type: git
       name: 'style'
-      branch: 'main'
+      branch: 'refs/heads/main'
     - repository: ilife-items-frontend
       type: git
-      name: 'ilifes-items-frontend'  # Update to your actual repo name
+      name: 'ilife-items-frontend'  # Update to your actual repo name
       ref: 'refs/heads/main'
 
 variables:
@@ -38,7 +38,7 @@ stages:
           name: 'Default'
         steps:
           - checkout: self
-          - checkout: ilifes-items-frontend
+          - checkout: ilife-items-frontend
 
           - task: NodeTool@0
             inputs:
@@ -71,10 +71,6 @@ stages:
               repository: $(imageName)
               dockerfile: dockerfile
               tags: latest
-
-          - template: custom.css@remitra-style-css
-            parameters:
-              file: 'custom.css'
 
           - script: |
               echo "Listing files before pushing Docker image"
