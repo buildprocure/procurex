@@ -15,8 +15,7 @@ resources:
       type: git
       name: 'style'
       branch: 'main'
-
-    - repository: ilifes-items-frontend
+    - repository: ilife-items-frontend
       type: git
       name: 'ilifes-items-frontend'  # Update to your actual repo name
       ref: 'refs/heads/main'
