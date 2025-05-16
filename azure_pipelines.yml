@@ -13,9 +13,8 @@ resources:
   repositories:
     - repository: ilife-items-frontend
       type: git
-      name: 'ilife-items-frontend'  # Update to your actual repo name
+      name: 'rabinkhadkaa/ilife-items-frontend'
       ref: 'refs/heads/main'
-      endpoint: my-service-connection # Update to your actual service connection name
 
 variables:
   dockerRegistryServiceConnection: 'ilifesregistry'
