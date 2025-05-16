@@ -37,6 +37,13 @@ stages:
         steps:
           - checkout: self
           - checkout: ilife-items-frontend
+            path: ilifes-items-frontend
+
+          - script: |
+              echo "Listing files after checkout:"
+              ls -laR $(Build.SourcesDirectory)
+            displayName: 'Debug: Show checked out files'
+
 
           - task: NodeTool@0
             inputs:
