@@ -16,11 +16,6 @@ resources:
       name: 'style'
       branch: 'main'
 
-    - repository: remitra-SSH
-      type: git
-      name: 'SSH'
-      branch: 'main'
-
     - repository: ilifes-items-frontend
       type: git
       name: 'ilifes-items-frontend'  # Update to your actual repo name
