@@ -56,11 +56,17 @@ stages:
               npm run build
             displayName: 'Build React Frontend'
 
+            
+          - script: |
+              echo "Listing files after checkout:"
+              ls -R $(Build.SourcesDirectory)
+            displayName: 'Debug: Show checked out files'
+
           - script: |
               echo "Copying built frontend to ilifes/public/items-frontend"
               rm -rf $(Build.SourcesDirectory)/public/items-frontend
               mkdir -p $(Build.SourcesDirectory)/public/items-frontend
-              cp -r $(Build.SourcesDirectory)/ilifes-items-frontend/dist/* $(Build.SourcesDirectory)/public/items-frontend
+              cp -r $(Pipeline.Workspace)/ilifes-items-frontend/dist/* $(Build.SourcesDirectory)/public/items-frontend
             displayName: 'Copy React Build to Public Folder'
 
           - task: Docker@2
