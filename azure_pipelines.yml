@@ -9,6 +9,14 @@ parameters:
       - prod
       - local
 
+resources:
+  repositories:
+    - repository: ilife-items-frontend
+      type: git
+      name: 'ilife-items-frontend'  # Update to your actual repo name
+      ref: 'refs/heads/main'
+      endpoint: my-service-connection # Update to your actual service connection name
+
 variables:
   dockerRegistryServiceConnection: 'ilifesregistry'
   imageName: 'ilifes-store'
@@ -27,6 +35,7 @@ stages:
           name: 'Default'
         steps:
           - checkout: self
+          - checkout: ilife-items-frontend
 
           - task: NodeTool@0
             inputs:
