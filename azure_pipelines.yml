@@ -37,7 +37,7 @@ stages:
         steps:
           - checkout: self
           - checkout: ilife-items-frontend
-            path: ilifes-items-frontend
+            path: ilife-items-frontend
 
           - script: |
               echo "Listing files after checkout:"
@@ -51,7 +51,7 @@ stages:
             displayName: 'Install Node.js'
 
           - script: |
-              cd $(Build.SourcesDirectory)/ilifes-items-frontend
+              cd $(Build.SourcesDirectory)/ilife-items-frontend
               npm install
               npm run build
             displayName: 'Build React Frontend'
