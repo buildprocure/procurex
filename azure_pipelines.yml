@@ -15,7 +15,8 @@ resources:
       type: github
       name: rabinkhadkaa/ilife-items-frontend
       ref: refs/heads/main
-      endpoint: github-ilife-items-frontend
+      endpoint: github.com_rabinkhadkaa
+
 
 variables:
   dockerRegistryServiceConnection: 'ilifesregistry'
