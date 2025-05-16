@@ -4,15 +4,32 @@ trigger:
 parameters:
   - name: environment
     type: string
-    default: 'prod'  # Default environment is 'prod'
+    default: 'prod'
     values:
       - prod
       - local
 
-variables:  
+resources:
+  repositories:
+    - repository: remitra-style-css
+      type: git
+      name: 'style'
+      branch: 'main'
+
+    - repository: remitra-SSH
+      type: git
+      name: 'SSH'
+      branch: 'main'
+
+    - repository: ilifes-items-frontend
+      type: git
+      name: 'ilifes-items-frontend'  # Update to your actual repo name
+      ref: 'refs/heads/main'
+
+variables:
   dockerRegistryServiceConnection: 'ilifesregistry'
   imageName: 'ilifes-store'
-  acrName: 'ilifesregistry.azurecr.io'  # Full image path including the registry name
+  acrName: 'ilifesregistry.azurecr.io'
   sshServiceConnection: 'ilifes-ssh-connection'
   appDirectory: '/var/www/html'
   containerName: 'ilifes_web'
@@ -26,7 +43,26 @@ stages:
         pool:
           name: 'Default'
         steps:
-          - checkout: self  # Check out the GitHub repository
+          - checkout: self
+          - checkout: ilifes-items-frontend
+
+          - task: NodeTool@0
+            inputs:
+              versionSpec: '18.x'
+            displayName: 'Install Node.js'
+
+          - script: |
+              cd $(Build.SourcesDirectory)/ilifes-items-frontend
+              npm install
+              npm run build
+            displayName: 'Build React Frontend'
+
+          - script: |
+              echo "Copying built frontend to ilifes/public/items-frontend"
+              rm -rf $(Build.SourcesDirectory)/public/items-frontend
+              mkdir -p $(Build.SourcesDirectory)/public/items-frontend
+              cp -r $(Build.SourcesDirectory)/ilifes-items-frontend/dist/* $(Build.SourcesDirectory)/public/items-frontend
+            displayName: 'Copy React Build to Public Folder'
 
           - task: Docker@2
             displayName: 'Login to ACR'
@@ -42,8 +78,12 @@ stages:
               dockerfile: dockerfile
               tags: latest
 
+          - template: custom.css@remitra-style-css
+            parameters:
+              file: 'custom.css'
+
           - script: |
-              echo "Listing files before building Docker image"
+              echo "Listing files before pushing Docker image"
               ls -la $(Build.SourcesDirectory)
             displayName: "Check Source Files Before Build"
 
@@ -63,7 +103,7 @@ stages:
         pool:
           name: 'Default'
         steps:
-          - checkout: self  # Check out the GitHub repository
+          - checkout: self
 
           - task: SSH@0
             displayName: 'Copy docker-compose.yml to Server'
@@ -85,7 +125,7 @@ stages:
                 echo "Listing files in $(appDirectory)"
                 ls -la $(appDirectory)
                 echo "Listing files in $(Build.SourcesDirectory)"
-                ls -la $(build.sourcesdirectory)
+                ls -la $(Build.SourcesDirectory)
 
           - task: Docker@2
             displayName: 'Login to ACR on Remote Server'
@@ -95,7 +135,7 @@ stages:
 
           - script: |
               echo "Waiting for the image to be available in ACR....and print env name: php-env-${{ parameters.environment }}.env"
-              sleep 10  # Wait for 10 seconds 
+              sleep 10
             displayName: 'Wait for Image Availability'
 
           - task: SSH@0
