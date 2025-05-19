@@ -75,6 +75,12 @@ stages:
               command: login
               containerRegistry: $(dockerRegistryServiceConnection)
 
+          - script: |
+              echo "Check if Docker is logged in"
+              docker info
+              displayName: "Debug Docker Login"
+
+
           - task: Docker@2
             displayName: 'Build Docker Image'
             inputs:
@@ -94,6 +100,7 @@ stages:
               command: push
               repository: $(imageName)
               tags: latest
+
 
   - stage: Deploy
     displayName: 'Deploy Application'
