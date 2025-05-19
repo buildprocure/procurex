@@ -78,14 +78,13 @@ stages:
               echo $(ACR_PASSWORD) | docker login $(acrName) -u $(ACR_USERNAME) --password-stdin
             displayName: "Manual Docker Login Test"
 
-          - task: Docker@2
-            displayName: 'Docker Login to ACR'
-            inputs:
-              command: login
-              containerRegistry: ''
-              loginServer: $(acrName)
-              username: $(ACR_USERNAME)
-              password: $(ACR_PASSWORD)
+          # - task: Docker@2
+          #   displayName: 'Docker Login to ACR'
+          #   inputs:
+          #     command: login
+          #     loginServer: $(acrName)
+          #     username: $(ACR_USERNAME)
+          #     password: $(ACR_PASSWORD)
 
           - task: Docker@2
             displayName: 'Build Docker Image'
