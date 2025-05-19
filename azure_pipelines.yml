@@ -73,15 +73,16 @@ stages:
               cp -r $(Build.SourcesDirectory)/ilife-items-frontend/dist/* $(Build.SourcesDirectory)/public/items-frontend
             displayName: 'Copy React Build to Public Folder'
 
-          - script: |
-              echo "Logging in to ACR manually with provided creds"
-              echo $(ACR_PASSWORD) | docker login $(acrName) -u $(ACR_USERNAME) --password-stdin
-            displayName: "Manual Docker Login Test"
+          # - script: |
+          #     echo "Logging in to ACR manually with provided creds"
+          #     echo $(ACR_PASSWORD) | docker login $(acrName) -u $(ACR_USERNAME) --password-stdin
+          #   displayName: "Manual Docker Login Test"
 
-          # - task: Docker@2
-          #   displayName: 'Docker Login to ACR'
-          #   inputs:
-          #     command: login
+          - task: Docker@2
+            displayName: 'Docker Login to ACR'
+            inputs:
+              command: login
+              containerRegistry: $(dockerRegistryServiceConnection)
           #     loginServer: $(acrName)
           #     username: $(ACR_USERNAME)
           #     password: $(ACR_PASSWORD)
@@ -93,6 +94,11 @@ stages:
               repository: $(imageName)
               dockerfile: ilife/dockerfile
               tags: latest
+
+          - script: |
+              echo "Listing files before pushing Docker image"
+              ls -la $(Build.SourcesDirectory)
+            displayName: "Check Source Files Before Build"
 
           - task: Docker@2
             displayName: 'Push Docker Image to ACR'
