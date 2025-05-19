@@ -40,8 +40,8 @@ stages:
             path: ilife-items-frontend
 
           - script: |
-              echo "Listing files after checkout:"
-              ls -laR $(Build.SourcesDirectory)
+              echo "Listing Pipeline.workspace files after checkout:"
+              ls -laR $(Pipeline.Workspace)
             displayName: 'Debug: Show checked out files'
 
 
