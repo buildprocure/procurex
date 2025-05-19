@@ -15,7 +15,7 @@ resources:
       type: github
       name: rabinkhadkaa/ilife-items-frontend
       ref: refs/heads/main
-      endpoint: github.com_PAT_rabinkhadkaa
+      endpoint: github_PAT_rabinkhadkaa/ilife-items-frontend
 
 
 variables:
