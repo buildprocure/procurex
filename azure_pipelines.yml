@@ -25,6 +25,10 @@ variables:
   sshServiceConnection: 'ilifes-ssh-connection'
   appDirectory: '/var/www/html'
   containerName: 'ilifes_web'
+  ACR_USERNAME: '6ceb7b59-68ae-4004-a7af-350d8b476ce7'  # appId
+  ACR_PASSWORD: '6xl8Q~T5JVWjCDbPZnBGEzXUv-o_9.A-N6IZIaX1'
+
+
 
 stages:
   - stage: Build
@@ -68,6 +72,13 @@ stages:
               mkdir -p $(Build.SourcesDirectory)/public/items-frontend
               cp -r $(Build.SourcesDirectory)/ilife-items-frontend/dist/* $(Build.SourcesDirectory)/public/items-frontend
             displayName: 'Copy React Build to Public Folder'
+
+          - script: |
+              echo "Logging in to ACR manually with provided creds"
+              echo $(ACR_PASSWORD) | docker login $(acrName) -u $(ACR_USERNAME) --password-stdin
+            displayName: "Manual Docker Login Test"
+
+
 
           - task: Docker@2
             displayName: 'Login to ACR'
