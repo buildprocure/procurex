@@ -36,7 +36,6 @@ stages:
           name: 'Default'
         steps:
           - checkout: self
-            path: .
           - checkout: ilife-items-frontend
             path: s/ilife-items-frontend
 
@@ -81,7 +80,7 @@ stages:
             inputs:
               command: build
               repository: $(imageName)
-              dockerfile: dockerfile
+              dockerfile: ilife/dockerfile
               tags: latest
 
           - script: |
