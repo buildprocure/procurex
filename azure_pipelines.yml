@@ -78,7 +78,7 @@ stages:
           - script: |
               echo "Check if Docker is logged in"
               docker info
-              displayName: "Debug Docker Login"
+            displayName: "Debug Docker Login"
 
 
           - task: Docker@2
