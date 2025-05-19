@@ -20,7 +20,7 @@ resources:
 
 variables:
   dockerRegistryServiceConnection: 'ilifesregistry'
-  imageName: '$(acrLoginServer)/ilifes-store'
+  imageName: 'ilifes-store'
   acrName: 'ilifesregistry.azurecr.io'
   sshServiceConnection: 'ilifes-ssh-connection'
   appDirectory: '/var/www/html'
