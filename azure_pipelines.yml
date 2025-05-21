@@ -21,7 +21,7 @@ resources:
       type: github
       name: rabinkhadkaa/ilife-build
       ref: refs/heads/main
-      endpoint: github_rabinkhadkaa
+      endpoint: githu.com_rabinkhadkaa
 
 
 variables:
