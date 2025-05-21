@@ -23,11 +23,6 @@ resources:
       ref: refs/heads/main
       endpoint: github_PAT_rabinkhadkaa_ilife-build
 
-templates: 
-  - template: check-mapping.yml@ilife-build    
-    parameters:
-      environment: ${{ parameters.environment }}
-
 
 variables:
   dockerRegistryServiceConnection: 'acr-ilifes-docker-connection-v2'
@@ -51,6 +46,12 @@ stages:
           name: 'Default'
         steps:
           - checkout: self
+
+          
+          - template: check-mapping.yml@ilife-build    
+            parameters:
+              environment: ${{ parameters.environment }}
+
           - checkout: ilife-items-frontend
             path: s/ilife-items-frontend
           - checkout: git://rabinkhadkaa/ilife-style-css@refs/heads/$(cssRepoBranch)
