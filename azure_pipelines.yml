@@ -54,8 +54,9 @@ stages:
 
           - checkout: ilife-items-frontend
             path: s/ilife-items-frontend
-          - checkout: git://rabinkhadkaa/ilife-style-css@refs/heads/main
-            path: s/ilife-style-css
+
+          # - checkout: git://rabinkhadkaa/ilife-style-css@refs/heads/main
+          #   path: s/ilife-style-css
 
           - script: |
               echo "Listing Pipeline.workspace files after checkout:"
