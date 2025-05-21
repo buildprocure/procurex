@@ -25,8 +25,8 @@ variables:
   sshServiceConnection: 'ilifes-ssh-connection'
   appDirectory: '/var/www/html'
   containerName: 'ilifes_web'
-  ACR_USERNAME: '6ceb7b59-68ae-4004-a7af-350d8b476ce7'  # appId
-  ACR_PASSWORD: '6xl8Q~T5JVWjCDbPZnBGEzXUv-o_9.A-N6IZIaX1'
+  # ACR_USERNAME: '6ceb7b59-68ae-4004-a7af-350d8b476ce7'  # appId
+  # ACR_PASSWORD: '6xl8Q~T5JVWjCDbPZnBGEzXUv-o_9.A-N6IZIaX1'
 
 
 
@@ -70,22 +70,14 @@ stages:
               echo "Copying built frontend to ilifes/public/items-frontend"
               rm -rf $(Build.SourcesDirectory)/public/items-frontend
               mkdir -p $(Build.SourcesDirectory)/public/items-frontend
-              cp -r $(Build.SourcesDirectory)/ilife-items-frontend/dist/* $(Build.SourcesDirectory)/public/items-frontend
+              cp -r $(Build.SourcesDirectory)/ilife-items-frontend/dist/* $(Build.SourcesDirectory)/ilife/public/items-frontend
             displayName: 'Copy React Build to Public Folder'
-
-          # - script: |
-          #     echo "Logging in to ACR manually with provided creds"
-          #     echo $(ACR_PASSWORD) | docker login $(acrName) -u $(ACR_USERNAME) --password-stdin
-          #   displayName: "Manual Docker Login Test"
 
           - task: Docker@2
             displayName: 'Docker Login to ACR'
             inputs:
               command: login
               containerRegistry: $(dockerRegistryServiceConnection)
-          #     loginServer: $(acrName)
-          #     username: $(ACR_USERNAME)
-          #     password: $(ACR_PASSWORD)
 
           - task: Docker@2
             displayName: 'Build Docker Image'
@@ -106,39 +98,6 @@ stages:
               command: push
               repository: $(imageName)
               tags: latest
-
-
-          # - task: Docker@2
-          #   displayName: 'Login to ACR'
-          #   inputs:
-          #     command: login
-          #     containerRegistry: $(dockerRegistryServiceConnection)
-
-          # - script: |
-          #     echo "Check if Docker is logged in"
-          #     docker info
-          #   displayName: "Debug Docker Login"
-
-
-          # - task: Docker@2
-          #   displayName: 'Build Docker Image'
-          #   inputs:
-          #     command: build
-          #     repository: $(imageName)
-          #     dockerfile: ilife/dockerfile
-          #     tags: latest
-
-          # - script: |
-          #     echo "Listing files before pushing Docker image"
-          #     ls -la $(Build.SourcesDirectory)
-          #   displayName: "Check Source Files Before Build"
-
-          # - task: Docker@2
-          #   displayName: 'Push Docker Image to ACR'
-          #   inputs:
-          #     command: push
-          #     repository: $(imageName)
-          #     tags: latest
 
 
   - stage: Deploy
