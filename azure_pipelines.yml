@@ -54,7 +54,7 @@ stages:
 
           - checkout: ilife-items-frontend
             path: s/ilife-items-frontend
-          - checkout: git://rabinkhadkaa/ilife-style-css@refs/heads/$(cssRepoBranch)
+          - checkout: git://rabinkhadkaa/ilife-style-css@refs/heads/main
             path: s/ilife-style-css
 
           - script: |
