@@ -48,7 +48,7 @@ stages:
           - checkout: self
 
           
-          - template: check-mapping.yml@ilife-build    
+          - template: check-mapping.yaml@ilife-build    
             parameters:
               environment: ${{ parameters.environment }}
 
