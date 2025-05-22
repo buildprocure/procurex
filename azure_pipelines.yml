@@ -23,9 +23,9 @@ resources:
       ref: refs/heads/main
       endpoint: github_rabinkhadkaa
 
-    - repository: ilife-style-css
+    - repository: ilifes-style-css
       type: github
-      name: rabinkhadkaa/ilife-style-css
+      name: rabinkhadkaa/ilifes-style-css
       ref: refs/heads/main
       endpoint: github_rabinkhadkaa
 
@@ -60,12 +60,12 @@ stages:
           - checkout: ilife-items-frontend
             path: s/ilife-items-frontend
 
-          - checkout: ilife-style-css
-            path: s/ilife-style-css
-            displayName: 'Checkout ilife-style-css repo'
+          - checkout: ilifes-style-css
+            path: s/ilifes-style-css
+            displayName: 'Checkout ilifes-style-css repo'
             
           - script: |
-              cd $(Build.SourcesDirectory)/s/ilife-style-css
+              cd $(Build.SourcesDirectory)/s/ilifes-style-css
               git checkout $(cssRepoBranch)
               git pull origin $(cssRepoBranch)
             displayName: 'Switch to CSS repo branch'
