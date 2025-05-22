@@ -27,7 +27,7 @@ resources:
       type: github
       name: rabinkhadkaa/ilifes-style-css
       ref: refs/heads/main
-      endpoint: github_rabinkhadkaa
+      endpoint: github_grantAuthNotPAT
 
 
 variables:
@@ -57,27 +57,22 @@ stages:
           - template: check-mapping.yaml@ilife-build            
             parameters:
               environment: ${{ parameters.environment }}
-          - checkout: ilifes-style-css
-            path: s/ilifes-style-css
-            
+
           - checkout: ilife-items-frontend
             path: s/ilife-items-frontend
 
           - checkout: ilifes-style-css
             path: s/ilifes-style-css
             displayName: 'Checkout ilifes-style-css repo'
-            conditions: eq(variable['Build.Repository.Name'], 'rabinkhadkaa/ilife')
-            clean: true
-            fetchDepth: 0
-            ref: 'refs/heads/$(cssRepoBranch)'
+
             
-          # - script: |
-          #     echo "Chhecking out ilifes-style-css repo branch: $(cssRepoBranch)"
-          #     cd $(Build.SourcesDirectory)/ilifes-style-css
-          #     git fetch origin
-          #     git checkout $(cssRepoBranch)
-          #     git pull origin $(cssRepoBranch)
-          #   displayName: 'Switch to CSS repo branch'
+          - script: |
+              echo "Chhecking out ilifes-style-css repo branch: $(cssRepoBranch)"
+              cd $(Build.SourcesDirectory)/ilifes-style-css
+              git fetch origin
+              git checkout $(cssRepoBranch)
+              git pull origin $(cssRepoBranch)
+            displayName: 'Switch to CSS repo branch'
 
           - script: |
               echo "Listing Pipeline.workspace files after checkout:"
