@@ -57,7 +57,9 @@ stages:
           - template: check-mapping.yaml@ilife-build            
             parameters:
               environment: ${{ parameters.environment }}
-
+          - checkout: ilifes-style-css
+            path: s/ilifes-style-css
+            
           - checkout: ilife-items-frontend
             path: s/ilife-items-frontend
 
