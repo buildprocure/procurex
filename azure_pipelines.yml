@@ -65,7 +65,7 @@ stages:
             displayName: 'Checkout ilifes-style-css repo'
             
           - script: |
-              cd $(Build.SourcesDirectory)/s/ilifes-style-css
+              cd $(Build.SourcesDirectory)/ilifes-style-css
               git checkout $(cssRepoBranch)
               git pull origin $(cssRepoBranch)
             displayName: 'Switch to CSS repo branch'
