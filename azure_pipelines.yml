@@ -54,9 +54,7 @@ stages:
           - checkout: self
 
           
-          - template: check-mapping.yaml@ilife-build
-            displayName: 'refer to check-mapping.yaml' 
-            echo "branch name: $(cssRepoBranch)"   
+          - template: check-mapping.yaml@ilife-build            
             parameters:
               environment: ${{ parameters.environment }}
 
