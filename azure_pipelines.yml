@@ -52,6 +52,8 @@ stages:
           name: 'Default'
         steps:
           - checkout: self
+          - checkout: ilife-build
+            path: ilife-build
 
           - template: check-mapping.yaml@ilife-build            
             parameters:
