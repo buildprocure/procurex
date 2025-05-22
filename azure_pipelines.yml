@@ -53,7 +53,6 @@ stages:
         steps:
           - checkout: self
 
-          
           - template: check-mapping.yaml@ilife-build            
             parameters:
               environment: ${{ parameters.environment }}
@@ -63,11 +62,13 @@ stages:
 
           - checkout: ilife-style-css
             path: s/ilife-style-css
-            script: |
+            displayName: 'Checkout ilife-style-css repo'
+            
+          - script: |
               cd $(Build.SourcesDirectory)/s/ilife-style-css
               git checkout $(cssRepoBranch)
               git pull origin $(cssRepoBranch)
-            displayName: 'Checkout ilife-style-css repo'
+            displayName: 'Switch to CSS repo branch'
 
           - script: |
               echo "Listing Pipeline.workspace files after checkout:"
