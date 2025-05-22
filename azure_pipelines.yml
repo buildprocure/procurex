@@ -23,6 +23,12 @@ resources:
       ref: refs/heads/main
       endpoint: github_rabinkhadkaa
 
+    - repository: ilife-style-css
+      type: github
+      name: rabinkhadkaa/ilife-style-css
+      ref: refs/heads/main
+      endpoint: github_rabinkhadkaa
+
 
 variables:
   dockerRegistryServiceConnection: 'acr-ilifes-docker-connection-v2'
@@ -48,15 +54,22 @@ stages:
           - checkout: self
 
           
-          - template: check-mapping.yaml@ilife-build    
+          - template: check-mapping.yaml@ilife-build
+            displayName: 'refer to check-mapping.yaml' 
+            echo "branch name: $(cssRepoBranch)"   
             parameters:
               environment: ${{ parameters.environment }}
 
           - checkout: ilife-items-frontend
             path: s/ilife-items-frontend
 
-          # - checkout: git://rabinkhadkaa/ilife-style-css@refs/heads/main
-          #   path: s/ilife-style-css
+          - checkout: ilife-style-css
+            path: s/ilife-style-css
+            script: |
+              cd $(Build.SourcesDirectory)/s/ilife-style-css
+              git checkout $(cssRepoBranch)
+              git pull origin $(cssRepoBranch)
+            displayName: 'Checkout ilife-style-css repo'
 
           - script: |
               echo "Listing Pipeline.workspace files after checkout:"
