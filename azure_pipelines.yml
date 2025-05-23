@@ -9,6 +9,20 @@ parameters:
       - prod
       - local
 
+variables:
+  - group: style-css-branch-mapping
+  - name: cssRepoBranch
+    value: ${{ variabls[ format('{0}', parameters.environment) ] }}
+    
+    dockerRegistryServiceConnection: 'acr-ilifes-docker-connection-v2'
+    imageName: 'ilifes-store'
+    acrName: 'ilifesregistry.azurecr.io'
+    sshServiceConnection: 'ilifes-ssh-connection'
+    appDirectory: '/var/www/html'
+    containerName: 'ilifes_web'
+    # ACR_USERNAME: '6ceb7b59-68ae-4004-a7af-350d8b476ce7'  # appId
+    # ACR_PASSWORD: '6xl8Q~T5JVWjCDbPZnBGEzXUv-o_9.A-N6IZIaX1' # password
+
 resources:
   repositories:
     - repository: ilife-items-frontend
@@ -30,15 +44,7 @@ resources:
       endpoint: github_grantAuthNotPAT
 
 
-variables:
-  dockerRegistryServiceConnection: 'acr-ilifes-docker-connection-v2'
-  imageName: 'ilifes-store'
-  acrName: 'ilifesregistry.azurecr.io'
-  sshServiceConnection: 'ilifes-ssh-connection'
-  appDirectory: '/var/www/html'
-  containerName: 'ilifes_web'
-  # ACR_USERNAME: '6ceb7b59-68ae-4004-a7af-350d8b476ce7'  # appId
-  # ACR_PASSWORD: '6xl8Q~T5JVWjCDbPZnBGEzXUv-o_9.A-N6IZIaX1'
+
 
 
 
@@ -54,9 +60,9 @@ stages:
           - checkout: self
           - checkout: ilife-build
 
-          - template: check-mapping.yaml@ilife-build            
-            parameters:
-              environment: ${{ parameters.environment }}
+          # - template: check-mapping.yaml@ilife-build            
+          #   parameters:
+          #     environment: ${{ parameters.environment }}
 
           - checkout: ilife-items-frontend
             path: s/ilife-items-frontend
@@ -66,13 +72,13 @@ stages:
             displayName: 'Checkout ilifes-style-css repo'
 
             
-          - script: |
-              echo "Chhecking out ilifes-style-css repo branch: $(cssRepoBranch)"
-              cd $(Build.SourcesDirectory)/ilifes-style-css
-              git fetch origin
-              git checkout $(cssRepoBranch)
-              git pull origin $(cssRepoBranch)
-            displayName: 'Switch to CSS repo branch'
+          # - script: |
+          #     echo "Chhecking out ilifes-style-css repo branch: $(cssRepoBranch)"
+          #     cd $(Build.SourcesDirectory)/ilifes-style-css
+          #     git fetch origin
+          #     git checkout $(cssRepoBranch)
+          #     git pull origin $(cssRepoBranch)
+          #   displayName: 'Switch to CSS repo branch'
 
           - script: |
               echo "Listing Pipeline.workspace files after checkout:"
