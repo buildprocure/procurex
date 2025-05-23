@@ -12,16 +12,20 @@ parameters:
 variables:
   - group: style-css-branch-mapping
   - name: cssRepoBranch
-    value: ${{ variabls[ format('{0}', parameters.environment) ] }}
-    
-    dockerRegistryServiceConnection: 'acr-ilifes-docker-connection-v2'
-    imageName: 'ilifes-store'
-    acrName: 'ilifesregistry.azurecr.io'
-    sshServiceConnection: 'ilifes-ssh-connection'
-    appDirectory: '/var/www/html'
-    containerName: 'ilifes_web'
-    # ACR_USERNAME: '6ceb7b59-68ae-4004-a7af-350d8b476ce7'  # appId
-    # ACR_PASSWORD: '6xl8Q~T5JVWjCDbPZnBGEzXUv-o_9.A-N6IZIaX1' # password
+    value: ${{ variables[format('{0}', parameters.environment)] }}
+  - name: dockerRegistryServiceConnection
+    value: 'acr-ilifes-docker-connection-v2'
+  - name: imageName
+    value: 'ilifes-store'
+  - name: acrName
+    value: 'ilifesregistry.azurecr.io'
+  - name: sshServiceConnection
+    value: 'ilifes-ssh-connection'
+  - name: appDirectory
+    value: '/var/www/html'
+  - name: containerName
+    value: 'ilifes_web'
+
 
 resources:
   repositories:
