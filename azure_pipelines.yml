@@ -45,7 +45,7 @@ resources:
       type: github
       name: rabinkhadkaa/ilifes-style-css
       ref: refs/heads/main
-      endpoint: ilifes-all-repo-PAT
+      endpoint: Classic_PAT-all-repo
 
 
 stages:
