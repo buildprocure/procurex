@@ -76,11 +76,11 @@ stages:
               echo "CSS_BRANCH: ${{ variables.CSS_BRANCH }}"
             displayName: 'Debug: Print Environment and CSS_BRANCH'  
           - script: |
-              echo "Chhecking out ilifes-style-css repo branch: $(cssRepoBranch)"
+              echo "Chhecking out ilifes-style-css repo branch: ${{ variables.CSS_BRANCH }}"
               cd $(Build.SourcesDirectory)/ilifes-style-css
               git fetch origin
-              git checkout $(cssRepoBranch)
-              git pull origin $(cssRepoBranch)
+              git checkout ${{ variables.CSS_BRANCH }}
+              git pull origin ${{ variables.CSS_BRANCH }}
             displayName: 'Switch to CSS repo branch'
 
           - script: |
