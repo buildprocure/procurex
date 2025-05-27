@@ -72,9 +72,13 @@ stages:
             displayName: 'Checkout ilifes-style-css repo'
 
           - script: |
-              echo "Environment: ${{ parameters.environment }}"
-              echo "CSS_BRANCH: ${{ variables.CSS_BRANCH }}"
-            displayName: 'Debug: Print Environment and CSS_BRANCH'  
+              echo "Environment: $(environment)"
+              echo "CSS_BRANCH from variable group: $(prod)"  # or $(local) depending on env
+              BRANCH=$(eval echo \$$environment)
+              echo "Dynamically resolved branch: $BRANCH"
+              echo "##vso[task.setvariable variable=CSS_BRANCH]$BRANCH"
+            displayName: 'Resolve CSS_BRANCH from style-css-branch-mapping'
+
           - script: |
               echo "Chhecking out ilifes-style-css repo branch: ${{ variables.CSS_BRANCH }}"
               cd $(Build.SourcesDirectory)/ilifes-style-css
