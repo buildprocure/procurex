@@ -72,10 +72,31 @@ stages:
             displayName: 'Checkout ilifes-style-css repo'
           
           - script: |
+              echo "Pre-check: Raw parameter value: ${{ parameters.environment }}"
+              echo "Pre-check: Attempting to access variable directly (should be empty here if it's the issue): $(prod)"
+              echo "Pre-check: Attempting to access variable dynamically using expression: ${{ variables[parameters.environment] }}"
+              echo "Pre-check: Listing all available variables (might be very verbose):"
+              env | sort
+            displayName: 'Debug: Pre-check Variable Resolution'
+
+          - script: |
               echo "Branch mapping for environment: ${{ parameters.environment }}"
-              # Dynamically get the branch name from the variable group
-              BRANCH_FROM_MAPPING="${{ variables[parameters.environment] }}"
-              echo "Dynamically resolved branch: $BRANCH_FROM_MAPPING"
+
+              # Capture the environment parameter into a shell variable for clarity
+              ENV_NAME="${{ parameters.environment }}"
+              echo "Shell ENV_NAME variable: $ENV_NAME"
+
+              # Try to access the variable group variable using its explicit name
+              # This is a key test: if environment is 'prod', this tries to get $(prod)
+              BRANCH_FROM_MAPPING="$(eval echo \$${ENV_NAME})" # Safer way to expand variable by name
+
+              # Alternative (less safe but common) for testing:
+              # BRANCH_FROM_MAPPING=$($ENV_NAME) # This won't work in bash if $ENV_NAME isn't a direct variable name
+
+              echo "Attempting to access variable dynamically using expression: ${{ variables[parameters.environment] }}"
+              echo "Result of direct expression access: '${{ variables[parameters.environment] }}'" # Added quotes to see if it's truly empty
+
+              echo "Dynamically resolved branch: '$BRANCH_FROM_MAPPING'" # Added quotes to see if it's truly empty
               echo "##vso[task.setvariable variable=CSS_BRANCH]$BRANCH_FROM_MAPPING"
             displayName: 'Resolve CSS_BRANCH from style-css-branch-mapping'
 
