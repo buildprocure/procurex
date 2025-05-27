@@ -11,7 +11,7 @@ parameters:
 
 variables:
   - group: style-css-branch-mapping
-  - name: cssRepoBranch
+  - name: CSS_BRANCH
     value: ${{ variables[format('{0}', parameters.environment)] }}
   - name: dockerRegistryServiceConnection
     value: 'acr-ilifes-docker-connection-v2'
@@ -44,7 +44,7 @@ resources:
     - repository: ilifes-style-css
       type: github
       name: rabinkhadkaa/ilifes-style-css
-      ref: refs/heads/main
+      ref: refs/heads/$ {{ variables.CSS_BRANCH }}
       endpoint: github_grantAuthNotPAT
 
 
