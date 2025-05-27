@@ -32,19 +32,19 @@ resources:
       type: github
       name: rabinkhadkaa/ilife-items-frontend
       ref: refs/heads/main
-      endpoint: Classic_PAT-all-repo
+      endpoint: github.com_rabinkhadkaa
 
     - repository: ilife-build
       type: github
       name: rabinkhadkaa/ilife-build
       ref: refs/heads/main
-      endpoint: Classic_PAT-all-repo
+      endpoint: github.com_rabinkhadkaa
 
     - repository: ilifes-style-css
       type: github
       name: rabinkhadkaa/ilifes-style-css
       ref: refs/heads/main
-      endpoint: Classic_PAT-all-repo
+      endpoint: github.com_rabinkhadkaa
 
 
 stages:
