@@ -86,14 +86,13 @@ stages:
               ENV_NAME="${{ parameters.environment }}"
               echo "Shell ENV_NAME variable: $ENV_NAME"
 
-              # The key fix: Use the runtime variable syntax to get the value
-              # from the variable group.
-              BRANCH_FROM_MAPPING="$(${ENV_NAME})" 
-              
+              # The key fix: Use indirect expansion to get the value of the variable
+              # whose name is stored in ENV_NAME.
+              BRANCH_FROM_MAPPING="${!ENV_NAME}" # This is the correct bash syntax
+
               echo "Dynamically resolved branch: '$BRANCH_FROM_MAPPING'"
               echo "##vso[task.setvariable variable=CSS_BRANCH]$BRANCH_FROM_MAPPING"
             displayName: 'Resolve CSS_BRANCH from style-css-branch-mapping'
-
 
           - script: |
               echo "Chhecking out ilifes-style-css repo branch: ${{ variables.CSS_BRANCH }}"
