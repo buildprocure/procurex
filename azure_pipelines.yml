@@ -39,13 +39,13 @@ resources:
       type: github
       name: rabinkhadkaa/ilife-build
       ref: refs/heads/main
-      endpoint: github_rabinkhadkaa
+      endpoint: ilifes-all-repo-PAT
 
     - repository: ilifes-style-css
       type: github
       name: rabinkhadkaa/ilifes-style-css
       ref: refs/heads/main
-      endpoint: github_rabinkhadkaa
+      endpoint: ilifes-all-repo-PAT
 
 
 stages:
