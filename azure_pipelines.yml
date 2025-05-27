@@ -53,6 +53,13 @@ stages:
     jobs:
       - job: Build
         displayName: 'Build and Push'
+        variables:
+          # --- ADD THIS NEW VARIABLE ---
+          # This variable will be resolved by Azure DevOps at job runtime.
+          # If parameters.environment is 'prod', this becomes $(prod),
+          # which then correctly resolves to 'main'.
+          resolvedCssBranch: $( ${{ parameters.environment }} ) 
+          # --- END NEW VARIABLE ---
 
         pool:
           name: 'Default'
@@ -70,38 +77,26 @@ stages:
           - checkout: ilifes-style-css
             path: s/ilifes-style-css
             displayName: 'Checkout ilifes-style-css repo'
-          
-          - script: |
-              echo "Pre-check: Raw parameter value: ${{ parameters.environment }}"
-              echo "Pre-check: Attempting to access variable directly (should be empty here if it's the issue): $(prod)"
-              echo "Pre-check: Attempting to access variable dynamically using expression: ${{ variables[parameters.environment] }}"
-              echo "Pre-check: Listing all available variables (might be very verbose):"
-              env | sort
-            displayName: 'Debug: Pre-check Variable Resolution'
+             
+          # You can keep the pre-check for debugging if you want, but it's not strictly needed
+          # - script: |
+          #     echo "Pre-check: Raw parameter value: ${{ parameters.environment }}"
+          #     echo "Pre-check: Attempting to access variable directly (should be empty here if it's the issue): $(prod)"
+          #     echo "Pre-check: Attempting to access variable dynamically using expression: ${{ variables[parameters.environment] }}"
+          #     echo "Pre-check: Listing all available variables (might be very verbose):"
+          #     env | sort
+          #   displayName: 'Debug: Pre-check Variable Resolution'
 
+          # --- MODIFIED RESOLVE CSS_BRANCH STEP ---
           - script: |
               echo "Branch mapping for environment: ${{ parameters.environment }}"
-
-              # The environment variable from the variable group is directly accessible here
-              # as its name (e.g., prod, local)
-              #BRANCH_FROM_MAPPING="${{ variables[parameters.environment] }}"
-              
-              # If the above still gives an empty string,
-              # we can try to explicitly pass it via env block
-              # The crucial line is below if using env block:
-              BRANCH_FROM_MAPPING="$MY_DYNAMIC_BRANCH"
-
-              echo "Dynamically resolved branch: '$BRANCH_FROM_MAPPING'"
-              echo "##vso[task.setvariable variable=CSS_BRANCH]$BRANCH_FROM_MAPPING"
+              echo "Resolved CSS Branch from new pipeline variable: $(resolvedCssBranch)"
+              echo "##vso[task.setvariable variable=CSS_BRANCH]$(resolvedCssBranch)"
             displayName: 'Resolve CSS_BRANCH from style-css-branch-mapping'
-            # --- ADD THIS 'env' BLOCK ---
-            env:
-              MY_DYNAMIC_BRANCH: $( {{parameters.environment}} ) # This will expand to $(prod) or $(local)
-                                                                # which then expands to 'main' or 'dev'
-            # --- END 'env' BLOCK ---
+          # --- END MODIFIED STEP ---
 
           - script: |
-              echo "Chhecking out ilifes-style-css repo branch: ${{ variables.CSS_BRANCH }}"
+              echo "Checking out ilifes-style-css repo branch: ${{ variables.CSS_BRANCH }}"
               cd $(Build.SourcesDirectory)/ilifes-style-css
               git fetch origin
               git checkout ${{ variables.CSS_BRANCH }}
