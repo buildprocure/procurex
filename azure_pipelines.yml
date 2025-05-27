@@ -82,17 +82,23 @@ stages:
           - script: |
               echo "Branch mapping for environment: ${{ parameters.environment }}"
 
-              # Capture the environment parameter into a shell variable for clarity
-              ENV_NAME="${{ parameters.environment }}"
-              echo "Shell ENV_NAME variable: $ENV_NAME"
-
-              # The key fix: Use indirect expansion to get the value of the variable
-              # whose name is stored in ENV_NAME.
-              BRANCH_FROM_MAPPING="${!ENV_NAME}" # This is the correct bash syntax
+              # The environment variable from the variable group is directly accessible here
+              # as its name (e.g., prod, local)
+              BRANCH_FROM_MAPPING="${{ variables[parameters.environment] }}"
+              
+              # If the above still gives an empty string,
+              # we can try to explicitly pass it via env block
+              # The crucial line is below if using env block:
+              # BRANCH_FROM_MAPPING="$MY_DYNAMIC_BRANCH"
 
               echo "Dynamically resolved branch: '$BRANCH_FROM_MAPPING'"
               echo "##vso[task.setvariable variable=CSS_BRANCH]$BRANCH_FROM_MAPPING"
             displayName: 'Resolve CSS_BRANCH from style-css-branch-mapping'
+            # --- ADD THIS 'env' BLOCK ---
+            env:
+              MY_DYNAMIC_BRANCH: $( {{parameters.environment}} ) # This will expand to $(prod) or $(local)
+                                                                # which then expands to 'main' or 'dev'
+            # --- END 'env' BLOCK ---
 
           - script: |
               echo "Chhecking out ilifes-style-css repo branch: ${{ variables.CSS_BRANCH }}"
