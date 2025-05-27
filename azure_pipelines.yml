@@ -32,13 +32,13 @@ resources:
       type: github
       name: rabinkhadkaa/ilife-items-frontend
       ref: refs/heads/main
-      endpoint: github_PAT_rabinkhadkaa_ilife-items-frontend
+      endpoint: Classic_PAT-all-repo
 
     - repository: ilife-build
       type: github
       name: rabinkhadkaa/ilife-build
       ref: refs/heads/main
-      endpoint: ilifes-all-repo-PAT
+      endpoint: Classic_PAT-all-repo
 
     - repository: ilifes-style-css
       type: github
