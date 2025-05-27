@@ -77,31 +77,31 @@ stages:
           - checkout: ilifes-style-css
             path: s/ilifes-style-css
             displayName: 'Checkout ilifes-style-css repo'
-             
-          # You can keep the pre-check for debugging if you want, but it's not strictly needed
-          # - script: |
-          #     echo "Pre-check: Raw parameter value: ${{ parameters.environment }}"
-          #     echo "Pre-check: Attempting to access variable directly (should be empty here if it's the issue): $(prod)"
-          #     echo "Pre-check: Attempting to access variable dynamically using expression: ${{ variables[parameters.environment] }}"
-          #     echo "Pre-check: Listing all available variables (might be very verbose):"
-          #     env | sort
-          #   displayName: 'Debug: Pre-check Variable Resolution'
+            
+          - script: |
+              echo "Pre-check: Raw parameter value: ${{ parameters.environment }}"
+              echo "Pre-check: Attempting to access variable directly (should be empty here if it's the issue): $(prod)"
+              echo "Pre-check: Attempting to access variable dynamically using expression: ${{ variables[parameters.environment] }}"
+              echo "Pre-check: Listing all available variables (might be very verbose):"
+              env | sort
+            displayName: 'Debug: Pre-check Variable Resolution'
 
-          # --- MODIFIED RESOLVE CSS_BRANCH STEP ---
+          # --- CRITICAL CHANGE IN THIS SCRIPT BLOCK ---
           - script: |
               echo "Branch mapping for environment: ${{ parameters.environment }}"
-              echo "Resolved CSS Branch from new pipeline variable: $(resolvedCssBranch)"
-              echo "##vso[task.setvariable variable=CSS_BRANCH]$(resolvedCssBranch)"
-            displayName: 'Resolve CSS_BRANCH from style-css-branch-mapping'
-          # --- END MODIFIED STEP ---
+              
+              BRANCH_TO_USE=""
+              if [ "${{ parameters.environment }}" == "prod" ]; then
+                BRANCH_TO_USE="$(prod)" # Direct pipeline variable access
+              elif [ "${{ parameters.environment }}" == "local" ]; then
+                BRANCH_TO_USE="$(local)" # Direct pipeline variable access
+              fi
 
-          - script: |
-              echo "Checking out ilifes-style-css repo branch: ${{ variables.CSS_BRANCH }}"
-              cd $(Build.SourcesDirectory)/ilifes-style-css
-              git fetch origin
-              git checkout ${{ variables.CSS_BRANCH }}
-              git pull origin ${{ variables.CSS_BRANCH }}
-            displayName: 'Switch to CSS repo branch'
+              echo "Dynamically resolved branch: '$BRANCH_TO_USE'"
+              echo "##vso[task.setvariable variable=CSS_BRANCH]$BRANCH_TO_USE"
+            displayName: 'Resolve CSS_BRANCH from style-css-branch-mapping'
+          # --- END CRITICAL CHANGE ---
+
 
           - script: |
               echo "Listing Pipeline.workspace files after checkout:"
