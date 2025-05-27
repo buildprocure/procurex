@@ -53,12 +53,12 @@ stages:
     jobs:
       - job: Build
         displayName: 'Build and Push'
-        variables:
+        #variables:
           # --- ADD THIS NEW VARIABLE ---
           # This variable will be resolved by Azure DevOps at job runtime.
           # If parameters.environment is 'prod', this becomes $(prod),
           # which then correctly resolves to 'main'.
-          resolvedCssBranch: $( ${{ parameters.environment }} ) 
+          #resolvedCssBranch: $( ${{ parameters.environment }} ) 
           # --- END NEW VARIABLE ---
 
         pool:
@@ -88,43 +88,46 @@ stages:
 
           # --- CRITICAL CHANGE IN THIS SCRIPT BLOCK ---
           - script: |
-              echo "Branch mapping for environment: ${{ parameters.environment }}"
-              
-              BRANCH_TO_USE=""
-              if [ "${{ parameters.environment }}" == "prod" ]; then
-                BRANCH_TO_USE="$(prod)" # Direct pipeline variable access
-              elif [ "${{ parameters.environment }}" == "local" ]; then
-                BRANCH_TO_USE="$(local)" # Direct pipeline variable access
-              fi
-
-              echo "Dynamically resolved branch: '$BRANCH_TO_USE'"
-              echo "##vso[task.setvariable variable=CSS_BRANCH]$BRANCH_TO_USE"
-            displayName: 'Resolve CSS_BRANCH from style-css-branch-mapping'
-          # --- END CRITICAL CHANGE ---
-          
-# --- MODIFIED "Switch to CSS repo branch" SCRIPT BLOCK ---
-          - script: |
               echo "Checking out ilifes-style-css repo branch: ${{ variables.CSS_BRANCH }}"
               cd $(Build.SourcesDirectory)/ilifes-style-css
               
-              # Inject the PAT for Git operations
-              # Ensure 'Allow scripts to access the OAuth token' is enabled in Agent Job settings
-              git config http.https://github.com/.extraheader "AUTHORIZATION: basic $(System.AccessToken)"
-              
-              # Alternatively, if the above doesn't work for some reason, directly embed
-              # git remote set-url origin https://oauth2:$(System.AccessToken)@github.com/rabinkhadkaa/ilifes-style-css.git
-              
+              # Assuming 'checkout: ilifes-style-css' handled the initial clone/auth.
+              # If your repo is private and these commands fail, it means the
+              # 'Classic_PAT-all-repo' endpoint isn't fully configuring git credentials
+              # for *subsequent* script-based git commands.
+              # In that very specific case, we'd need to re-add authentication, but differently.
               git fetch origin
               git checkout ${{ variables.CSS_BRANCH }}
               git pull origin ${{ variables.CSS_BRANCH }}
             displayName: 'Switch to CSS repo branch'
-            env:
-              # System.AccessToken is usually automatically available, but explicitly providing it
-              # via env can help ensure it's in the script's environment.
-              # Note: System.AccessToken is typically already configured by the 'checkout' step.
-              # The 'git config' command is more robust.
-              GITHUB_TOKEN: $(System.AccessToken) 
-          # --- END MODIFIED BLOCK ---
+            # REMOVE THE 'env' BLOCK ALTOGETHER from this step
+            # env:
+            #   GITHUB_TOKEN: $(System.AccessToken)
+          # --- END CRITICAL CHANGE ---
+          
+# # --- MODIFIED "Switch to CSS repo branch" SCRIPT BLOCK ---
+#           - script: |
+#               echo "Checking out ilifes-style-css repo branch: ${{ variables.CSS_BRANCH }}"
+#               cd $(Build.SourcesDirectory)/ilifes-style-css
+              
+#               # Inject the PAT for Git operations
+#               # Ensure 'Allow scripts to access the OAuth token' is enabled in Agent Job settings
+#               git config http.https://github.com/.extraheader "AUTHORIZATION: basic $(System.AccessToken)"
+              
+#               # Alternatively, if the above doesn't work for some reason, directly embed
+#               # git remote set-url origin https://oauth2:$(System.AccessToken)@github.com/rabinkhadkaa/ilifes-style-css.git
+              
+#               git fetch origin
+#               git checkout ${{ variables.CSS_BRANCH }}
+#               git pull origin ${{ variables.CSS_BRANCH }}
+#             displayName: 'Switch to CSS repo branch'
+#             env:
+#               # System.AccessToken is usually automatically available, but explicitly providing it
+#               # via env can help ensure it's in the script's environment.
+#               # Note: System.AccessToken is typically already configured by the 'checkout' step.
+#               # The 'git config' command is more robust.
+#               GITHUB_TOKEN: $(System.AccessToken) 
+#           # --- END MODIFIED BLOCK ---
 
           - script: |
               echo "Listing Pipeline.workspace files after checkout:"
