@@ -57,7 +57,7 @@ stages:
         variables:
         - group: style-css-branch-mapping
         - name: CSSBranch
-          value: ${{ variables[ parameters.environment)] }}
+          value: ${{ variables[ parameters.environment] }}
         pool:
           name: 'Default'
         steps:
