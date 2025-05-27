@@ -54,6 +54,10 @@ stages:
     jobs:
       - job: Build
         displayName: 'Build and Push'
+        variables:
+        - group: style-css-branch-mapping
+        - name: CSSBranch
+          value: ${{ variables[format('{0}', parameters.environment)] }}
         pool:
           name: 'Default'
         steps:
@@ -70,7 +74,7 @@ stages:
           - checkout: ilifes-style-css
             path: s/ilifes-style-css
             displayName: 'Checkout ilifes-style-css repo'
-
+          
           - script: |
               echo "Branch mapping for environment: ${{ parameters.environment }}"
               echo " style-css-branch-mapping: ${{ variables.CSSBranch }}"
