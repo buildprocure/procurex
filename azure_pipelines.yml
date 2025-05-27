@@ -11,8 +11,8 @@ parameters:
 
 variables:
   - group: style-css-branch-mapping
-  - name: CSS_BRANCH
-    value: ${{ variables[format('{0}', parameters.environment)] }}
+  - name: ENV                # 👈 Create a variable from the parameter
+    value: ${{ parameters.environment }}
   - name: dockerRegistryServiceConnection
     value: 'acr-ilifes-docker-connection-v2'
   - name: imageName
@@ -72,12 +72,14 @@ stages:
             displayName: 'Checkout ilifes-style-css repo'
 
           - script: |
-              echo "Environment: $(environment)"
-              echo "CSS_BRANCH from variable group: $(prod)"  # or $(local) depending on env
-              BRANCH=$(eval echo \$$environment)
+              echo "Environment: $(ENV)"
+              echo "prod from group: $(prod)"
+              echo "local from group: $(local)"
+              BRANCH=$(eval echo \$$ENV)
               echo "Dynamically resolved branch: $BRANCH"
               echo "##vso[task.setvariable variable=CSS_BRANCH]$BRANCH"
             displayName: 'Resolve CSS_BRANCH from style-css-branch-mapping'
+
 
           - script: |
               echo "Chhecking out ilifes-style-css repo branch: ${{ variables.CSS_BRANCH }}"
