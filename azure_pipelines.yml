@@ -77,9 +77,9 @@ stages:
           
           - script: |
               echo "Branch mapping for environment: ${{ parameters.environment }}"
-              echo " style-css-branch-mapping: $(variables.CSSBranch)"
-              BRANCH=$(CSSBranch)
-              echo "Dynamically resolved branch: $(BRANCH)"
+              echo " style-css-branch-mapping: $CSSBranch"
+              BRANCH=$CSSBranch
+              echo "Dynamically resolved branch: $BRANCH"
               echo "##vso[task.setvariable variable=CSS_BRANCH]$BRANCH"
             displayName: 'Resolve CSS_BRANCH from style-css-branch-mapping'
 
