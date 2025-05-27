@@ -86,17 +86,11 @@ stages:
               ENV_NAME="${{ parameters.environment }}"
               echo "Shell ENV_NAME variable: $ENV_NAME"
 
-              # Try to access the variable group variable using its explicit name
-              # This is a key test: if environment is 'prod', this tries to get $(prod)
-              BRANCH_FROM_MAPPING="$(eval echo \$${ENV_NAME})" # Safer way to expand variable by name
-
-              # Alternative (less safe but common) for testing:
-              # BRANCH_FROM_MAPPING=$($ENV_NAME) # This won't work in bash if $ENV_NAME isn't a direct variable name
-
-              echo "Attempting to access variable dynamically using expression: ${{ variables[parameters.environment] }}"
-              echo "Result of direct expression access: '${{ variables[parameters.environment] }}'" # Added quotes to see if it's truly empty
-
-              echo "Dynamically resolved branch: '$BRANCH_FROM_MAPPING'" # Added quotes to see if it's truly empty
+              # The key fix: Use the runtime variable syntax to get the value
+              # from the variable group.
+              BRANCH_FROM_MAPPING="$(${ENV_NAME})" 
+              
+              echo "Dynamically resolved branch: '$BRANCH_FROM_MAPPING'"
               echo "##vso[task.setvariable variable=CSS_BRANCH]$BRANCH_FROM_MAPPING"
             displayName: 'Resolve CSS_BRANCH from style-css-branch-mapping'
 
