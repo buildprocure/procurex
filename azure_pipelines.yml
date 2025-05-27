@@ -101,8 +101,8 @@ stages:
               git pull origin ${{ variables.CSS_BRANCH }}
             displayName: 'Switch to CSS repo branch'
             # REMOVE THE 'env' BLOCK ALTOGETHER from this step
-            # env:
-            #   GITHUB_TOKEN: $(System.AccessToken)
+            env:
+              GITHUB_TOKEN: $(System.AccessToken)
           # --- END CRITICAL CHANGE ---
           
 # # --- MODIFIED "Switch to CSS repo branch" SCRIPT BLOCK ---
