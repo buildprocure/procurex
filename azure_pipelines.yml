@@ -11,8 +11,7 @@ parameters:
 
 variables:
   - group: style-css-branch-mapping
-  - name: CSSBranch
-    value: ${{ variables[format('{0}', parameters.environment)] }}
+
   - name: dockerRegistryServiceConnection
     value: 'acr-ilifes-docker-connection-v2'
   - name: imageName
@@ -54,10 +53,7 @@ stages:
     jobs:
       - job: Build
         displayName: 'Build and Push'
-        variables:
-        - group: style-css-branch-mapping
-        - name: CSSBranch
-          value: ${{ variables[ parameters.environment] }}
+
         pool:
           name: 'Default'
         steps:
@@ -77,10 +73,10 @@ stages:
           
           - script: |
               echo "Branch mapping for environment: ${{ parameters.environment }}"
-              echo " style-css-branch-mapping: $CSSBranch"
-              BRANCH=$CSSBranch
-              echo "Dynamically resolved branch: $BRANCH"
-              echo "##vso[task.setvariable variable=CSS_BRANCH]$BRANCH"
+              # Dynamically get the branch name from the variable group
+              BRANCH_FROM_MAPPING="${{ variables[parameters.environment] }}"
+              echo "Dynamically resolved branch: $BRANCH_FROM_MAPPING"
+              echo "##vso[task.setvariable variable=CSS_BRANCH]$BRANCH_FROM_MAPPING"
             displayName: 'Resolve CSS_BRANCH from style-css-branch-mapping'
 
 
