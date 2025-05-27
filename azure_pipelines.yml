@@ -84,12 +84,12 @@ stages:
 
               # The environment variable from the variable group is directly accessible here
               # as its name (e.g., prod, local)
-              BRANCH_FROM_MAPPING="${{ variables[parameters.environment] }}"
+              #BRANCH_FROM_MAPPING="${{ variables[parameters.environment] }}"
               
               # If the above still gives an empty string,
               # we can try to explicitly pass it via env block
               # The crucial line is below if using env block:
-              # BRANCH_FROM_MAPPING="$MY_DYNAMIC_BRANCH"
+              BRANCH_FROM_MAPPING="$MY_DYNAMIC_BRANCH"
 
               echo "Dynamically resolved branch: '$BRANCH_FROM_MAPPING'"
               echo "##vso[task.setvariable variable=CSS_BRANCH]$BRANCH_FROM_MAPPING"
