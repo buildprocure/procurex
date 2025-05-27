@@ -44,7 +44,7 @@ resources:
     - repository: ilifes-style-css
       type: github
       name: rabinkhadkaa/ilifes-style-css
-      ref: refs/heads/$ {{ variables.CSS_BRANCH }}
+      ref: refs/heads/${{ variables.CSS_BRANCH }}
       endpoint: github_grantAuthNotPAT
 
 
