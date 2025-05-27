@@ -57,7 +57,7 @@ stages:
         variables:
         - group: style-css-branch-mapping
         - name: CSSBranch
-          value: ${{ variables[format('{0}', parameters.environment)] }}
+          value: ${{ variables[ parameters.environment)] }}
         pool:
           name: 'Default'
         steps:
@@ -77,9 +77,9 @@ stages:
           
           - script: |
               echo "Branch mapping for environment: ${{ parameters.environment }}"
-              echo " style-css-branch-mapping: ${{ variables.CSSBranch }}"
-              BRANCH=${{ variables.CSSBranch }}
-              echo "Dynamically resolved branch: $BRANCH"
+              echo " style-css-branch-mapping: $(variables.CSSBranch)"
+              BRANCH=$(CSSBranch)
+              echo "Dynamically resolved branch: $(BRANCH)"
               echo "##vso[task.setvariable variable=CSS_BRANCH]$BRANCH"
             displayName: 'Resolve CSS_BRANCH from style-css-branch-mapping'
 
