@@ -77,7 +77,7 @@ stages:
           - checkout: ilifes-style-css
             path: s/ilifes-style-css
             displayName: 'Checkout ilifes-style-css repo'
-            
+
           - script: |
               echo "Pre-check: Raw parameter value: ${{ parameters.environment }}"
               echo "Pre-check: Attempting to access variable directly (should be empty here if it's the issue): $(prod)"
@@ -101,7 +101,14 @@ stages:
               echo "##vso[task.setvariable variable=CSS_BRANCH]$BRANCH_TO_USE"
             displayName: 'Resolve CSS_BRANCH from style-css-branch-mapping'
           # --- END CRITICAL CHANGE ---
-
+          
+          - script: |
+              echo "Checking out ilifes-style-css repo branch: ${{ variables.CSS_BRANCH }}"
+              cd $(Build.SourcesDirectory)/ilifes-style-css
+              git fetch origin
+              git checkout ${{ variables.CSS_BRANCH }}
+              git pull origin ${{ variables.CSS_BRANCH }}
+            displayName: 'Switch to CSS repo branch'
 
           - script: |
               echo "Listing Pipeline.workspace files after checkout:"
