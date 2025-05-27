@@ -44,12 +44,8 @@ resources:
     - repository: ilifes-style-css
       type: github
       name: rabinkhadkaa/ilifes-style-css
-      ref: refs/heads/${{ variables.CSS_BRANCH }}
+      ref: refs/heads/main
       endpoint: github_grantAuthNotPAT
-
-
-
-
 
 
 stages:
@@ -79,13 +75,13 @@ stages:
               echo "Environment: ${{ parameters.environment }}"
               echo "CSS_BRANCH: ${{ variables.CSS_BRANCH }}"
             displayName: 'Debug: Print Environment and CSS_BRANCH'  
-          # - script: |
-          #     echo "Chhecking out ilifes-style-css repo branch: $(cssRepoBranch)"
-          #     cd $(Build.SourcesDirectory)/ilifes-style-css
-          #     git fetch origin
-          #     git checkout $(cssRepoBranch)
-          #     git pull origin $(cssRepoBranch)
-          #   displayName: 'Switch to CSS repo branch'
+          - script: |
+              echo "Chhecking out ilifes-style-css repo branch: $(cssRepoBranch)"
+              cd $(Build.SourcesDirectory)/ilifes-style-css
+              git fetch origin
+              git checkout $(cssRepoBranch)
+              git pull origin $(cssRepoBranch)
+            displayName: 'Switch to CSS repo branch'
 
           - script: |
               echo "Listing Pipeline.workspace files after checkout:"
