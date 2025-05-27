@@ -45,7 +45,7 @@ resources:
       type: github
       name: rabinkhadkaa/ilifes-style-css
       ref: refs/heads/main
-      endpoint: github.com_rabinkhadkaa
+      endpoint: github_rabinkhadkaa
 
 
 stages:
