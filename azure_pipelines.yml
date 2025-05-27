@@ -75,7 +75,10 @@ stages:
             path: s/ilifes-style-css
             displayName: 'Checkout ilifes-style-css repo'
 
-            
+          - script: |
+              echo "Environment: ${{ parameters.environment }}"
+              echo "CSS_BRANCH: ${{ variables.CSS_BRANCH }}"
+            displayName: 'Debug: Print Environment and CSS_BRANCH'  
           # - script: |
           #     echo "Chhecking out ilifes-style-css repo branch: $(cssRepoBranch)"
           #     cd $(Build.SourcesDirectory)/ilifes-style-css
