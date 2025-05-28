@@ -11,10 +11,12 @@ parameters:
 
 variables:
   - group: style-css-branch-mapping
-  - name: DEPLOY_ENV
-    value: ${{ parameters.environment }}
   - name: CSS_BRANCH
-    value: $[ variables['$(DEPLOY_ENV)'] ]
+    ${{ if eq(parameters.environment, 'prod') }}:
+      value: 'main'
+    ${{ if eq(parameters.environment, 'local') }}:
+      value: 'dev'  # or whatever your local branch name is
+
   - group: github-access-tokens
   - name: dockerRegistryServiceConnection
     value: 'acr-ilifes-docker-connection-v2'
@@ -70,6 +72,10 @@ stages:
         steps:
           - checkout: self
           - checkout: ilife-build
+          - script: |
+              echo "Resolved CSS_BRANCH: $(CSS_BRANCH)"
+            displayName: 'Check CSS Branch Value'
+
 
           # - template: check-mapping.yaml@ilife-build            
           #   parameters:
