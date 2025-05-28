@@ -120,8 +120,9 @@ stages:
             displayName: 'Remove Git ExtraHeaders'
 
           - checkout: ilifes-style-css
+            ref: refs/heads/$(CSS_BRANCH)
             path: s/ilifes-style-css
-            displayName: 'Checkout ilifes-style-css repo'
+            displayName: 'Checkout ilifes-style-css repo-$(CSS_BRANCH)'
 
           - script: |
               echo "=== Switching CSS repo to branch: $(CSS_BRANCH) ==="
