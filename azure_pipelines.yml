@@ -79,8 +79,8 @@ stages:
           #   parameters:
           #     environment: ${{ parameters.environment }}
 
-          - checkout: ilife-items-frontend
-            path: s/ilife-items-frontend
+          # - checkout: ilife-items-frontend
+          #   path: s/ilife-items-frontend
 
 
           - script: |
