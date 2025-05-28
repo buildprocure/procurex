@@ -11,6 +11,10 @@ parameters:
 
 variables:
   - group: style-css-branch-mapping
+  - name: DEPLOY_ENV
+    value: ${{ format('{0}'', parameters.environment) }}
+  - name: CSS_BRANCH
+    value: ${{ variables[variables.DEPLOY_ENV] }}
   - group: github-access-tokens
   - name: dockerRegistryServiceConnection
     value: 'acr-ilifes-docker-connection-v2'
@@ -113,14 +117,14 @@ stages:
             displayName: 'Remove Git ExtraHeaders'
 
           - script: |
-              echo "=== Switching CSS repo to branch: ${{ parameters.css_branch }} ==="
+              echo "=== Switching CSS repo to branch: $(CSS_BRANCH) ==="
               cd $(Build.SourcesDirectory)/css
-              git config user.email "devops@example.com"
+              git config user.email "rabin.khadka40@gmail.com"
               git config user.name "Azure Pipelines"
               git remote set-url origin https://$(GITHUB_PAT)@github.com/rabinkhadkaa/ilifes-style-css.git
               git fetch origin
-              git checkout ${{ parameters.css_branch }}
-              git pull origin ${{ parameters.css_branch }}
+              git checkout $(CSS_BRANCH)
+              git pull origin $(CSS_BRANCH)
             env:
               GITHUB_PAT: $(GITHUB_PAT)
             displayName: 'Switch to Dynamic CSS Branch'
