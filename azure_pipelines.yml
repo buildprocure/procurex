@@ -78,9 +78,6 @@ stages:
           - checkout: ilife-items-frontend
             path: s/ilife-items-frontend
 
-          - checkout: ilifes-style-css
-            path: s/ilifes-style-css
-            displayName: 'Checkout ilifes-style-css repo'
 
           - script: |
               echo "Pre-check: Raw parameter value: ${{ parameters.environment }}"
@@ -116,6 +113,10 @@ stages:
             workingDirectory: $(Build.SourcesDirectory)/css
             displayName: 'Remove Git ExtraHeaders'
 
+          - checkout: ilifes-style-css
+            path: s/ilifes-style-css
+            displayName: 'Checkout ilifes-style-css repo'
+            
           - script: |
               echo "=== Switching CSS repo to branch: $(CSS_BRANCH) ==="
               cd $(Build.SourcesDirectory)/css
