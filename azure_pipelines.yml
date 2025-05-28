@@ -11,7 +11,7 @@ parameters:
 
 variables:
   - group: style-css-branch-mapping
-
+  - group: github-access-tokens
   - name: dockerRegistryServiceConnection
     value: 'acr-ilifes-docker-connection-v2'
   - name: imageName
@@ -105,29 +105,20 @@ stages:
           #     GITHUB_TOKEN: $(System.AccessToken)
           # # --- END CRITICAL CHANGE ---
           
-# # --- MODIFIED "Switch to CSS repo branch" SCRIPT BLOCK ---
+          # # --- MODIFIED "Switch to CSS repo branch" SCRIPT BLOCK ---
           - script: |
-              echo "Checking out ilifes-style-css repo branch: ${{ variables.CSS_BRANCH }}"
+              echo "Checking out CSS branch: $CSS_BRANCH"
               cd $(Build.SourcesDirectory)/ilifes-style-css
-              
-              # Inject the PAT for Git operations
-              # Ensure 'Allow scripts to access the OAuth token' is enabled in Agent Job settings
-              git config http.https://github.com/.extraheader "AUTHORIZATION: basic $(System.AccessToken)"
-              
-              # Alternatively, if the above doesn't work for some reason, directly embed
-              # git remote set-url origin https://oauth2:$(System.AccessToken)@github.com/rabinkhadkaa/ilifes-style-css.git
-              
+              git config user.email "you@example.com"
+              git config user.name "Azure Pipelines"
+              git remote set-url origin https://$(GITHUB_PAT)@github.com/rabinkhadkaa/ilifes-style-css.git
               git fetch origin
-              git checkout ${{ variables.CSS_BRANCH }}
-              git pull origin ${{ variables.CSS_BRANCH }}
-            displayName: 'Switch to CSS repo branch'
+              git checkout $CSS_BRANCH
+              git pull origin $CSS_BRANCH
             env:
-              # System.AccessToken is usually automatically available, but explicitly providing it
-              # via env can help ensure it's in the script's environment.
-              # Note: System.AccessToken is typically already configured by the 'checkout' step.
-              # The 'git config' command is more robust.
-              GITHUB_TOKEN: $(System.AccessToken) 
-          # --- END MODIFIED BLOCK ---
+              GITHUB_PAT: $(GITHUB_PAT)
+            displayName: 'Switch to CSS repo branch'
+
 
           - script: |
               echo "Listing Pipeline.workspace files after checkout:"
