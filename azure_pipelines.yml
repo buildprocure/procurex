@@ -12,9 +12,9 @@ parameters:
 variables:
   - group: style-css-branch-mapping
   - name: DEPLOY_ENV
-    value: ${{ format('{0}', parameters.environment) }}
+    value: ${{ parameters.environment }}
   - name: CSS_BRANCH
-    value: ${{ variables[variables.DEPLOY_ENV] }}
+    value: $[ variables['$(DEPLOY_ENV)'] ]
   - group: github-access-tokens
   - name: dockerRegistryServiceConnection
     value: 'acr-ilifes-docker-connection-v2'
