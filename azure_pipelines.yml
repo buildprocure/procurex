@@ -110,13 +110,13 @@ stages:
           - script: |
               echo "=== Removing leftover git extraheaders to avoid 400 errors ==="
               git config --unset-all http.https://github.com/.extraheader || true
-            workingDirectory: $(Build.SourcesDirectory)/css
+            workingDirectory: $(Build.SourcesDirectory)/ilifes-style-css
             displayName: 'Remove Git ExtraHeaders'
 
           - checkout: ilifes-style-css
             path: s/ilifes-style-css
             displayName: 'Checkout ilifes-style-css repo'
-            
+
           - script: |
               echo "=== Switching CSS repo to branch: $(CSS_BRANCH) ==="
               cd $(Build.SourcesDirectory)/css
