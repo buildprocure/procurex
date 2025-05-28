@@ -34,22 +34,20 @@ variables:
 
 resources:
   repositories:
-    - repository: ilife-items-frontend
-      type: github
-      name: rabinkhadkaa/ilife-items-frontend
-      ref: refs/heads/main
-      endpoint: github.com_rabinkhadkaa
+    # - repository: ilife-items-frontend
+    #   type: github
+    #   name: rabinkhadkaa/ilife-items-frontend
+    #   ref: refs/heads/main
+    #   endpoint: github.com_rabinkhadkaa
 
     - repository: ilife-build
       type: github
       name: rabinkhadkaa/ilife-build
-      ref: refs/heads/main
       endpoint: github.com_rabinkhadkaa
 
     - repository: ilifes-style-css
       type: github
       name: rabinkhadkaa/ilifes-style-css
-      ref: refs/heads/main
       endpoint: github.com_rabinkhadkaa
 
 
@@ -71,7 +69,7 @@ stages:
           name: 'Default'
         steps:
           - checkout: self
-          - checkout: ilife-build
+          # - checkout: ilife-build
           - script: |
               echo "Resolved CSS_BRANCH: $(CSS_BRANCH)"
             displayName: 'Check CSS Branch Value'
@@ -119,7 +117,7 @@ stages:
             workingDirectory: $(Build.SourcesDirectory)/ilifes-style-css
             displayName: 'Remove Git ExtraHeaders'
 
-          - checkout: git://rabinkhadkaa/ilifes-style-css@$(CSS_BRANCH)
+          - checkout: git://rabinkhadkaa/ilifes-style-css@$(Build.SourceBranchName)
             path: s/ilifes-style-css
             displayName: 'Checkout ilifes-style-css repo-$(CSS_BRANCH)'
 
