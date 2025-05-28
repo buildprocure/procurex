@@ -49,6 +49,7 @@ resources:
     - repository: ilifes-style-css
       type: github
       name: rabinkhadkaa/ilifes-style-css
+      ref: refs/heads/main
       endpoint: github.com_rabinkhadkaa
 
 
@@ -118,8 +119,7 @@ stages:
             workingDirectory: $(Build.SourcesDirectory)/ilifes-style-css
             displayName: 'Remove Git ExtraHeaders'
 
-          - checkout: ilifes-style-css
-            ref: refs/heads/$(CSS_BRANCH)
+          - checkout: git://rabinkhadkaa/ilifes-style-css@$(CSS_BRANCH)
             path: s/ilifes-style-css
             displayName: 'Checkout ilifes-style-css repo-$(CSS_BRANCH)'
 
