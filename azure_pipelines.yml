@@ -107,17 +107,23 @@ stages:
           
           # # --- MODIFIED "Switch to CSS repo branch" SCRIPT BLOCK ---
           - script: |
-              echo "Checking out CSS branch: $CSS_BRANCH"
-              cd $(Build.SourcesDirectory)/ilifes-style-css
-              git config user.email "you@example.com"
+              echo "=== Removing leftover git extraheaders to avoid 400 errors ==="
+              git config --unset-all http.https://github.com/.extraheader || true
+            workingDirectory: $(Build.SourcesDirectory)/css
+            displayName: 'Remove Git ExtraHeaders'
+
+          - script: |
+              echo "=== Switching CSS repo to branch: ${{ parameters.css_branch }} ==="
+              cd $(Build.SourcesDirectory)/css
+              git config user.email "devops@example.com"
               git config user.name "Azure Pipelines"
               git remote set-url origin https://$(GITHUB_PAT)@github.com/rabinkhadkaa/ilifes-style-css.git
               git fetch origin
-              git checkout $CSS_BRANCH
-              git pull origin $CSS_BRANCH
+              git checkout ${{ parameters.css_branch }}
+              git pull origin ${{ parameters.css_branch }}
             env:
               GITHUB_PAT: $(GITHUB_PAT)
-            displayName: 'Switch to CSS repo branch'
+            displayName: 'Switch to Dynamic CSS Branch'
 
 
           - script: |
