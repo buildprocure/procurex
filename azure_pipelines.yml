@@ -9,8 +9,17 @@ parameters:
       - prod
       - local
 
-variables:
+  - name: cssBranch
+    type: string
+    default: ${{ 
+                if eq(parameters.environment, 'prod') 
+                  then 'refs/heads/main' 
+                else if eq(parameters.environment, 'local') 
+                  then 'refs/heads/feature' 
+                else 'refs/heads/develop' 
+              }}
 
+variables:
 
   - name: branchRef
     value: 'refs/heads/develop'
@@ -46,7 +55,7 @@ resources:
     - repository: ilifes-style-css
       type: github
       name: rabinkhadkaa/ilifes-style-css
-      ref: ${{ coalesce( eq( parameters.environment, 'prod' ) ? 'refs/heads/main', variables['branchRef'] ) }}
+      ref: ${{ parameters.cssBranch }}
       endpoint: github.com_rabinkhadkaa
 
 
