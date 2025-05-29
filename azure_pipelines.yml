@@ -16,10 +16,10 @@ variables:
         value: 'refs/heads/feature'
   - ${{ elseif eq(parameters.environment, 'prod') }}:
       - name: branchRef
-        value: 'refs/heads/main'
+        value: 'refs/heads/develop'
   - ${{ else }}:
       - name: branchRef
-        value: 'refs/heads/develop'
+        value: ${{ variables['Build.SourceBranchName'] }}
 
   - group: github-access-tokens
   - name: dockerRegistryServiceConnection
