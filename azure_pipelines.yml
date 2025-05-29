@@ -11,15 +11,10 @@ parameters:
 
 variables:
 
-  - ${{ if eq(parameters.environment, 'local') }}:
-      - name: branchRef
-        value: 'feature'
-  - ${{ if eq(parameters.environment, 'prod') }}:
-      - name: branchRef
-        value: 'develop'
-  - ${{ if and(ne(parameters.environment, 'prod'), ne(parameters.environment, 'local')) }}:
-      - name: branchRef
-        value: 'main'
+
+  - name: branchRef
+    value: 'develop'
+
 
   - group: github-access-tokens
   - name: dockerRegistryServiceConnection
