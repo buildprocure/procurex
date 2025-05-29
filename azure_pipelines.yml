@@ -9,14 +9,16 @@ parameters:
       - prod
       - local
 
-  - name: cssBranch
-    type: string
-    default:  ${{ if eq(parameters.environment, 'prod') }}main${{ else }}develop${{ end }}
 
 variables:
 
-  - name: branchRef
-    value: 'refs/heads/develop'
+  - ${{ if eq(parameters.environment, 'prod') }}:
+      branchRef: 'refs/heads/main'
+  - ${{ if eq(parameters.environment, 'local') }}:
+      branchRef: 'refs/heads/feature'
+  - ${{ if and(ne(parameters.environment, 'prod'), ne(parameters.environment, 'local')) }}:
+      branchRef: 'refs/heads/develop'
+
   - group: github-access-tokens
   - name: dockerRegistryServiceConnection
     value: 'acr-ilifes-docker-connection-v2'
@@ -49,7 +51,7 @@ resources:
     - repository: ilifes-style-css
       type: github
       name: rabinkhadkaa/ilifes-style-css
-      ref: ${{ parameters.cssBranch }}
+      ref: ${{ vsariables.branchRef }}
       endpoint: github.com_rabinkhadkaa
 
 
