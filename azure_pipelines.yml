@@ -14,10 +14,10 @@ variables:
   - ${{ if eq(parameters.environment, 'local') }}:
       - name: branchRef
         value: 'refs/heads/feature'
-  - ${{ elseif eq(parameters.environment, 'prod') }}:
+  - ${{ if eq(parameters.environment, 'prod') }}:
       - name: branchRef
         value: 'refs/heads/develop'
-  - ${{ else }}:
+  - ${{ if and(ne(parameters.environment, 'prod'), ne(parameters.environment, 'local')) }}:
       - name: branchRef
         value: ${{ format('refs/heads/{0}', variables['Build.SourceBranchName']) }}
 
