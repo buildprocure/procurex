@@ -14,9 +14,10 @@ variables:
   - name: CSS_BRANCH
     ${{ if eq(parameters.environment, 'prod') }}:
       value: 'main'
-    ${{ if eq(parameters.environment, 'local') }}:
+    ${{ elseif eq(parameters.environment, 'local') }}:
       value: 'dev'  # or whatever your local branch name is
-
+    ${{ else }}:
+      value: 'main'  # default to main if no match
   - group: github-access-tokens
   - name: dockerRegistryServiceConnection
     value: 'acr-ilifes-docker-connection-v2'
@@ -34,20 +35,22 @@ variables:
 
 resources:
   repositories:
-    # - repository: ilife-items-frontend
-    #   type: github
-    #   name: rabinkhadkaa/ilife-items-frontend
-    #   ref: refs/heads/main
-    #   endpoint: github.com_rabinkhadkaa
+    - repository: ilife-items-frontend
+      type: github
+      name: rabinkhadkaa/ilife-items-frontend
+      ref: refs/heads/main
+      endpoint: github.com_rabinkhadkaa
 
     - repository: ilife-build
       type: github
       name: rabinkhadkaa/ilife-build
+      ref: refs/heads/main
       endpoint: github.com_rabinkhadkaa
 
     - repository: ilifes-style-css
       type: github
       name: rabinkhadkaa/ilifes-style-css
+      ref: refs/heads/${ CSS_BRANCH }
       endpoint: github.com_rabinkhadkaa
 
 
@@ -69,7 +72,7 @@ stages:
           name: 'Default'
         steps:
           - checkout: self
-          # - checkout: ilife-build
+          - checkout: ilife-build
           - script: |
               echo "Resolved CSS_BRANCH: $(CSS_BRANCH)"
             displayName: 'Check CSS Branch Value'
@@ -79,8 +82,8 @@ stages:
           #   parameters:
           #     environment: ${{ parameters.environment }}
 
-          # - checkout: ilife-items-frontend
-          #   path: s/ilife-items-frontend
+          - checkout: ilife-items-frontend
+            path: s/ilife-items-frontend
 
 
           - script: |
@@ -117,7 +120,8 @@ stages:
             workingDirectory: $(Build.SourcesDirectory)/ilifes-style-css
             displayName: 'Remove Git ExtraHeaders'
 
-          - checkout: git://rabinkhadkaa/ilifes-style-css@$(Build.SourceBranchName)
+          - checkout: ilifes-style-css
+            ref: refs/heads/$(CSS_BRANCH)
             path: s/ilifes-style-css
             displayName: 'Checkout ilifes-style-css repo-$(CSS_BRANCH)'
 
