@@ -19,7 +19,7 @@ variables:
         value: 'refs/heads/develop'
   - ${{ else }}:
       - name: branchRef
-        value: ${{ variables['Build.SourceBranchName'] }}
+        value: ${{ format('refs/heads/{0}', variables['Build.SourceBranchName'] }}
 
   - group: github-access-tokens
   - name: dockerRegistryServiceConnection
