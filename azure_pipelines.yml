@@ -57,7 +57,7 @@ resources:
     - repository: ilifes-style-css
       type: github
       name: rabinkhadkaa/ilifes-style-css
-      ref: ${{ variables.branchRef }}
+      ref: refs/heads/{{ parameters.environment }}
       endpoint: github.com_rabinkhadkaa
 
 
