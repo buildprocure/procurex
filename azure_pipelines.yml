@@ -13,11 +13,17 @@ parameters:
 variables:
 
   - ${{ if eq(parameters.environment, 'prod') }}:
-      branchRef: 'refs/heads/main'
+      - name: branchRef
+        value: 'refs/heads/main'
+
   - ${{ if eq(parameters.environment, 'local') }}:
-      branchRef: 'refs/heads/feature'
+      - name: branchRef
+        value: 'refs/heads/feature'
+
   - ${{ if and(ne(parameters.environment, 'prod'), ne(parameters.environment, 'local')) }}:
-      branchRef: 'refs/heads/develop'
+      - name: branchRef
+        value: 'refs/heads/develop'
+
 
   - group: github-access-tokens
   - name: dockerRegistryServiceConnection
