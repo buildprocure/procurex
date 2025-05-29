@@ -14,7 +14,7 @@ variables:
 
   - ${{ if eq(parameters.environment, 'prod') }}:
       - name: branchRef
-        value: 'refs/heads/main'
+        value: 'refs/heads/feature'
 
   - ${{ if eq(parameters.environment, 'local') }}:
       - name: branchRef
