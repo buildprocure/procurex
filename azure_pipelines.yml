@@ -11,13 +11,12 @@ parameters:
 
   - name: cssBranch
     type: string
-    default: ${{ 
-                if eq(parameters.environment, 'prod') 
-                  then 'refs/heads/main' 
-                else if eq(parameters.environment, 'local') 
-                  then 'refs/heads/feature' 
-                else 'refs/heads/develop' 
-              }}
+    default: ${{ if eq(parameters.environment, 'prod') }}:
+                'refs/heads/main'
+              ${{ if eq(parameters.environment, 'local') }}:
+                'refs/heads/feature'
+              ${{ if and(ne(parameters.environment, 'prod'), ne(parameters.environment, 'local')) }}:
+                'refs/heads/develop'
 
 variables:
 
