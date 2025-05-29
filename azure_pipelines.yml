@@ -50,7 +50,11 @@ resources:
     - repository: ilifes-style-css
       type: github
       name: rabinkhadkaa/ilifes-style-css
-      ref: refs/heads/${{ coalesce(variables['CSS_BRANCH'], 'develop') }}
+      ref: ${{ 
+          parameters.environment == 'prod' && 'refs/heads/main' || 
+          parameters.environment == 'local' && 'refs/heads/feature' || 
+          'refs/heads/main' 
+        }}
 
       endpoint: github.com_rabinkhadkaa
 
