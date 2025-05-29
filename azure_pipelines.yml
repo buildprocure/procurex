@@ -13,13 +13,13 @@ variables:
 
   - ${{ if eq(parameters.environment, 'local') }}:
       - name: branchRef
-        value: 'refs/heads/feature'
+        value: 'feature'
   - ${{ if eq(parameters.environment, 'prod') }}:
       - name: branchRef
-        value: 'refs/heads/develop'
+        value: 'develop'
   - ${{ if and(ne(parameters.environment, 'prod'), ne(parameters.environment, 'local')) }}:
       - name: branchRef
-        value: 'refs/heads/main'
+        value: 'main'
 
   - group: github-access-tokens
   - name: dockerRegistryServiceConnection
@@ -53,7 +53,7 @@ resources:
     - repository: ilifes-style-css
       type: github
       name: rabinkhadkaa/ilifes-style-css
-      ref: ${{ variables.branchRef }}
+      ref: refs/heads/${{ variables.branchRef }}
       endpoint: github.com_rabinkhadkaa
 
 
@@ -63,13 +63,7 @@ stages:
     jobs:
       - job: Build
         displayName: 'Build and Push'
-        #variables:
-          # --- ADD THIS NEW VARIABLE ---
-          # This variable will be resolved by Azure DevOps at job runtime.
-          # If parameters.environment is 'prod', this becomes $(prod),
-          # which then correctly resolves to 'main'.
-          #resolvedCssBranch: $( ${{ parameters.environment }} ) 
-          # --- END NEW VARIABLE ---
+
 
         pool:
           name: 'Default'
@@ -80,10 +74,6 @@ stages:
               echo "Resolved CSS_BRANCH: $(branchRef)"
             displayName: 'Check CSS Branch Value'
 
-
-          # - template: check-mapping.yaml@ilife-build            
-          #   parameters:
-          #     environment: ${{ parameters.environment }}
 
           - checkout: ilife-items-frontend
             path: s/ilife-items-frontend
