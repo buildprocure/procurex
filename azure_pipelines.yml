@@ -50,8 +50,7 @@ resources:
     - repository: ilifes-style-css
       type: github
       name: rabinkhadkaa/ilifes-style-css
-      ref: ${{ 
-        if eq(parameters.environment, 'prod') }} then 'refs/heads/main' 
+      ref: ${{ if eq(parameters.environment, 'prod') }} then 'refs/heads/main' 
         ${{ if eq(parameters.environment, 'local') }} then 'refs/heads/feature' 
         ${{ if and(ne(parameters.environment, 'prod'), ne(parameters.environment, 'local')) }} then 'refs/heads/main'
 
