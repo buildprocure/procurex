@@ -19,7 +19,7 @@ variables:
         value: 'refs/heads/main'
   - ${{ if and(ne(parameters.environment, 'prod'), ne(parameters.environment, 'local')) }}:
       - name: branchRef
-        value: 'refs/heads/main'
+        value: 'refs/heads/develop'
 
   - group: github-access-tokens
   - name: dockerRegistryServiceConnection
