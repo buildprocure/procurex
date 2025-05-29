@@ -13,9 +13,7 @@ variables:
 
 
   - name: branchRef
-    value: 'develop'
-
-
+    value: 'refs/heads/develop'
   - group: github-access-tokens
   - name: dockerRegistryServiceConnection
     value: 'acr-ilifes-docker-connection-v2'
