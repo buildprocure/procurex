@@ -11,13 +11,16 @@ parameters:
 
 variables:
 
-  - name: CSS_BRANCH
-    ${{ if eq(parameters.environment, 'prod') }}:
-      value: 'main'
-    ${{ elseif eq(parameters.environment, 'local') }}:
-      value: 'dev'  # or whatever your local branch name is
-    ${{ else }}:
-      value: 'main'  # default to main if no match
+  - ${{ if eq(parameters.environment, 'prod') }}:
+      - name: branchRef
+        value: 'refs/heads/main'
+  - ${{ if eq(parameters.environment, 'local') }}:
+      - name: branchRef
+        value: 'refs/heads/feature'
+  - ${{ if and(ne(parameters.environment, 'prod'), ne(parameters.environment, 'local')) }}:
+      - name: branchRef
+        value: 'refs/heads/main'
+
   - group: github-access-tokens
   - name: dockerRegistryServiceConnection
     value: 'acr-ilifes-docker-connection-v2'
@@ -50,10 +53,7 @@ resources:
     - repository: ilifes-style-css
       type: github
       name: rabinkhadkaa/ilifes-style-css
-      ref: ${{ if eq(parameters.environment, 'prod') }} then 'refs/heads/main' 
-        ${{ if eq(parameters.environment, 'local') }} then 'refs/heads/feature' 
-        ${{ if and(ne(parameters.environment, 'prod'), ne(parameters.environment, 'local')) }} then 'refs/heads/main'
-
+      ref: ${{ variables.branchRef }}
       endpoint: github.com_rabinkhadkaa
 
 
