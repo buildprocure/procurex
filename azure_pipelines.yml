@@ -10,7 +10,7 @@ parameters:
       - local
 
 variables:
-  - group: style-css-branch-mapping
+
   - name: CSS_BRANCH
     ${{ if eq(parameters.environment, 'prod') }}:
       value: 'main'
@@ -50,7 +50,7 @@ resources:
     - repository: ilifes-style-css
       type: github
       name: rabinkhadkaa/ilifes-style-css
-      ref: format('refs/heads/{0}', variables.CSS_BRANCH)
+      ref: refs/heads/${{ variables.CSS_BRANCH }}
 
       endpoint: github.com_rabinkhadkaa
 
