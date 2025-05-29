@@ -120,22 +120,22 @@ stages:
             workingDirectory: $(Build.SourcesDirectory)/ilifes-style-css
             displayName: 'Remove Git ExtraHeaders'
 
-          - checkout: ilifes-style-css
-            ref: refs/heads/$(CSS_BRANCH)
-            path: s/ilifes-style-css
-            displayName: 'Checkout ilifes-style-css repo-$(CSS_BRANCH)'
+          # - checkout: ilifes-style-css
+          #   ref: refs/heads/$(CSS_BRANCH)
+          #   path: s/ilifes-style-css
+          #   displayName: 'Checkout ilifes-style-css repo-$(CSS_BRANCH)'
 
-          - script: |
-              echo "=== Switching CSS repo to branch: $(CSS_BRANCH) ==="
-              cd $(Build.SourcesDirectory)/ilifes-style-css
+          # - script: |
+          #     echo "=== Switching CSS repo to branch: $(CSS_BRANCH) ==="
+          #     cd $(Build.SourcesDirectory)/ilifes-style-css
               
-              git remote set-url origin https://$(GITHUB_PAT)@github.com/rabinkhadkaa/ilifes-style-css.git
-              git fetch origin
-              git checkout $(CSS_BRANCH)
-              git pull origin $(CSS_BRANCH)
-            env:
-              GITHUB_PAT: $(GITHUB_PAT)
-            displayName: 'Switch to Dynamic CSS Branch'
+          #     git remote set-url origin https://$(GITHUB_PAT)@github.com/rabinkhadkaa/ilifes-style-css.git
+          #     git fetch origin
+          #     git checkout $(CSS_BRANCH)
+          #     git pull origin $(CSS_BRANCH)
+          #   env:
+          #     GITHUB_PAT: $(GITHUB_PAT)
+          #   displayName: 'Switch to Dynamic CSS Branch'
 
 
           - script: |
