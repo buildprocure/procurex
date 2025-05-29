@@ -19,7 +19,7 @@ variables:
         value: 'refs/heads/develop'
   - ${{ if and(ne(parameters.environment, 'prod'), ne(parameters.environment, 'local')) }}:
       - name: branchRef
-        value: ${{ format('refs/heads/{0}', variables['Build.SourceBranchName']) }}
+        value: 'refs/heads/main'
 
   - group: github-access-tokens
   - name: dockerRegistryServiceConnection
