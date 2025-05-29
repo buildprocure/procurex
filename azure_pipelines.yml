@@ -50,7 +50,7 @@ resources:
     - repository: ilifes-style-css
       type: github
       name: rabinkhadkaa/ilifes-style-css
-      ref: refs/heads/${ CSS_BRANCH }
+      ref: refs/heads/${{ CSS_BRANCH }}
       endpoint: github.com_rabinkhadkaa
 
 
