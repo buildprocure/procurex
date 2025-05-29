@@ -46,7 +46,7 @@ resources:
     - repository: ilifes-style-css
       type: github
       name: rabinkhadkaa/ilifes-style-css
-      ref: 
+      ref: ${{ coalesce( eq( parameters.environment, 'prod' ), 'refs/heads/feature', 'refs/heads/develop' ) }}
       endpoint: github.com_rabinkhadkaa
 
 
