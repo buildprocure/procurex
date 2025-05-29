@@ -11,12 +11,12 @@ parameters:
 
 variables:
 
-  - ${{ if eq(parameters.environment, 'prod') }}:
-      - name: branchRef
-        value: 'refs/heads/main'
   - ${{ if eq(parameters.environment, 'local') }}:
       - name: branchRef
         value: 'refs/heads/feature'
+  - ${{ elseif eq(parameters.environment, 'prod') }}:
+      - name: branchRef
+        value: 'refs/heads/main'
   - ${{ if and(ne(parameters.environment, 'prod'), ne(parameters.environment, 'local')) }}:
       - name: branchRef
         value: 'refs/heads/main'
