@@ -17,7 +17,7 @@ variables:
   - ${{ elseif eq(parameters.environment, 'prod') }}:
       - name: branchRef
         value: 'refs/heads/main'
-  - ${{ if and(ne(parameters.environment, 'prod'), ne(parameters.environment, 'local')) }}:
+  - ${{ else }}:
       - name: branchRef
         value: 'refs/heads/develop'
 
