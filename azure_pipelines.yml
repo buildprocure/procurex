@@ -11,8 +11,8 @@ parameters:
 
   - name: cssBranch
     type: string
-    default:  ${{ if eq(parameters.environment, 'prod') }}: main ${{ else }}: develop
-    
+    default:  ${{ if eq(parameters.environment, 'prod') }}main${{ else }}develop${{ end }}
+
 variables:
 
   - name: branchRef
