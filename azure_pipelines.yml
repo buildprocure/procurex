@@ -121,9 +121,10 @@ stages:
 
           - task: PublishBuildArtifacts@1
             inputs:
-             pathtoPublish: '$(Build.ArtifactStagingDirectory)/
-             ArtifactName: 'ilife-css'
+              pathtoPublish: '$(Build.ArtifactStagingDirectory)'
+              artifactName: 'ilife-css'
             displayName: 'Publish CSS Artifacts'
+
 
           - script: |
               echo "Listing Pipeline.workspace files after checkout:"
