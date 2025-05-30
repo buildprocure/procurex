@@ -15,8 +15,12 @@ variables:
   - group: style-css-branch-mapping
   - name: DEP_ENV
     value: ${{ parameters.environment }}
+  - name: branchRefFinal
+    value: ${{ coalesce(variables[parameters.environment], 'refs/heads/main') }}
+
+  # These are for runtime usage
   - name: branchRef
-    value: $[ variables[variables.DEP_ENV] ]
+    value: $(branchRefFinal)
 
 
   - group: github-access-tokens
