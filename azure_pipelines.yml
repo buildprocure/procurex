@@ -140,6 +140,13 @@ stages:
               ls -laR $(Pipeline.Workspace)
             displayName: 'Debug: Show checked out files'
 
+          - script: |
+              echo "Cleaning up disk space..."
+              sudo docker system prune -af
+              sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc
+              sudo apt-get clean
+              df -h
+            displayName: 'Free up disk space'
 
           - task: NodeTool@0
             inputs:
