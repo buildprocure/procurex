@@ -13,8 +13,10 @@ parameters:
 variables:
 
   - group: style-css-branch-mapping
+  - name: DEP_ENV
+    value: ${{ parameters.environment }}
   - name: branchRef
-    value: ${{ variables[format('{0}', parameters.environment)] }}
+    value: ${{ variables[variables.DEP_ENV] }}
 
 
   - group: github-access-tokens
