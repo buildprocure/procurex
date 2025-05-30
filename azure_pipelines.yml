@@ -16,7 +16,7 @@ variables:
   - name: DEP_ENV
     value: ${{ parameters.environment }}
   - name: branchRef
-    value: $[ variables[variables.DEP_ENV] ]
+    value: ${{ coalesce(variables[parameters.environment], 'refs/heads/develop') }}
 
 
   - group: github-access-tokens
@@ -51,7 +51,7 @@ resources:
     - repository: ilifes-style-css
       type: github
       name: rabinkhadkaa/ilifes-style-css
-      ref: ${{ coalesce(variables['branchRef'], 'refs/heads/develop') }}
+      ref: $(branchRef)
       endpoint: github.com_rabinkhadkaa
 
 
