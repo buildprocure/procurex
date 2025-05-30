@@ -12,17 +12,9 @@ parameters:
 
 variables:
 
-  - ${{ if eq(parameters.environment, 'prod') }}:
-      - name: branchRef
-        value: 'refs/heads/feature'
-
-  - ${{ if eq(parameters.environment, 'local') }}:
-      - name: branchRef
-        value: 'refs/heads/feature'
-
-  - ${{ if and(ne(parameters.environment, 'prod'), ne(parameters.environment, 'local')) }}:
-      - name: branchRef
-        value: 'refs/heads/develop'
+  - group: style-css-branch-mapping
+  - name: branchRef
+    value: ${{ variables[format('{0}', parameters.environment)] }}
 
 
   - group: github-access-tokens
@@ -57,7 +49,7 @@ resources:
     - repository: ilifes-style-css
       type: github
       name: rabinkhadkaa/ilifes-style-css
-      ref: ${{ variables['Build.SourceBranch'] }}
+      ref: $(branchRef)
       endpoint: github.com_rabinkhadkaa
 
 
@@ -76,7 +68,7 @@ stages:
           - checkout: ilife-build
           - script: |
               echo "Resolved CSS_BRANCH: $(branchRef)"
-            displayName: 'Check CSS Branch Value'
+            displayName: 'Check CSS Branch Value -$(branchRef)'
 
 
           - checkout: ilife-items-frontend
