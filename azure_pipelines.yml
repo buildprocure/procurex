@@ -16,7 +16,7 @@ variables:
   - name: DEP_ENV
     value: ${{ parameters.environment }}
   - name: branchRef
-    value: ${{ coalesce(variables[variables.DEP_ENV], 'develop') }}
+    value: ${{ coalesce([ variables[variables.DEP_ENV] ], 'develop') }}
 
 
   - group: github-access-tokens
