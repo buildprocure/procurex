@@ -10,30 +10,6 @@ parameters:
       - local
 
 
-variables:
-
-  - group: style-css-branch-mapping
-  - name: DEP_ENV
-    value: ${{ parameters.environment }}
-  - name: branchRef
-    value: $[ variables[variables.DEP_ENV]!='' ? variables[variables.DEP_ENV], 'refs/heads/main' ]
-
-
-  - group: github-access-tokens
-  - name: dockerRegistryServiceConnection
-    value: 'acr-ilifes-docker-connection-v2'
-  - name: imageName
-    value: 'ilifes-store'
-  - name: acrName
-    value: 'ilifesregistry.azurecr.io'
-  - name: sshServiceConnection
-    value: 'ilifes-ssh-connection'
-  - name: appDirectory
-    value: '/var/www/html'
-  - name: containerName
-    value: 'ilifes_web'
-
-
 resources:
   repositories:
     - repository: ilife-items-frontend
@@ -53,6 +29,30 @@ resources:
       name: rabinkhadkaa/ilifes-style-css
       ref: $(branchRef)
       endpoint: github.com_rabinkhadkaa
+
+
+
+variables:
+  - group: style-css-branch-mapping
+  - name: DEP_ENV
+    value: ${{ parameters.environment }}
+  - name: branchRef
+    value: $[ variables[variables.DEP_ENV] ]
+
+
+  - group: github-access-tokens
+  - name: dockerRegistryServiceConnection
+    value: 'acr-ilifes-docker-connection-v2'
+  - name: imageName
+    value: 'ilifes-store'
+  - name: acrName
+    value: 'ilifesregistry.azurecr.io'
+  - name: sshServiceConnection
+    value: 'ilifes-ssh-connection'
+  - name: appDirectory
+    value: '/var/www/html'
+  - name: containerName
+    value: 'ilifes_web'
 
 
 stages:
@@ -112,22 +112,18 @@ stages:
             displayName: 'Remove Git ExtraHeaders'
 
           - checkout: ilifes-style-css
-          #   ref: refs/heads/$(CSS_BRANCH)
-          #   path: s/ilifes-style-css
-          #   displayName: 'Checkout ilifes-style-css repo-$(CSS_BRANCH)'
 
-          # - script: |
-          #     echo "=== Switching CSS repo to branch: $(CSS_BRANCH) ==="
-          #     cd $(Build.SourcesDirectory)/ilifes-style-css
-              
-          #     git remote set-url origin https://$(GITHUB_PAT)@github.com/rabinkhadkaa/ilifes-style-css.git
-          #     git fetch origin
-          #     git checkout $(CSS_BRANCH)
-          #     git pull origin $(CSS_BRANCH)
-          #   env:
-          #     GITHUB_PAT: $(GITHUB_PAT)
-          #   displayName: 'Switch to Dynamic CSS Branch'
+          - script: |
+              echo "coping css files to build directory"
+              mkdir -p $(Build.SourcesDirectory)/ilife/css
+              cp -r $(Build.SourcesDirectory)/ilifes-style-css/* $(Build.SourcesDirectory)/ilife/css
+            displayName: 'Switch to Dynamic CSS Branch'
 
+          - task: PublishBuildArtifacts@1
+            inputs:
+             pathtoPublish: '$(Build.ArtifactStagingDirectory)/
+             ArtifactName: 'ilife-css'
+            displayName: 'Publish CSS Artifacts'
 
           - script: |
               echo "Listing Pipeline.workspace files after checkout:"
@@ -165,6 +161,20 @@ stages:
               mkdir -p $(Build.SourcesDirectory)/public/items-frontend
               cp -r $(Build.SourcesDirectory)/ilife-items-frontend/dist/* $(Build.SourcesDirectory)/ilife/public/items-frontend
             displayName: 'Copy React Build to Public Folder'
+
+
+          - task: DownloadBuildArtifacts@0
+            displayName: 'Download CSS Artifacts'
+            inputs:
+              artifactName: 'ilife-css'
+              downloadPath: '$(pipeline.workspace)'
+
+          - script: |
+              echo "Copying CSS files to ilife/css"
+              rm -rf $(Build.SourcesDirectory)/ilife/css
+              mkdir -p $(Build.SourcesDirectory)/ilife/css
+              cp -f $(Pipeline.Workspace)/ilife-css/* $(Build.SourcesDirectory)/ilife/css
+            displayName: 'Copy CSS Files to Build Directory'
 
           - task: Docker@2
             displayName: 'Docker Login to ACR'
