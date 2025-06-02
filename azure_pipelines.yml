@@ -174,7 +174,7 @@ stages:
               echo "Copying CSS files to ilife/css"
               rm -rf $(Build.SourcesDirectory)/ilife/css
               mkdir -p $(Build.SourcesDirectory)/ilife/css
-              cp -f $(Pipeline.Workspace)/ilife-css/* $(Build.SourcesDirectory)/ilife/css
+              cp -r $(Pipeline.Workspace)/ilife-css/* $(Build.SourcesDirectory)/ilife/css
             displayName: 'Copy CSS Files to Build Directory'
 
           - task: Docker@2
