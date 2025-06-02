@@ -193,7 +193,7 @@ stages:
             displayName: Build Docker Image with Site24x7 Agent
             inputs:
               command: build
-              Dockerfile: 'ilife/Dockerfile'
+              Dockerfile: ilife/dockerfile
               tags: |
                 $(dockerImageName):$(dockerImageTag)
               buildContext: .
@@ -272,7 +272,7 @@ stages:
                 docker images -q $(acrName)/$(imageName):latest | grep . > /dev/null && docker rmi -f $(acrName)/$(imageName):latest || echo "No old image '$(acrName)/$(imageName):latest' to remove."
 
                 echo "### Pulling latest image ###"
-                docker pull $(acrName)/$(imageName):latest
+                docker pull $(dockerImageName):$(dockerImageTag)
 
                 echo "### Starting containers with docker-compose ###"
                 docker-compose -f $(appDirectory)/docker-compose.yml up -d 2>&1 | tee docker-compose.log
