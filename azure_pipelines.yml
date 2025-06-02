@@ -215,16 +215,15 @@ stages:
         steps:
           - checkout: self
 
-          - task: SSH@0
-            displayName: 'Copy docker-compose.yml to Server'
+          - task: CopyFilesOverSSH@0
+            displayName: 'Copy docker-compose.yml and .env to server'
             inputs:
               sshEndpoint: $(sshServiceConnection)
-              runOptions: 'commands'
-              commands: |
-                echo "Copying docker-compose.yml to $(appDirectory)"
-                scp -i /root/.ssh/id_rsa $(Build.SourcesDirectory)/docker-compose.yml root@143.198.64.132:$(appDirectory)
-                echo "Copying php-env.env to $(appDirectory)"
-                scp -i /root/.ssh/id_rsa $(Build.SourcesDirectory)/php-env-${{ parameters.environment }}.env root@143.198.64.132:$(appDirectory)/php-env.env
+              sourceFolder: '$(Build.SourcesDirectory)'
+              contents: |
+                docker-compose.yml
+                php-env-${{ parameters.environment }}.env
+              targetFolder: '$(appDirectory)'
 
           - task: SSH@0
             displayName: 'Debugging: List Files in Build Source Directory'
