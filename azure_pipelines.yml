@@ -55,6 +55,10 @@ variables:
     value: '/var/www/html'
   - name: containerName
     value: 'ilifes_web'
+  - name: dockerImageName
+    value: 'ilife-php-base-image-site24x7'
+  - name: dockerImageTag
+    value: 'latest'
 
 
 stages:
@@ -189,7 +193,7 @@ stages:
             displayName: Build Docker Image with Site24x7 Agent
             inputs:
               command: build
-              Dockerfile: '**/Dockerfile'
+              Dockerfile: 'ilife/Dockerfile'
               tags: |
                 $(dockerImageName):$(dockerImageTag)
               buildContext: .
