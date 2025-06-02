@@ -77,13 +77,13 @@ stages:
             path: s/ilife-items-frontend
 
 
-          - script: |
-              echo "Pre-check: Raw parameter value: ${{ parameters.environment }}"
-              echo "Pre-check: Attempting to access variable directly (should be empty here if it's the issue): $(prod)"
-              echo "Pre-check: Attempting to access variable dynamically using expression: ${{ variables[parameters.environment] }}"
-              echo "Pre-check: Listing all available variables (might be very verbose):"
-              env | sort
-            displayName: 'Debug: Pre-check Variable Resolution'
+          # - script: |
+          #     echo "Pre-check: Raw parameter value: ${{ parameters.environment }}"
+          #     echo "Pre-check: Attempting to access variable directly (should be empty here if it's the issue): $(prod)"
+          #     echo "Pre-check: Attempting to access variable dynamically using expression: ${{ variables[parameters.environment] }}"
+          #     echo "Pre-check: Listing all available variables (might be very verbose):"
+          #     env | sort
+          #   displayName: 'Debug: Pre-check Variable Resolution'
 
           # # --- CRITICAL CHANGE IN THIS SCRIPT BLOCK ---
           # - script: |
@@ -104,20 +104,20 @@ stages:
           #     GITHUB_TOKEN: $(System.AccessToken)
           # # --- END CRITICAL CHANGE ---
           
-          # # --- MODIFIED "Switch to CSS repo branch" SCRIPT BLOCK ---
-          - script: |
-              echo "=== Removing leftover git extraheaders to avoid 400 errors ==="
-              git config --unset-all http.https://github.com/.extraheader || true
-            workingDirectory: $(Build.SourcesDirectory)/ilifes-style-css
-            displayName: 'Remove Git ExtraHeaders'
+          # # # --- MODIFIED "Switch to CSS repo branch" SCRIPT BLOCK ---
+          # - script: |
+          #     echo "=== Removing leftover git extraheaders to avoid 400 errors ==="
+          #     git config --unset-all http.https://github.com/.extraheader || true
+          #   workingDirectory: $(Build.SourcesDirectory)/ilifes-style-css
+          #   displayName: 'Remove Git ExtraHeaders'
 
           - checkout: ilifes-style-css
 
           - script: |
-              echo "coping css files to build directory"
+              echo "coping css files to build Artifact directory"
               mkdir -p $(Build.SourcesDirectory)/ilife/css
-              cp -r $(Build.SourcesDirectory)/ilifes-style-css/* $(Build.SourcesDirectory)/ilife/css
-            displayName: 'Switch to Dynamic CSS Branch'
+              cp -r $(Build.SourcesDirectory)/ilifes-style-css/* $(Build.ArtifactStagingDirectory)/ilife/css
+            displayName: 'Copy CSS Files to Build Artifact Staging Directory'
 
           - task: PublishBuildArtifacts@1
             inputs:
