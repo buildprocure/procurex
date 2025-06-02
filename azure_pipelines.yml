@@ -115,7 +115,7 @@ stages:
 
           - script: |
               echo "coping css files to build Artifact directory"
-              mkdir -p $(Build.SourcesDirectory)/ilife/css
+              mkdir -p $(Build.ArtifactStagingDirectory)/ilife/css
               cp -r $(Build.SourcesDirectory)/ilifes-style-css/* $(Build.ArtifactStagingDirectory)/ilife/css
             displayName: 'Copy CSS Files to Build Artifact Staging Directory'
 
