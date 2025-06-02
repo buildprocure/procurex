@@ -176,6 +176,13 @@ stages:
               mkdir -p $(Build.SourcesDirectory)/ilife/css
               cp -r $(Pipeline.Workspace)/ilife-css/* $(Build.SourcesDirectory)/ilife/css
             displayName: 'Copy CSS Files to Build Directory'
+          - task: CopyFilesOverSSH@0
+            displayName: 'Copy Files Over SSH Task'
+            inputs:
+              sshEndpoint: '<your-ssh-service-connection-name>'
+              sourceFolder: '$(Build.SourcesDirectory)'
+              contents: 'docker-compose.yml'
+              targetFolder: '/var/www/html'
 
           - task: Docker@2
             displayName: 'Docker Login to ACR'
