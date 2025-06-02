@@ -179,7 +179,7 @@ stages:
           - task: CopyFilesOverSSH@0
             displayName: 'Copy Files Over SSH Task'
             inputs:
-              sshEndpoint: '<your-ssh-service-connection-name>'
+              sshEndpoint: '$(sshServiceConnection)'
               sourceFolder: '$(Build.SourcesDirectory)'
               contents: 'docker-compose.yml'
               targetFolder: '/var/www/html'
