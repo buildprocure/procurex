@@ -1,38 +1,29 @@
+# ARG must be declared before usage
+ARG S247_LICENSE_KEY
+
 FROM php:8.2-apache
 
-# Install PHP extensions
+# Re-declare ARG inside the build stage
+ARG S247_LICENSE_KEY
+
 RUN docker-php-ext-install mysqli
-
-# Install necessary packages
 RUN apt-get update && apt-get install -y wget unzip procps default-mysql-client curl
-
-# Enable Apache modules
 RUN a2enmod rewrite ssl headers
 
-# Copy Apache config
 COPY ./apache-config.conf /etc/apache2/sites-available/000-default.conf
-
-# Copy application source code
 COPY . /var/www/html
 
-# ---- Site24x7 APM Agent Installation ----
+# Install Site24x7 agent using ARG
+RUN wget -O /tmp/InstallAgentPHP.sh https://staticdownloads.site24x7.com/apminsight/agents/AgentPHP/linux/InstallAgentPHP.sh && \
+    sh /tmp/InstallAgentPHP.sh -lk "${S247_LICENSE_KEY}" -zpa.application_name "ilifes"
 
-# Download and install Site24x7 PHP agent
-RUN wget -O InstallAgentPHP.sh https://staticdownloads.site24x7.com/apminsight/agents/AgentPHP/linux/InstallAgentPHP.sh && \
-    sh InstallAgentPHP.sh -lk "us_67a7588da2ed65d41bfa4ab405a81bc6" -zpa.application_name "ilifes"
+RUN wget -O /tmp/InstallDataExporter.sh https://staticdownloads.site24x7.com/apminsight/S247DataExporter/linux/InstallDataExporter.sh && \
+    sh /tmp/InstallDataExporter.sh -root -nsvc -lk "${S247_LICENSE_KEY}"
 
-# Download and install Site24x7 Data Exporter (required background service)
-RUN wget -O InstallDataExporter.sh https://staticdownloads.site24x7.com/apminsight/S247DataExporter/linux/InstallDataExporter.sh && \
-    sh InstallDataExporter.sh -root -nsvc -lk "us_67a7588da2ed65d41bfa4ab405a81bc6"
+RUN rm -f /tmp/InstallAgentPHP.sh /tmp/InstallDataExporter.sh
 
-# Optional: Clean up installers
-RUN rm -f InstallAgentPHP.sh InstallDataExporter.sh
+EXPOSE 80 443
 
-# Expose ports
-EXPOSE 80
-EXPOSE 443
-
-# Entrypoint to keep DataExporter running in background (if needed)
 COPY ./entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
-ENTRYPOINT [ "sh", "/entrypoint.sh" ]
+ENTRYPOINT ["sh", "/entrypoint.sh"]

@@ -38,7 +38,9 @@ variables:
     value: ${{ parameters.environment }}
   - name: branchRef
     value: $[ variables[variables.DEP_ENV] ]
-
+  - group: S247_LICENSE_KEY
+  - name: S247_LICENSE_KEY
+    value: $[ variables[variables.S247_LICENSE_KEY] ]
 
   - group: github-access-tokens
   - name: dockerRegistryServiceConnection
@@ -184,12 +186,15 @@ stages:
               containerRegistry: $(dockerRegistryServiceConnection)
 
           - task: Docker@2
-            displayName: 'Build Docker Image'
+            displayName: Build Docker Image with Site24x7 Agent
             inputs:
               command: build
-              repository: $(imageName)
-              dockerfile: ilife/dockerfile
-              tags: latest
+              Dockerfile: '**/Dockerfile'
+              tags: |
+                $(dockerImageName):$(dockerImageTag)
+              buildContext: .
+              arguments: >
+                --build-arg S247_LICENSE_KEY=$(S247_LICENSE_KEY)
 
           - script: |
               echo "Listing files before pushing Docker image"
