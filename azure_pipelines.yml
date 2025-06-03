@@ -37,7 +37,7 @@ variables:
   - name: DEP_ENV
     value: ${{ parameters.environment }}
   - name: branchRef
-    value: $[ coalesce(variables[variables.DEP_ENV], 'develop' ]
+    value: $[ coalesce(variables[variables.DEP_ENV], 'develop') ]
   - group: S247_LICENSE_KEY
   - name: S247_LICENSE_KEY
     value: $[ variables[variables.S247_LICENSE_KEY] ]
