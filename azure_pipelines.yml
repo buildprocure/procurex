@@ -38,7 +38,7 @@ variables:
     value: ${{ parameters.environment }}
   - name: branchRef
     value: $[ coalesce(variables[variables.DEP_ENV], 'develop') ]
-  - group: S247_LICENSE_KEY
+  - group: S247_LICENSE_VARs
   - name: S247_LICENSE_KEY
     value: $[ variables[variables.S247_LICENSE_KEY] ]
 
@@ -118,6 +118,10 @@ stages:
           #   displayName: 'Remove Git ExtraHeaders'
 
           - checkout: ilifes-style-css
+
+            # ✅ Optional: Debug that variable is loaded (delete this later)
+          - script: echo "Key is- $(S247_LICENSE_KEY)"
+            displayName: 'Debug Key Output'
 
           - script: |
               echo "coping css files to build Artifact directory"
