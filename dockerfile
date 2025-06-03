@@ -25,11 +25,20 @@ RUN wget -O /tmp/InstallAgentPHP.sh https://staticdownloads.site24x7.com/apminsi
 RUN echo "extension=/opt/site24x7/apminsight/php/phpagent.so" > /usr/local/etc/php/conf.d/99-apminsight.ini && \
     echo "apminsight.configfile=/opt/site24x7/apminsight/php/agent.conf" >> /usr/local/etc/php/conf.d/99-apminsight.ini
 
+RUN echo "apminsight.loglevel=DEBUG" >> /usr/local/etc/php/conf.d/99-apminsight.ini && \
+echo "apminsight.logfile=/opt/site24x7/apminsight/php/logs/agent.log" >> /usr/local/etc/php/conf.d/99-apminsight.ini
+
 
 RUN wget -O /tmp/InstallDataExporter.sh https://staticdownloads.site24x7.com/apminsight/S247DataExporter/linux/InstallDataExporter.sh && \
     sh /tmp/InstallDataExporter.sh -root -nsvc -lk "${S247_LICENSE_KEY}"
 
 RUN rm -f /tmp/InstallAgentPHP.sh /tmp/InstallDataExporter.sh
+
+RUN ls -la /opt/site24x7/apminsight/php && \
+    cat /usr/local/etc/php/conf.d/99-apminsight.ini
+
+RUN apt-get install -y vim net-tools
+
 
 EXPOSE 80 443
 
