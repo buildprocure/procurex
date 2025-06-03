@@ -197,7 +197,7 @@ stages:
               command: build
               Dockerfile: ilife/dockerfile
               tags: |
-                $(dockerImageName):$(dockerImageTag)
+                $(imageName):$(dockerImageTag)
               buildContext: ilife
               arguments: >
                 --build-arg S247_LICENSE_KEY=$(S247_LICENSE_KEY)
@@ -212,7 +212,7 @@ stages:
             inputs:
               command: push
               repository: $(imageName)
-              tags: latest
+              tags: $(dockerImageTag)
 
 
   - stage: Deploy
@@ -274,7 +274,7 @@ stages:
                 docker images -q $(acrName)/$(imageName):latest | grep . > /dev/null && docker rmi -f $(acrName)/$(imageName):latest || echo "No old image '$(acrName)/$(imageName):latest' to remove."
 
                 echo "### Pulling latest image ###"
-                docker pull $(dockerImageName):$(dockerImageTag)
+                docker pull $(acrName)/$(imageName):$(dockerImageTag)
 
                 echo "### Starting containers with docker-compose ###"
                 docker-compose -f $(appDirectory)/docker-compose.yml up -d 2>&1 | tee docker-compose.log
