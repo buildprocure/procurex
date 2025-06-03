@@ -21,6 +21,11 @@ RUN echo "Key is ${S247_LICENSE_KEY}"
 RUN wget -O /tmp/InstallAgentPHP.sh https://staticdownloads.site24x7.com/apminsight/agents/AgentPHP/linux/InstallAgentPHP.sh && \
     sh /tmp/InstallAgentPHP.sh -lk "${S247_LICENSE_KEY}" -zpa.application_name "ilifes"
 
+# ✅ Register the extension manually
+RUN echo "extension=/opt/site24x7/apminsight/php/phpagent.so" > /etc/php/8.2/apache2/conf.d/99-apminsight.ini && \
+    echo "apminsight.configfile=/opt/site24x7/apminsight/php/agent.conf" >> /etc/php/8.2/apache2/conf.d/99-apminsight.ini
+
+
 RUN wget -O /tmp/InstallDataExporter.sh https://staticdownloads.site24x7.com/apminsight/S247DataExporter/linux/InstallDataExporter.sh && \
     sh /tmp/InstallDataExporter.sh -root -nsvc -lk "${S247_LICENSE_KEY}"
 
