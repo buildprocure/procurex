@@ -19,7 +19,13 @@ RUN echo "Key is ${S247_LICENSE_KEY}"
 
 # Install Site24x7 agent using ARG
 RUN wget -O /tmp/InstallAgentPHP.sh https://staticdownloads.site24x7.com/apminsight/agents/AgentPHP/linux/InstallAgentPHP.sh && \
-    sh /tmp/InstallAgentPHP.sh -lk "${S247_LICENSE_KEY}" -zpa.application_name "ilifes"
+    chmod +x /tmp/InstallAgentPHP.sh && \
+    sh /tmp/InstallAgentPHP.sh -lk "${S247_LICENSE_KEY}" -zpa.application_name "ilifes" || (echo "Site24x7 Agent install failed" && cat /opt/site24x7/apminsight/php/install.log && exit 1)
+
+RUN echo "Checking agent directory and ini file..." && \
+if [ -d /opt/site24x7/apminsight/php ]; then echo "Agent dir exists"; else echo "Missing agent dir"; fi && \
+if [ -f /usr/local/etc/php/conf.d/99-apminsight.ini ]; then echo "INI exists"; else echo "INI missing"; fi
+
 
 # ✅ Register the extension manually
 RUN echo "extension=/opt/site24x7/apminsight/php/phpagent.so" > /usr/local/etc/php/conf.d/99-apminsight.ini && \
