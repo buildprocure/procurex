@@ -119,6 +119,10 @@ stages:
 
           - checkout: ilifes-style-css
 
+            # ✅ Optional: Debug that variable is loaded (delete this later)
+          - script: echo "Key is- $(S247_LICENSE_KEY)"
+            displayName: 'Debug Key Output'
+
           - script: |
               echo "coping css files to build Artifact directory"
               mkdir -p $(Build.ArtifactStagingDirectory)/ilife/css
