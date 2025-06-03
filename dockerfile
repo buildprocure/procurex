@@ -26,17 +26,16 @@ RUN echo "🔑 Site24x7 License Key: ${S247_LICENSE_KEY}"
 # Install Site24x7 APM Insight PHP Agent
 RUN wget -O /tmp/InstallAgentPHP.sh https://staticdownloads.site24x7.com/apminsight/agents/AgentPHP/linux/InstallAgentPHP.sh && \
     chmod +x /tmp/InstallAgentPHP.sh && \
-    sh /tmp/InstallAgentPHP.sh -lk "${S247_LICENSE_KEY}" -zpa.application_name "ilifes" || \
-    (echo "🚨 Site24x7 PHP Agent install failed"; ls -la /opt/site24x7/apminsight || true)
-
-# (Re-)configure Site24x7 PHP agent manually
-RUN if [ -d /opt/site24x7/apminsight/php ]; then \
+    bash /tmp/InstallAgentPHP.sh -lk "${S247_LICENSE_KEY}" -zpa.application_name "ilifes" && \
+    if [ -d /opt/site24x7/apminsight/php ]; then \
+      echo "✅ Site24x7 agent installed"; \
       echo "extension=/opt/site24x7/apminsight/php/phpagent.so" > /usr/local/etc/php/conf.d/99-apminsight.ini && \
       echo "apminsight.configfile=/opt/site24x7/apminsight/php/agent.conf" >> /usr/local/etc/php/conf.d/99-apminsight.ini && \
       echo "apminsight.loglevel=DEBUG" >> /usr/local/etc/php/conf.d/99-apminsight.ini && \
       echo "apminsight.logfile=/opt/site24x7/apminsight/php/logs/agent.log" >> /usr/local/etc/php/conf.d/99-apminsight.ini; \
     else \
-      echo "❌ Site24x7 PHP agent not found, skipping config"; \
+      echo "❌ Site24x7 PHP agent not found in same RUN block"; \
+      ls -la /opt/site24x7/apminsight || true; \
     fi
 
 # Optional: View generated config for verification
