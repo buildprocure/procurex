@@ -214,6 +214,11 @@ stages:
               command: push
               repository: $(imageName)
               tags: $(dockerImageTag)
+          - script: |
+              echo "List Docker images:"
+              docker images | grep ilifes-store
+            displayName: "Debug: Check Image Tags"
+
 
 
   - stage: Deploy
