@@ -39,8 +39,6 @@ variables:
   - name: branchRef
     value: $[ coalesce(variables[variables.DEP_ENV], 'develop') ]
   - group: S247_LICENSE_VARs
-  - name: S247_LICENSE_KEY
-    value: $[ variables.S247_LICENSE_KEY ]
 
   - group: github-access-tokens
   - name: dockerRegistryServiceConnection
