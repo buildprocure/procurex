@@ -8,7 +8,7 @@ ARG S247_LICENSE_KEY
 
 # Install dependencies
 RUN apt-get update && \
-    apt-get install -y wget unzip procps default-mysql-client curl vim net-tools php-dev php-pear gcc make && \
+    apt-get install -y wget unzip procps default-mysql-client curl vim net-tools gcc make && \
     rm -rf /var/lib/apt/lists/*
 
 # Enable Apache modules
