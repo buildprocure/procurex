@@ -1,7 +1,9 @@
 #!/bin/sh
 
-# Start Site24x7 Data Exporter in background
-/opt/site24x7/S247DataExporter/bin/S247DataExporterDaemon start
+# Only run daemon if explicitly needed
+if [ "$SITE24X7_ENABLE" = "true" ] && [ -x /opt/site24x7/S247DataExporter/bin/S247DataExporterDaemon ]; then
+  /opt/site24x7/S247DataExporter/bin/S247DataExporterDaemon start
+fi
 
-# Start Apache in foreground
+# Start Apache
 apache2-foreground
