@@ -13,6 +13,10 @@ RUN a2enmod rewrite ssl headers
 COPY ./apache-config.conf /etc/apache2/sites-available/000-default.conf
 COPY . /var/www/html
 
+
+# Optional: Debugging - remove before production
+RUN echo "Key is ${S247_LICENSE_KEY}"
+
 # Install Site24x7 agent using ARG
 RUN wget -O /tmp/InstallAgentPHP.sh https://staticdownloads.site24x7.com/apminsight/agents/AgentPHP/linux/InstallAgentPHP.sh && \
     sh /tmp/InstallAgentPHP.sh -lk "${S247_LICENSE_KEY}" -zpa.application_name "ilifes"
