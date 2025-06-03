@@ -203,6 +203,10 @@ stages:
               arguments: >
                 --build-arg S247_LICENSE_KEY=$(S247_LICENSE_KEY)
 
+          - script: echo "Build ARG used- $(S247_LICENSE_KEY)"
+            displayName: "Confirm Build ARG Key"
+
+
           - script: |
               echo "Listing files before pushing Docker image"
               ls -la $(Build.SourcesDirectory)
@@ -218,6 +222,10 @@ stages:
               echo "List Docker images:"
               docker images | grep ilifes-store
             displayName: "Debug: Check Image Tags"
+            
+          - script: |
+              docker run --rm ilifesregistry.azurecr.io/ilife-php-base-image-site24x7:latest php -m | grep apminsight
+            displayName: 'Confirm Site24x7 PHP Extension Exists'
 
 
 
