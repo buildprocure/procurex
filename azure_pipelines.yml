@@ -38,7 +38,9 @@ variables:
     value: ${{ parameters.environment }}
   - name: branchRef
     value: $[ variables[variables.DEP_ENV] ]
-
+  - group: S247_LICENSE_KEY
+  - name: S247_LICENSE_KEY
+    value: $[ variables[variables.S247_LICENSE_KEY] ]
 
   - group: github-access-tokens
   - name: dockerRegistryServiceConnection
@@ -53,6 +55,10 @@ variables:
     value: '/var/www/html'
   - name: containerName
     value: 'ilifes_web'
+  - name: dockerImageName
+    value: 'ilife-php-base-image-site24x7'
+  - name: dockerImageTag
+    value: 'latest'
 
 
 stages:
@@ -184,12 +190,15 @@ stages:
               containerRegistry: $(dockerRegistryServiceConnection)
 
           - task: Docker@2
-            displayName: 'Build Docker Image'
+            displayName: Build Docker Image with Site24x7 Agent
             inputs:
               command: build
-              repository: $(imageName)
-              dockerfile: ilife/dockerfile
-              tags: latest
+              Dockerfile: ilife/dockerfile
+              tags: |
+                $(dockerImageName):$(dockerImageTag)
+              buildContext: .
+              arguments: >
+                --build-arg S247_LICENSE_KEY=$(S247_LICENSE_KEY)
 
           - script: |
               echo "Listing files before pushing Docker image"
@@ -263,7 +272,7 @@ stages:
                 docker images -q $(acrName)/$(imageName):latest | grep . > /dev/null && docker rmi -f $(acrName)/$(imageName):latest || echo "No old image '$(acrName)/$(imageName):latest' to remove."
 
                 echo "### Pulling latest image ###"
-                docker pull $(acrName)/$(imageName):latest
+                docker pull $(dockerImageName):$(dockerImageTag)
 
                 echo "### Starting containers with docker-compose ###"
                 docker-compose -f $(appDirectory)/docker-compose.yml up -d 2>&1 | tee docker-compose.log
