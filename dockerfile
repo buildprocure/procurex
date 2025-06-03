@@ -48,6 +48,10 @@ RUN wget -O /tmp/InstallDataExporter.sh https://staticdownloads.site24x7.com/apm
     chmod +x /tmp/InstallDataExporter.sh && \
     sh /tmp/InstallDataExporter.sh -root -nsvc -lk "${S247_LICENSE_KEY}"
 
+RUN ls -la /opt/site24x7/S247DataExporter/bin/ || echo "❌ S247DataExporterDaemon folder missing"
+
+RUN test -x /opt/site24x7/S247DataExporter/bin/S247DataExporterDaemon || echo "❌ Daemon binary missing or not executable"
+
 # Cleanup
 RUN rm -f /tmp/InstallAgentPHP.sh /tmp/InstallDataExporter.sh
 
