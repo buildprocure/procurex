@@ -197,7 +197,8 @@ stages:
               command: build
               Dockerfile: ilife/dockerfile
               tags: |
-                $(imageName):$(dockerImageTag)
+                $(dockerImageName):$(dockerImageTag)
+                $(dockerImageName):latest
               buildContext: ilife
               arguments: >
                 --build-arg S247_LICENSE_KEY=$(S247_LICENSE_KEY)
