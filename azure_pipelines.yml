@@ -223,9 +223,6 @@ stages:
               docker images | grep ilifes-store
             displayName: "Debug: Check Image Tags"
 
-          - script: |
-              docker run --rm --entrypoint php ilifesregistry.azurecr.io/ilife-php-base-image-site24x7:latest -m | grep apminsight
-            displayName: 'Confirm Site24x7 PHP Extension Exists'
 
 
 
