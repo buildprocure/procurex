@@ -195,10 +195,10 @@ stages:
             displayName: Build Docker Image with Site24x7 Agent
             inputs:
               command: build
+              repository: $(dockerImageName)
               Dockerfile: ilife/dockerfile
               tags: |
-                $(dockerImageName):$(dockerImageTag)
-                $(dockerImageName):latest
+                $(dockerImageTag)
               buildContext: ilife
               arguments: >
                 --build-arg S247_LICENSE_KEY=$(S247_LICENSE_KEY)
