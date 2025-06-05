@@ -27,11 +27,11 @@ RUN apt-get update && apt-get install -y wget unzip procps
 
 # Install PHP agent
 RUN wget -O InstallAgentPHP.sh https://staticdownloads.site24x7.com/apminsight/agents/AgentPHP/linux/InstallAgentPHP.sh
-RUN sh InstallAgentPHP.sh -lk ${S247_LICENSE_KEY} -zpa.application_name "ilifes"
+RUN sh InstallAgentPHP.sh -lk "us_67a7588da2ed65d41bfa4ab405a81bc6" -zpa.application_name "ilifes"
 
 # Install S247DataExporter
 RUN wget -O InstallDataExporter.sh https://staticdownloads.site24x7.com/apminsight/S247DataExporter/linux/InstallDataExporter.sh
-RUN sh InstallDataExporter.sh -root -nsvc -lk ${S247_LICENSE_KEY}
+RUN sh InstallDataExporter.sh -root -nsvc -lk "us_67a7588da2ed65d41bfa4ab405a81bc6"
 
 # Install PHP extensions
 RUN docker-php-ext-install mysqli
