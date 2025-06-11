@@ -1,10 +1,7 @@
-# ARG must be declared before usage
-ARG S247_LICENSE_KEY
-
 FROM php:8.2-apache
 
 # Re-declare ARG inside build stage
-ARG S247_LICENSE_KEY="us_67a7588da2ed65d41bfa4ab405a81bc6"
+ARG S247_LICENSE_KEY
 
 # Install dependencies
 RUN apt-get update && \
