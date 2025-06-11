@@ -21,7 +21,7 @@ COPY ./apache-config.conf /etc/apache2/sites-available/000-default.conf
 COPY . /var/www/html
 
 # Optional: Debugging
-RUN echo "🔑 Site24x7 License Key: ${S247_LICENSE_KEY}"
+RUN echo "🔑 Site24x7 APM key: ${S247_LICENSE_KEY}"
 # Install prerequisites
 RUN apt-get update && apt-get install -y wget unzip procps
 
