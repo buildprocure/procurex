@@ -197,6 +197,7 @@ stages:
                 $(dockerImageTag)
               buildContext: ilife
               arguments: >
+                --no-cache
                 --build-arg S247_LICENSE_KEY=$(S247_LICENSE_KEY)
 
           - script: echo "Build ARG used- $(S247_LICENSE_KEY)"
