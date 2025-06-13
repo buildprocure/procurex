@@ -1,42 +1,26 @@
-FROM php:8.2-apache
+FROM ilifesregistry.azurecr.io/ilifes/php-base:latest
 
-# Re-declare ARG inside build stage
+# Declare ARGs for Site24x7
 ARG S247_LICENSE_KEY
+ARG ENV_NAME
+ARG REPO_NAME
 
-# Install dependencies
-RUN apt-get update && \
-    apt-get install -y wget unzip procps default-mysql-client curl vim net-tools gcc make && \
-    rm -rf /var/lib/apt/lists/*
+RUN echo "Environment: ${ENV_NAME}"
+RUN echo "Repository: ${REPO_NAME}"
+RUN echo "Site24x7 License Key: ${S247_LICENSE_KEY}"
 
-# Enable Apache modules
-RUN a2enmod rewrite ssl headers
-
-# Configure Apache
+# Copy Apache config and application code
 COPY ./apache-config.conf /etc/apache2/sites-available/000-default.conf
-
-# Copy application code
 COPY . /var/www/html
 
-# Optional: Debugging
-RUN echo "🔑 Site24x7 APM key: ${S247_LICENSE_KEY}"
-# Install prerequisites
-RUN apt-get update && apt-get install -y wget unzip procps
+# Install Site24x7 Agent with environment-specific name
+RUN /InstallAgentPHP.sh -lk "${S247_LICENSE_KEY}" -zpa.application_name "Buildprocure-${REPO_NAME}-${ENV_NAME}" && \
+    /InstallDataExporter.sh -root -nsvc -lk "${S247_LICENSE_KEY}"
 
-# Install PHP agent
-RUN wget -O InstallAgentPHP.sh https://staticdownloads.site24x7.com/apminsight/agents/AgentPHP/linux/InstallAgentPHP.sh
-RUN sh InstallAgentPHP.sh -lk "${S247_LICENSE_KEY}" -zpa.application_name "Buildprocure"
-
-# Install S247DataExporter
-RUN wget -O InstallDataExporter.sh https://staticdownloads.site24x7.com/apminsight/S247DataExporter/linux/InstallDataExporter.sh
-RUN sh InstallDataExporter.sh -root -nsvc -lk "${S247_LICENSE_KEY}"
-
-# Install PHP extensions
-RUN docker-php-ext-install mysqli
-
-# Expose ports
-EXPOSE 80 443
-
-# Entrypoint
+# Entrypoint setup
 COPY ./entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
+
+EXPOSE 80 443
+
 ENTRYPOINT ["sh", "/entrypoint.sh"]

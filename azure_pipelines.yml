@@ -199,6 +199,8 @@ stages:
               arguments: >
                 --no-cache
                 --build-arg S247_LICENSE_KEY=$(S247_LICENSE_KEY)
+                --build-arg ENV_NAME=${{ parameters.environment }}
+                --build-arg REPO_NAME=$(Build.Repository.Name)
 
           - script: echo "Build ARG used- $(S247_LICENSE_KEY)"
             displayName: "Confirm Build ARG Key"
