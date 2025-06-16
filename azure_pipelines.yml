@@ -39,6 +39,10 @@ variables:
   - name: branchRef
     value: $[ coalesce(variables[variables.DEP_ENV], 'develop') ]
   - group: S247_LICENSE_VARs
+  - name: S247_LICENSE_KEY
+    value: $(S247_LICENSE_KEY)
+  - name: DOCKER_EXTRA_ARGS
+    value: ${{format('ENV_NAME={0} REPO_NAME={1} S247_LICENSE_KEY={2}', parameters.environment, variables['Build.Repository.Name'], variables['S247_LICENSE_KEY'])}}
 
   - group: github-access-tokens
   - name: dockerRegistryServiceConnection
@@ -57,6 +61,8 @@ variables:
     value: 'ilife-php-base-image-site24x7'
   - name: dockerImageTag
     value: 'latest'
+  - name: repoName
+    value: '$(Build.Repository.Name)'
 
 
 stages:
@@ -85,6 +91,9 @@ stages:
               env | sort
             displayName: 'Debug: Pre-check Variable Resolution'
 
+          - script: |
+              echo "DOCKER_EXTRA_ARGS: $(DOCKER_EXTRA_ARGS)"
+            displayName: 'Debug: Show DOCKER_EXTRA_ARGS'
           # # --- CRITICAL CHANGE IN THIS SCRIPT BLOCK ---
           # - script: |
           #     echo "Checking out ilifes-style-css repo branch: ${{ variables.CSS_BRANCH }}"
