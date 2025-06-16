@@ -39,10 +39,12 @@ variables:
   - name: branchRef
     value: $[ coalesce(variables[variables.DEP_ENV], 'develop') ]
   - group: S247_LICENSE_VARs
+  - name: REPO_NAME
+    value: $(Build.Repository.Name)
   - name: S24x7_LICENSE_KEY
     value: $(S247_LICENSE_KEY)
   - name: DOCKER_EXTRA_ARGS
-    value: ${{format('ENV_NAME={0} REPO_NAME={1} S247_LICENSE_KEY={2}', parameters.environment, variables['Build.Repository.Name'], variables['S24x7_LICENSE_KEY'])}}
+    value: ${{format('ENV_NAME={0} REPO_NAME={1} S247_LICENSE_KEY={2}', parameters.environment, variables.REPO_NAME, variables['S24x7_LICENSE_KEY'])}}
 
   - group: github-access-tokens
   - name: dockerRegistryServiceConnection
