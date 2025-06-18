@@ -59,8 +59,6 @@ variables:
     value: '/var/www/html'
   - name: containerName
     value: 'ilifes_web'
-  - name: dockerImageName
-    value: 'ilife-php-base-image-site24x7'
   - name: dockerImageTag
     value: 'latest'
   - name: repoName
@@ -202,7 +200,7 @@ stages:
             displayName: Build Docker Image with Site24x7 Agent
             inputs:
               command: build
-              repository: $(dockerImageName)
+              repository: $(imageName)
               Dockerfile: ilife/dockerfile
               tags: |
                 $(dockerImageTag)
@@ -226,7 +224,7 @@ stages:
             displayName: 'Push Docker Image to ACR'
             inputs:
               command: push
-              repository: $(dockerImageName)
+              repository: $(imageName)
               tags: $(dockerImageTag)
           - script: |
               echo "List Docker images:"
@@ -295,7 +293,7 @@ stages:
                 docker images -q $(acrName)/$(imageName):latest | grep . > /dev/null && docker rmi -f $(acrName)/$(imageName):latest || echo "No old image '$(acrName)/$(imageName):latest' to remove."
 
                 echo "### Pulling latest image ###"
-                docker pull $(acrName)/$(dockerImageName):$(dockerImageTag)
+                docker pull $(acrName)/$(imageName):$(dockerImageTag)
 
                 echo "### Starting containers with docker-compose ###"
                 docker-compose -f $(appDirectory)/docker-compose.yml up -d 2>&1 | tee docker-compose.log
