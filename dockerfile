@@ -1,24 +1,27 @@
 FROM ilifesregistry.azurecr.io/ilifes/php-base:latest
 
-# Declare ARGs for Site24x7
 ARG S247_LICENSE_KEY
 ARG ENV_NAME
 ARG REPO_NAME
 
-RUN echo "Environment: ${ENV_NAME}"
-RUN echo "Repository: ${REPO_NAME}"
-RUN echo "Site24x7 License Key: ${S247_LICENSE_KEY}"
-
-# Copy Apache config and application code
+# Apache config and certificates
 COPY ./apache-config.conf /etc/apache2/sites-available/000-default.conf
-RUN a2ensite 000-default.conf && a2dissite 000-default.conf && a2ensite 000-default.conf
+RUN mkdir -p /etc/apache2/ssl
+COPY certs/*.crt /etc/apache2/ssl/
+COPY certs/*.key /etc/apache2/ssl/
+
+# Enable Apache modules
+RUN a2enmod ssl rewrite && \
+    a2ensite 000-default.conf
+
+# Application code
 COPY . /var/www/html
 
-# Install Site24x7 Agent with environment-specific name
+# Install Site24x7 Agent
 RUN /InstallAgentPHP.sh -lk "${S247_LICENSE_KEY}" -zpa.application_name "Buildprocure-${REPO_NAME}-${ENV_NAME}" && \
     /InstallDataExporter.sh -root -nsvc -lk "${S247_LICENSE_KEY}"
 
-# Entrypoint setup
+# Entrypoint
 COPY ./entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
