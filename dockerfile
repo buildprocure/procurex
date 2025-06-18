@@ -11,6 +11,7 @@ RUN echo "Site24x7 License Key: ${S247_LICENSE_KEY}"
 
 # Copy Apache config and application code
 COPY ./apache-config.conf /etc/apache2/sites-available/000-default.conf
+RUN a2ensite 000-default.conf && a2dissite 000-default.conf && a2ensite 000-default.conf
 COPY . /var/www/html
 
 # Install Site24x7 Agent with environment-specific name
