@@ -20,6 +20,7 @@ if(isset($_SESSION['loggedin']) && $_SESSION['loggedin']==true){
 }else{
 $login = false;
 $showerror = false;
+$notapproved = false;
 
 if($_SERVER['REQUEST_METHOD']=='POST'){
   $username = $_POST['username'];
@@ -31,6 +32,11 @@ if($_SERVER['REQUEST_METHOD']=='POST'){
   $num = mysqli_num_rows($result);
   if ($num == 1){
     while($rows = mysqli_fetch_assoc($result)){
+
+      if($rows['user_enrollment']=='Not approved' && $rows['Role']=='Buyer'){
+        $notapproved = true;
+      } else {
+
       if(password_verify($password, $rows['password'])){
         $login = true;
         session_set_cookie_params(604800);
@@ -58,6 +64,7 @@ if($_SERVER['REQUEST_METHOD']=='POST'){
     }
   }
 } 
+}
 }
 
 ?>
@@ -111,6 +118,12 @@ if($_SERVER['REQUEST_METHOD']=='POST'){
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>';
     }
+    if($notapproved){
+      echo '<div class="alert alert-warning alert-dismissible fade show" role="alert">
+              <strong>Pending Approval</strong> Your account is not approved yet. Please wait for admin approval.
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>';
+  }
     if($showerror){
         echo '<div class="alert alert-danger alert-dismissible fade show" role="alert">
                 <strong>Error</strong> Username and password do not match.
