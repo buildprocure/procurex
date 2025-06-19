@@ -92,7 +92,7 @@ if($_SERVER['REQUEST_METHOD']=='POST'){
     <div class="container my-5 p-4 col-md-3 " style="background-color: rgba(254, 251, 251, 0.825); height: 85vh; font-family: sans-serif ;">
     <br>
         <h2 class = "text-center">Sign Up</h2>
-        <form action = "signup.php" method="POST">
+        <form action = "Sign_up.php" method="POST">
             <div class="mb-3">
                 <label for="username" class="form-label">Username</label>
                 <input type="text" class="form-control" id="username" name= "username" aria-describedby="emailHelp">
