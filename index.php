@@ -71,7 +71,7 @@ session_start();
                 <a href="logout.php" class="btn btn-outline-danger btn-sm">Log Out</a>
             <?php else: ?>
                 <a href="login.php" class="btn btn-primary btn-sm me-2">Log In</a>
-                <a href="signup.php" class="btn btn-outline-primary btn-sm">Sign Up</a>
+                <a href="Sign_up.php" class="btn btn-outline-primary btn-sm">Sign Up</a>
             <?php endif; ?>
         </div>
     </div>
@@ -81,7 +81,7 @@ session_start();
     <div class="container">
         <h1>Revolutionizing Construction Procurement</h1>
         <p>Streamline your material sourcing, supplier management, and project procurement with confidence.</p>
-        <a href="signup.php" class="btn btn-light btn-lg mt-4">Get Started</a>
+        <a href="Sign_up.php" class="btn btn-light btn-lg mt-4">Get Started</a>
     </div>
 </section>
 
