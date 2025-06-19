@@ -57,12 +57,9 @@ variables:
     value: 'ilifes-ssh-connection'
   - name: appDirectory
     value: '/var/www/html'
-  - name: containerName
-    value: 'ilifes_web'
   - name: dockerImageTag
     value: 'latest'
-  - name: repoName
-    value: '$(Build.Repository.Name)'
+
 
 
 stages:
@@ -82,10 +79,8 @@ stages:
               echo "Resolved CSS_BRANCH: $(branchRef)"
             displayName: 'Check CSS Branch Value -$(branchRef)'
 
-
           - checkout: ilife-items-frontend
             path: s/ilife-items-frontend
-
 
           - script: |
               env | sort
@@ -94,31 +89,6 @@ stages:
           - script: |
               echo "DOCKER_EXTRA_ARGS: $(DOCKER_EXTRA_ARGS)"
             displayName: 'Debug: Show DOCKER_EXTRA_ARGS'
-          # # --- CRITICAL CHANGE IN THIS SCRIPT BLOCK ---
-          # - script: |
-          #     echo "Checking out ilifes-style-css repo branch: ${{ variables.CSS_BRANCH }}"
-          #     cd $(Build.SourcesDirectory)/ilifes-style-css
-              
-          #     # Assuming 'checkout: ilifes-style-css' handled the initial clone/auth.
-          #     # If your repo is private and these commands fail, it means the
-          #     # 'Classic_PAT-all-repo' endpoint isn't fully configuring git credentials
-          #     # for *subsequent* script-based git commands.
-          #     # In that very specific case, we'd need to re-add authentication, but differently.
-          #     git fetch origin
-          #     git checkout ${{ variables.CSS_BRANCH }}
-          #     git pull origin ${{ variables.CSS_BRANCH }}
-          #   displayName: 'Switch to CSS repo branch'
-          #   # REMOVE THE 'env' BLOCK ALTOGETHER from this step
-          #   env:
-          #     GITHUB_TOKEN: $(System.AccessToken)
-          # # --- END CRITICAL CHANGE ---
-          
-          # # # --- MODIFIED "Switch to CSS repo branch" SCRIPT BLOCK ---
-          # - script: |
-          #     echo "=== Removing leftover git extraheaders to avoid 400 errors ==="
-          #     git config --unset-all http.https://github.com/.extraheader || true
-          #   workingDirectory: $(Build.SourcesDirectory)/ilifes-style-css
-          #   displayName: 'Remove Git ExtraHeaders'
 
           - checkout: ilifes-style-css
 
