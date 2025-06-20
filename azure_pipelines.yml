@@ -121,20 +121,6 @@ stages:
             displayName: 'Publish CSS Artifacts'
           # End of Style CSS related tasks
 
-          # Simplesamlphp related tasks
-          - script: |
-              echo "Copying simplesamlphp repo to artifact directory"
-              mkdir -p $(Build.ArtifactStagingDirectory)/simplesamlphp-repo
-              cp -r $(Build.SourcesDirectory)/ilifes-simplesamlphp/* $(Build.ArtifactStagingDirectory)/simplesamlphp-repo
-            displayName: "Copy ilifes-simplesamlphp files to artifact"
-          
-          - task: PublishBuildArtifacts@1
-            inputs:
-              pathToPublish: '$(Build.ArtifactStagingDirectory)/simplesamlphp-repo'
-              artifactName: 'simplesamlphp-repo'
-            displayName: 'Publish SSO Config Artifacts'
-          # End of Simplesamlphp related tasks
-
           - script: |
               echo "Cleaning up disk space..."
               sudo docker system prune -af
@@ -211,7 +197,7 @@ stages:
             displayName: 'Build simplesamlphp image'
             inputs:
               command: build
-              dockerfile: simplesamlphp-repo/Dockerfile
+              dockerfile: $(Build.SourcesDirectory)/ilifes-simplesamlphp/Dockerfile
               repository: simplesamlphp
               tags: $(dockerImageTag)
               buildContext: simplesamlphp-repo
