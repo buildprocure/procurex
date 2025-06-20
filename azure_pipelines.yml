@@ -200,7 +200,7 @@ stages:
               dockerfile: $(Build.SourcesDirectory)/ilifes-simplesamlphp/Dockerfile
               repository: simplesamlphp
               tags: $(dockerImageTag)
-              buildContext: $(Build.SourcesDirectory)/ilifes-simplesamlphp/Dockerfile
+              buildContext: $(Build.SourcesDirectory)/ilifes-simplesamlphp
 
           - task: Docker@2
             displayName: 'Push simplesamlphp image'
