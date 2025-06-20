@@ -265,9 +265,6 @@ stages:
                 echo "### Stopping existing containers ###"
                 [ "$(docker ps -q)" ] && docker-compose -f $(appDirectory)/docker-compose.yml down 2>&1 | tee docker-compose.log || echo "No running containers to stop."
 
-                echo "### Logging into ACR ###"
-                docker login $(acrName) -u $(acrUsername) -p $(acrPassword)
-
                 echo "### Pulling latest images (ilifes-store & simplesamlphp) ###"
                 docker-compose -f $(appDirectory)/docker-compose.yml pull 2>&1 | tee docker-compose.log
 
