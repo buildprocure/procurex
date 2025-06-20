@@ -35,6 +35,13 @@ services:
       - "8080:80"
     depends_on:
       - db
+      
+  simplesamlphp:
+    image: ilifesregistry.azurecr.io/simplesamlphp:latest
+    container_name: simplesamlphp
+    ports:
+      - "8081:8080"
+    restart: unless-stopped
 
 volumes:
   db_data:

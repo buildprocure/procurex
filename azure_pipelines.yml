@@ -30,6 +30,11 @@ resources:
       ref: $(branchRef)
       endpoint: github.com_rabinkhadkaa
 
+    - repository: ilifes-simplesamlphp
+      type: github
+      name: rabinkhadkaa/ilifes-simplesamlphp
+      ref: refs/heads/main
+      endpoint: github.com_rabinkhadkaa
 
 
 variables:
@@ -75,12 +80,20 @@ stages:
         steps:
           - checkout: self
           - checkout: ilife-build
-          - script: |
-              echo "Resolved CSS_BRANCH: $(branchRef)"
-            displayName: 'Check CSS Branch Value -$(branchRef)'
 
           - checkout: ilife-items-frontend
             path: s/ilife-items-frontend
+
+          - checkout: ilifes-style-css
+
+          - checkout: ilifes-simplesamlphp
+            path: s/ilifes-simplesamlphp
+
+          #Debugging and logging related scripts
+          - script: |
+              echo "Listing Pipeline.workspace files after checkout:"
+              ls -laR $(Pipeline.Workspace)
+            displayName: 'Debug: Show checked out files'
 
           - script: |
               env | sort
@@ -90,12 +103,11 @@ stages:
               echo "DOCKER_EXTRA_ARGS: $(DOCKER_EXTRA_ARGS)"
             displayName: 'Debug: Show DOCKER_EXTRA_ARGS'
 
-          - checkout: ilifes-style-css
-
-            # ✅ Optional: Debug that variable is loaded (delete this later)
           - script: echo "Key is- $(S247_LICENSE_KEY)"
             displayName: 'Debug Key Output'
+          # End of debugging and logging related scripts
 
+          # Style CSS related tasks
           - script: |
               echo "coping css files to build Artifact directory"
               mkdir -p $(Build.ArtifactStagingDirectory)/ilife/css
@@ -107,12 +119,21 @@ stages:
               pathtoPublish: '$(Build.ArtifactStagingDirectory)'
               artifactName: 'ilife-css'
             displayName: 'Publish CSS Artifacts'
+          # End of Style CSS related tasks
 
-
+          # Simplesamlphp related tasks
           - script: |
-              echo "Listing Pipeline.workspace files after checkout:"
-              ls -laR $(Pipeline.Workspace)
-            displayName: 'Debug: Show checked out files'
+              echo "Copying simplesamlphp repo to artifact directory"
+              mkdir -p $(Build.ArtifactStagingDirectory)/simplesamlphp-repo
+              cp -r $(Build.SourcesDirectory)/ilifes-simplesamlphp/* $(Build.ArtifactStagingDirectory)/simplesamlphp-repo
+            displayName: "Copy ilifes-simplesamlphp files to artifact"
+          
+          - task: PublishBuildArtifacts@1
+            inputs:
+              pathToPublish: '$(Build.ArtifactStagingDirectory)/simplesamlphp-repo'
+              artifactName: 'simplesamlphp-repo'
+            displayName: 'Publish SSO Config Artifacts'
+          # End of Simplesamlphp related tasks
 
           - script: |
               echo "Cleaning up disk space..."
@@ -122,6 +143,7 @@ stages:
               df -h
             displayName: 'Free up disk space'
 
+          # Items Frontend related tasks
           - task: NodeTool@0
             inputs:
               versionSpec: '18.x'
@@ -133,20 +155,15 @@ stages:
               npm run build
             displayName: 'Build React Frontend'
 
-            
-          - script: |
-              echo "Listing files after checkout:"
-              ls -R $(Build.SourcesDirectory)
-            displayName: 'Debug: Show checked out files'
-
           - script: |
               echo "Copying built frontend to ilifes/public/items-frontend"
               rm -rf $(Build.SourcesDirectory)/public/items-frontend
               mkdir -p $(Build.SourcesDirectory)/public/items-frontend
               cp -r $(Build.SourcesDirectory)/ilife-items-frontend/dist/* $(Build.SourcesDirectory)/ilife/public/items-frontend
             displayName: 'Copy React Build to Public Folder'
+          # End of Items Frontend related tasks
 
-
+          # Downloading CSS and copying to build directory          
           - task: DownloadBuildArtifacts@0
             displayName: 'Download CSS Artifacts'
             inputs:
@@ -159,7 +176,9 @@ stages:
               mkdir -p $(Build.SourcesDirectory)/ilife/css
               cp -r $(Pipeline.Workspace)/ilife-css/* $(Build.SourcesDirectory)/ilife/css
             displayName: 'Copy CSS Files to Build Directory'
+          # End of downloading CSS and copying to build directory
 
+          # Docker build and push tasks
           - task: Docker@2
             displayName: 'Docker Login to ACR'
             inputs:
@@ -180,29 +199,30 @@ stages:
                 --build-arg S247_LICENSE_KEY=$(S247_LICENSE_KEY)
                 --build-arg ENV_NAME=${{ parameters.environment }}
                 --build-arg REPO_NAME=$(Build.Repository.Name)
-
-          - script: echo "Build ARG used- $(S247_LICENSE_KEY)"
-            displayName: "Confirm Build ARG Key"
-
-
-          - script: |
-              echo "Listing files before pushing Docker image"
-              ls -la $(Build.SourcesDirectory)
-            displayName: "Check Source Files Before Build"
-
+          
           - task: Docker@2
             displayName: 'Push Docker Image to ACR'
             inputs:
               command: push
               repository: $(imageName)
               tags: $(dockerImageTag)
-          - script: |
-              echo "List Docker images:"
-              docker images | grep ilifes-store
-            displayName: "Debug: Check Image Tags"
 
+          - task: Docker@2
+            displayName: 'Build simplesamlphp image'
+            inputs:
+              command: build
+              dockerfile: simplesamlphp-repo/Dockerfile
+              repository: simplesamlphp
+              tags: $(dockerImageTag)
+              buildContext: simplesamlphp-repo
 
-
+          - task: Docker@2
+            displayName: 'Push simplesamlphp image'
+            inputs:
+              command: push
+              repository: simplesamlphp
+              tags: $(dockerImageTag)
+          # End of Docker build and push tasks
 
   - stage: Deploy
     displayName: 'Deploy Application'
@@ -259,14 +279,18 @@ stages:
                 echo "### Stopping existing containers ###"
                 [ "$(docker ps -q)" ] && docker-compose -f $(appDirectory)/docker-compose.yml down 2>&1 | tee docker-compose.log || echo "No running containers to stop."
 
-                echo "### Removing old Docker images ###"
-                docker images -q $(acrName)/$(imageName):latest | grep . > /dev/null && docker rmi -f $(acrName)/$(imageName):latest || echo "No old image '$(acrName)/$(imageName):latest' to remove."
+                echo "### Logging into ACR ###"
+                docker login $(acrName) -u $(acrUsername) -p $(acrPassword)
 
-                echo "### Pulling latest image ###"
-                docker pull $(acrName)/$(imageName):$(dockerImageTag)
+                echo "### Pulling latest images (ilifes-store & simplesamlphp) ###"
+                docker-compose -f $(appDirectory)/docker-compose.yml pull 2>&1 | tee docker-compose.log
 
                 echo "### Starting containers with docker-compose ###"
-                docker-compose -f $(appDirectory)/docker-compose.yml up -d 2>&1 | tee docker-compose.log
+                docker-compose -f $(appDirectory)/docker-compose.yml up -d 2>&1 | tee -a docker-compose.log
+                
+                echo "### Removing old images ###"
+                docker image prune -f
 
                 echo "### Verifying running containers ###"
                 docker ps -a
+
