@@ -24,10 +24,8 @@ RUN <<EOF
 EOF
 
 # Run Site24x7 Agent
-RUN <<EOF
-    /InstallAgentPHP.sh -lk "${S247_LICENSE_KEY}" -zpa.application_name "Buildprocure-${REPO_NAME}-${ENV_NAME}" && \
+RUN /InstallAgentPHP.sh -lk "${S247_LICENSE_KEY}" -zpa.application_name "Buildprocure-${REPO_NAME}-${ENV_NAME}" && \
     /InstallDataExporter.sh -root -nsvc -lk "${S247_LICENSE_KEY}"
-EOF
 
 # Entrypoint
 COPY ./entrypoint.sh /entrypoint.sh
