@@ -17,7 +17,7 @@ RUN a2enmod ssl rewrite && a2ensite 000-default.conf
 COPY . /var/www/html
 
 # Permissions
-RUN chown -R buildprocure:buildprocure /var/www/html
+#RUN chown -R buildprocure:buildprocure /var/www/html
 
 # Run Site24x7 Agent
 RUN /InstallAgentPHP.sh -lk "${S247_LICENSE_KEY}" -zpa.application_name "Buildprocure-${REPO_NAME}-${ENV_NAME}" && \
