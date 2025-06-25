@@ -14,7 +14,7 @@ COPY certs/*.crt /etc/apache2/ssl/
 COPY certs/*.key /etc/apache2/ssl/
 
 # Enable Apache modules
-RUN a2enmod ssl rewrite && a2ensite 000-default.conf
+RUN a2enmod ssl rewrite proxy proxy_http && a2ensite 000-default.conf
 
 # Application code
 COPY . /var/www/html
