@@ -10,6 +10,8 @@ services:
       - db_data:/var/lib/mysql
     ports:
       - "3306:3306"  # Add this to expose MySQL
+    networks:
+      - app-network
 
   web:
     image: ilifesregistry.azurecr.io/ilifes-store:latest  # Use the fully qualified image name
@@ -25,6 +27,8 @@ services:
   
     command: >
       /bin/bash -c "a2enmod ssl && a2ensite default-ssl && apache2-foreground"
+    networks:
+      - app-network
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
@@ -35,6 +39,8 @@ services:
       - "8080:80"
     depends_on:
       - db
+    networks:
+      - app-network
       
   simplesamlphp:
     image: ilifesregistry.azurecr.io/simplesamlphp:latest
@@ -42,7 +48,13 @@ services:
     ports:
       - "8081:8080"
     restart: unless-stopped
+    networks:
+      - app-network
 
 volumes:
   db_data:
   ssl_certs:
+
+networks:
+  app-network:
+    driver: bridge
