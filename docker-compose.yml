@@ -46,7 +46,7 @@ services:
     image: ilifesregistry.azurecr.io/simplesamlphp:latest
     container_name: simplesamlphp
     ports:
-      - "8081:8080"
+      - "8081:80"
     restart: unless-stopped
     networks:
       - app-network
