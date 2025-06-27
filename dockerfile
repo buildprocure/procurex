@@ -30,7 +30,7 @@ RUN /InstallAgentPHP.sh -lk "${S247_LICENSE_KEY}" -zpa.application_name "Buildpr
 COPY ./entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-USER root
+USER buildprocure
 EXPOSE 80 443
 
 ENTRYPOINT ["sh", "/entrypoint.sh"]
