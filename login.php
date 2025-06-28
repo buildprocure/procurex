@@ -143,7 +143,7 @@ if($_SERVER['REQUEST_METHOD']=='POST'){
         <h2 class = "text-center">Login</h2>
         </br>
         <div class="text-center">
-          <form method="Get" action="/simplesaml/">
+          <form method="Get" action="/simplesaml/index.php">
           <!-- Single Sign-On Button -->
           <button type="submit" name="sso_login">Single Sign-On</button>
         </form>
