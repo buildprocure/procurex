@@ -145,7 +145,7 @@ stages:
               echo "Copying built frontend to ilifes/public/items-frontend"
               rm -rf $(Build.SourcesDirectory)/public/items-frontend
               mkdir -p $(Build.SourcesDirectory)/public/items-frontend
-              cp -r $(Build.SourcesDirectory)/ilife-items-frontend/dist/* $(Build.SourcesDirectory)/ilife/public/items-frontend
+              cp -r $(Build.SourcesDirectory)/ilife-items-frontend/dist/* $(Build.SourcesDirectory)/buildprocure/public/items-frontend
             displayName: 'Copy React Build to Public Folder'
           # End of Items Frontend related tasks
 
