@@ -110,8 +110,8 @@ stages:
           # Style CSS related tasks
           - script: |
               echo "coping css files to build Artifact directory"
-              mkdir -p $(Build.ArtifactStagingDirectory)/ilife/css
-              cp -r $(Build.SourcesDirectory)/ilifes-style-css/* $(Build.ArtifactStagingDirectory)/ilife/css
+              mkdir -p $(Build.ArtifactStagingDirectory)/buildprocure/css
+              cp -r $(Build.SourcesDirectory)/ilifes-style-css/* $(Build.ArtifactStagingDirectory)/buildprocure/css
             displayName: 'Copy CSS Files to Build Artifact Staging Directory'
 
           - task: PublishBuildArtifacts@1
@@ -157,10 +157,10 @@ stages:
               downloadPath: '$(pipeline.workspace)'
 
           - script: |
-              echo "Copying CSS files to ilife/css"
-              rm -rf $(Build.SourcesDirectory)/ilife/css
-              mkdir -p $(Build.SourcesDirectory)/ilife/css
-              cp -r $(Pipeline.Workspace)/ilife-css/* $(Build.SourcesDirectory)/ilife/css
+              echo "Copying CSS files to buildprocure/css"
+              rm -rf $(Build.SourcesDirectory)/buildprocure/css
+              mkdir -p $(Build.SourcesDirectory)/buildprocure/css
+              cp -r $(Pipeline.Workspace)/ilife-css/* $(Build.SourcesDirectory)/buildprocure/css
             displayName: 'Copy CSS Files to Build Directory'
           # End of downloading CSS and copying to build directory
 
@@ -176,10 +176,10 @@ stages:
             inputs:
               command: build
               repository: $(imageName)
-              Dockerfile: ilife/dockerfile
+              Dockerfile: buildproure/dockerfile
               tags: |
                 $(dockerImageTag)
-              buildContext: ilife
+              buildContext: buildproure
               arguments: >
                 --no-cache
                 --build-arg S247_LICENSE_KEY=$(S247_LICENSE_KEY)
