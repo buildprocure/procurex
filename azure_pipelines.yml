@@ -176,10 +176,10 @@ stages:
             inputs:
               command: build
               repository: $(imageName)
-              Dockerfile: buildproure/dockerfile
+              Dockerfile: buildprocure/dockerfile
               tags: |
                 $(dockerImageTag)
-              buildContext: buildproure
+              buildContext: buildprocure
               arguments: >
                 --no-cache
                 --build-arg S247_LICENSE_KEY=$(S247_LICENSE_KEY)
