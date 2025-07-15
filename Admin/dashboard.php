@@ -24,7 +24,7 @@ if(!isset($_SESSION['loggedin'])|| $_SESSION['loggedin'] != true){
 </head>
 <body>
     <?php require '../header.php'; ?>
-    <div class = "main-content" >Hi, <?php echo $_SESSION['username'];?><br><br>- Welcome  to Admin dashboard</div>
+    <div class = "main-content" >Hi, <?php echo $_SESSION['username'];?><br><br>- Welcome  to Admin dashboard of BuildProcure</div>
     <!-- <script src = "../vnavdropdown.js"></script> -->
      <?php include __DIR__ .'/../footer.php'; ?>
 </body>

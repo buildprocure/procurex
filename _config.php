@@ -3,6 +3,8 @@
     include 'session_check.php';
     define('SITE_URL','/');
     define('BASE_PATH', __DIR__ . '/');  // Gives absolute path to the root directory
+    define('BASE_URL', (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]/");
+
 
     define('MYSQL_HOST', getenv('MYSQL_HOST') ?: 'localhost');
     define('MYSQL_PORT', getenv('MYSQL_PORT') ?: '3306');
