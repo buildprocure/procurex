@@ -13,7 +13,6 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Admin') {
 
 $users = [];
 $query = "SELECT username FROM `user` WHERE SFTP_Enabled=?";
-echo "query: $query<br>";
 $stmt = $conn->prepare($query);
 $sftpEnabled = 1;
 $stmt->bind_param("i", $sftpEnabled);
