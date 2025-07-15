@@ -280,13 +280,36 @@ stages:
                 echo "### Starting containers with docker-compose ###"
                 [ "${{ variables.SFTPEnable }}" = "true" ] && echo "SFTP is enabled" && docker-compose -f $(appDirectory)/docker-compose.yml --profile sftp up -d 2>&1 | tee -a docker-compose.log || (echo "SFTP is disabled" && docker-compose -f $(appDirectory)/docker-compose.yml up -d 2>&1 | tee -a docker-compose.log)
 
-                echo "### Fixing volume permissions for /var/www/html/userUploads ###"
-                upload_path=$(docker volume inspect $(docker volume ls -q | grep sftp-data) --format '{{ .Mountpoint }}')
-                echo "Upload path on host is: $upload_path"
-                sudo chown -R 1000:1000 "$upload_path"
-
                 echo "### Removing old images ###"
                 docker image prune -f
 
                 echo "### Verifying running containers ###"
                 docker ps -a
+        
+          - task: SSH@0
+            displayName: 'Fix volume permissions for SFTP uploads'
+            inputs:
+              sshEndpoint: $(sshServiceConnection)
+              runOptions: 'commands'
+              commands: |
+                echo "🔍 Looking for Docker volume name..."
+                volume_name=$(docker volume ls --format '{{.Name}}' | grep 'sftp-data$')
+
+                if [ -z "$volume_name" ]; then
+                  echo "❌ Volume sftp-data not found"
+                  exit 1
+                fi
+
+                echo "✅ Found volume: $volume_name"
+
+                echo "📁 Inspecting mount path..."
+                mount_path=$(docker volume inspect "$volume_name" --format '{{ .Mountpoint }}')
+
+                if [ -z "$mount_path" ] || [ ! -d "$mount_path" ]; then
+                  echo "❌ Invalid mount path: $mount_path"
+                  exit 1
+                fi
+
+                echo "✅ Changing ownership of $mount_path to UID 1000"
+                sudo chown -R 1000:1000 "$mount_path"
+                echo "✅ Permissions fixed."
