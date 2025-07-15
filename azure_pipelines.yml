@@ -8,6 +8,7 @@ parameters:
     values:
       - prod
       - local
+      - AB123
 
 
 resources:
@@ -38,6 +39,9 @@ resources:
 
 
 variables:
+  - group: buildImageVariables
+  - name: SFTPEnable
+    value: $(EnableSFTP) # Set to 'true' to enable SFTP, 'false' to disable
   - group: style-css-branch-mapping
   - name: DEP_ENV
     value: ${{ parameters.environment }}
@@ -209,6 +213,10 @@ stages:
               repository: simplesamlphp
               tags: $(dockerImageTag)
           # End of Docker build and push tasks
+          - ${{ if eq(variables.SFTPEnable, 'true') }}:
+              - script: |
+                  echo "$(SFTP_USERS)" > $(Build.SourcesDirectory)/docker/sftp/users.conf
+                displayName: 'Create SFTP users.conf file'
 
   - stage: Deploy
     displayName: 'Deploy Application'
@@ -229,6 +237,7 @@ stages:
               contents: |
                 docker-compose.yml
                 php-env-${{ parameters.environment }}.env
+                docker/sftp/users.conf
               targetFolder: '$(appDirectory)'
 
           - task: SSH@0
@@ -269,8 +278,13 @@ stages:
                 docker-compose -f $(appDirectory)/docker-compose.yml pull 2>&1 | tee docker-compose.log
 
                 echo "### Starting containers with docker-compose ###"
-                docker-compose -f $(appDirectory)/docker-compose.yml up -d 2>&1 | tee -a docker-compose.log
-                
+                if [ "$SFTPEnable" = "true" ]; then
+                  echo "SFTP is enabled — starting containers with --profile sftp"
+                  docker-compose -f $(appDirectory)/docker-compose.yml --profile sftp up -d 2>&1 | tee -a docker-compose.log
+                else
+                  echo "SFTP is disabled — starting containers without sftp"
+                  docker-compose -f $(appDirectory)/docker-compose.yml up -d 2>&1 | tee -a docker-compose.log
+                fi
                 echo "### Removing old images ###"
                 docker image prune -f
 

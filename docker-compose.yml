@@ -22,6 +22,7 @@ services:
       - "443:443"
     volumes:
       - /mnt/ilifes_store/files:/var/www/html/files  # Bind mount for saving PDF files
+      - sftp-data:/var/www/html/userUploads  # Persistent storage for user uploads
     depends_on:
       - db
   
@@ -51,9 +52,25 @@ services:
     networks:
       - app-network
 
+  sftp:
+    image: atmoz/sftp
+    container_name: sftp
+    ports:
+      - "2222:22"
+    volumes:
+      - ./docker/sftp/users.conf:/etc/sftp/users.conf:ro
+      - sftp-data:/var/www/html/userUploads  # Persistent storage for uploaded files
+    environment:
+      SFTP_USERS: "file:/etc/sftp/users.conf"
+    profiles:
+      - sftp  # <-- Only starts when `--profile sftp` is specified
+    networks:
+      - app-network
+
 volumes:
   db_data:
   ssl_certs:
+  sftp-data:
 
 networks:
   app-network:
