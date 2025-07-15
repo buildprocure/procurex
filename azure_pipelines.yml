@@ -278,14 +278,13 @@ stages:
                 docker-compose -f $(appDirectory)/docker-compose.yml pull 2>&1 | tee docker-compose.log
 
                 echo "### Starting containers with docker-compose ###"
-                bash -c "SFTPEnable='${{ variables.SFTPEnable }}'; \
-                if [ \"\$SFTPEnable\" = \"true\" ]; then \
-                  echo 'SFTP is enabled — starting containers with --profile sftp'; \
-                  docker-compose -f $(appDirectory)/docker-compose.yml --profile sftp up -d 2>&1 | tee -a docker-compose.log; \
-                else \
-                  echo 'SFTP is disabled — starting containers without sftp'; \
-                  docker-compose -f $(appDirectory)/docker-compose.yml up -d 2>&1 | tee -a docker-compose.log; \
-                fi"
+                if [ "${{ variables.SFTPEnable }}" = "true" ]; then
+                  echo "SFTP is enabled — starting containers with --profile sftp"
+                  docker-compose -f $(appDirectory)/docker-compose.yml --profile sftp up -d 2>&1 | tee -a docker-compose.log
+                else
+                  echo "SFTP is disabled — starting containers without sftp"
+                  docker-compose -f $(appDirectory)/docker-compose.yml up -d 2>&1 | tee -a docker-compose.log
+                fi
 
                 echo "### Removing old images ###"
                 docker image prune -f
