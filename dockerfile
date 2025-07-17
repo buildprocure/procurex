@@ -19,9 +19,6 @@ RUN a2enmod ssl rewrite proxy proxy_http && a2ensite 000-default.conf
 # Application code
 COPY . /var/www/html
 
-# Make sure folder exists and is owned properly
-RUN mkdir -p /var/www/html/userUploads && \
-    chown -R www-data:www-data /var/www/html/userUploads
 # Permissions
 RUN chown -R buildprocure:buildprocure /var/www/html
 

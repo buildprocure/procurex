@@ -311,5 +311,5 @@ stages:
                 fi
 
                 echo "✅ Changing ownership of $mount_path to UID 1000"
-                sudo chown -R 1000:1000 "$mount_path"
+                sudo chown -R 999:999 "$mount_path"
                 echo "✅ Permissions fixed."
