@@ -290,7 +290,7 @@ stages:
             displayName: 'Fix volume permissions for SFTP uploads'
             inputs:
               sshEndpoint: $(sshServiceConnection)
-              runOptions: 'commands'
+              runOptions: 'inline'
               inline: |
                 echo "🔍 Looking for Docker volume name..."
                 volume_name=$(docker volume ls --format '{{.Name}}' | grep 'sftp-data$')
