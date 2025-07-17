@@ -26,7 +26,7 @@ if ($result->num_rows > 0) {
         $status = '';
 
         if (!file_exists($folder)) {
-            if (mkdir($folder, 0755, true)) {
+            if (mkdir($folder, 0777, true)) {
                 $status = '✅ Folder created';
             } else {
                 $status = '❌ Failed to create folder';

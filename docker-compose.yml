@@ -60,6 +60,7 @@ services:
     volumes:
       - ./docker/sftp/users.conf:/etc/sftp/users.conf:ro
       - sftp-data:/var/www/html/userUploads  # Persistent storage for uploaded files
+    user: "1000:1000" 
     environment:
       SFTP_USERS: "file:/etc/sftp/users.conf"
     profiles:
