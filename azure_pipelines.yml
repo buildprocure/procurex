@@ -291,7 +291,7 @@ stages:
             inputs:
               sshEndpoint: $(sshServiceConnection)
               runOptions: 'commands'
-              commands: |
+              inline: |
                 echo "🔍 Looking for Docker volume name..."
                 volume_name=$(docker volume ls --format '{{.Name}}' | grep 'sftp-data$')
 
