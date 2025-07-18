@@ -26,13 +26,20 @@ if ($result->num_rows > 0) {
         $status = '';
 
         if (!file_exists($folder)) {
-            if (mkdir($folder, 0777, true)) {
-                $status = '✅ Folder created';
+            if (mkdir($folder, 0755, true)) {
+                // Set ownership to root
+                chown($folder, 'root');
+                // Set permissions to 755
+                chmod($folder, 0755);
+                $status = '✅ Folder created and configured';
             } else {
                 $status = '❌ Failed to create folder';
             }
         } else {
-            $status = '✔️ Folder already exists';
+            // Ensure correct permissions and ownership even if it exists
+            chown($folder, 'root');
+            chmod($folder, 0755);
+            $status = '✔️ Folder already exists (ownership and permissions updated)';
         }
 
         $users[] = [
