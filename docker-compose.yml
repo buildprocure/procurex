@@ -63,8 +63,6 @@ services:
 
     environment:
       SFTP_USERS: "file:/etc/sftp/users.conf"
-    profiles:
-      - sftp  # <-- Only starts when `--profile sftp` is specified
     networks:
       - app-network
 

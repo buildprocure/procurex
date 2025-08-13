@@ -39,7 +39,9 @@ resources:
 
 
 variables:
-  - group: buildImageVariables
+  - group: FeatureToggles
+  - name: simplesamlssoEnabled
+    value: $(EnableSimpleSamlPhpSSO) # Set to 'true' to enable SimpleSAMLphp SSO, 'false' to disable
   - name: SFTPEnable
     value: $(EnableSFTP) # Set to 'true' to enable SFTP, 'false' to disable
   - group: style-css-branch-mapping
@@ -90,8 +92,6 @@ stages:
 
           - checkout: ilifes-style-css
 
-          - checkout: ilifes-simplesamlphp
-            path: s/ilifes-simplesamlphp
 
           #Debugging and logging related scripts
           - script: |
@@ -109,21 +109,7 @@ stages:
 
           - script: echo "Key is- $(S247_LICENSE_KEY)"
             displayName: 'Debug Key Output'
-          # End of debugging and logging related scripts
-
-          # Style CSS related tasks
-          - script: |
-              echo "coping css files to build Artifact directory"
-              mkdir -p $(Build.ArtifactStagingDirectory)/buildprocure/css
-              cp -r $(Build.SourcesDirectory)/ilifes-style-css/* $(Build.ArtifactStagingDirectory)/buildprocure/css
-            displayName: 'Copy CSS Files to Build Artifact Staging Directory'
-
-          - task: PublishBuildArtifacts@1
-            inputs:
-              pathtoPublish: '$(Build.ArtifactStagingDirectory)'
-              artifactName: 'ilife-css'
-            displayName: 'Publish CSS Artifacts'
-          # End of Style CSS related tasks
+          # End of debugging and logging related scripts         
 
           - script: |
               echo "Cleaning up disk space..."
@@ -153,19 +139,13 @@ stages:
             displayName: 'Copy React Build to Public Folder'
           # End of Items Frontend related tasks
 
-          # Downloading CSS and copying to build directory          
-          - task: DownloadBuildArtifacts@0
-            displayName: 'Download CSS Artifacts'
-            inputs:
-              artifactName: 'ilife-css'
-              downloadPath: '$(pipeline.workspace)'
-
+          # CSS: Directly copy the global_bp.css to buildprocure/css
           - script: |
-              echo "Copying CSS files to buildprocure/css"
-              rm -rf $(Build.SourcesDirectory)/buildprocure/css
+              echo "Copying global_bp.css from ilifes-style-css repo to buildprocure/"
               mkdir -p $(Build.SourcesDirectory)/buildprocure/css
-              cp -r $(Pipeline.Workspace)/ilife-css/* $(Build.SourcesDirectory)/buildprocure/css
-            displayName: 'Copy CSS Files to Build Directory'
+              cp $(Build.SourcesDirectory)/ilifes-style-css/global_bp.css $(Build.SourcesDirectory)/buildprocure/
+            displayName: 'Copy global_bp.css to buildprocure/'
+
           # End of downloading CSS and copying to build directory
 
           # Docker build and push tasks
@@ -197,21 +177,26 @@ stages:
               repository: $(imageName)
               tags: $(dockerImageTag)
 
-          - task: Docker@2
-            displayName: 'Build simplesamlphp image'
-            inputs:
-              command: build
-              dockerfile: $(Build.SourcesDirectory)/ilifes-simplesamlphp/Dockerfile
-              repository: simplesamlphp
-              tags: $(dockerImageTag)
-              buildContext: $(Build.SourcesDirectory)/ilifes-simplesamlphp
+            # Only run if simplesamlssoEnabled == true
+          - ${{ if eq(variables.simplesamlssoEnabled, 'true') }}:
+            - checkout: ilifes-simplesamlphp
+              path: s/ilifes-simplesamlphp
 
-          - task: Docker@2
-            displayName: 'Push simplesamlphp image'
-            inputs:
-              command: push
-              repository: simplesamlphp
-              tags: $(dockerImageTag)
+            - task: Docker@2
+              displayName: 'Build simplesamlphp image'
+              inputs:
+                command: build
+                dockerfile: $(Build.SourcesDirectory)/ilifes-simplesamlphp/Dockerfile
+                repository: simplesamlphp
+                tags: $(dockerImageTag)
+                buildContext: $(Build.SourcesDirectory)/ilifes-simplesamlphp
+
+            - task: Docker@2
+              displayName: 'Push simplesamlphp image'
+              inputs:
+                command: push
+                repository: simplesamlphp
+                tags: $(dockerImageTag)
           # End of Docker build and push tasks
           - ${{ if eq(variables.SFTPEnable, 'true') }}:
               - script: |
@@ -274,11 +259,24 @@ stages:
                 echo "### Stopping existing containers ###"
                 [ "$(docker ps -q)" ] && docker-compose -f $(appDirectory)/docker-compose.yml down 2>&1 | tee docker-compose.log || echo "No running containers to stop."
 
-                echo "### Pulling latest images (ilifes-store & simplesamlphp) ###"
-                docker-compose -f $(appDirectory)/docker-compose.yml pull 2>&1 | tee docker-compose.log
+                # Always pull & start db, phpmyadmin, web
+                echo "Pulling always-on services: db, phpmyadmin, web..."
+                docker-compose -f docker-compose.yml pull db phpmyadmin web
+                docker-compose -f docker-compose.yml up -d db phpmyadmin web
 
-                echo "### Starting containers with docker-compose ###"
-                [ "${{ variables.SFTPEnable }}" = "true" ] && echo "SFTP is enabled" && docker-compose -f $(appDirectory)/docker-compose.yml --profile sftp up -d 2>&1 | tee -a docker-compose.log || (echo "SFTP is disabled" && docker-compose -f $(appDirectory)/docker-compose.yml up -d 2>&1 | tee -a docker-compose.log)
+                # SFTP pull & start container based on variable
+                [ "${{ variables.SFTPEnable }}" = "true" ] && \
+                echo "SFTP enabled, pulling & starting..." && \
+                docker-compose -f docker-compose.yml pull sftp && \
+                docker-compose -f docker-compose.yml up -d sftp || \
+                echo "SFTP disabled, skipping container."
+
+                # SimpleSAMLphp pull & start container based on variable
+                [ "${{ variables.simplesamlssoEnabled }}" = "true" ] && \
+                echo "SimpleSAMLphp enabled, pulling & starting..." && \
+                docker-compose -f docker-compose.yml pull simplesamlphp && \
+                docker-compose -f docker-compose.yml up -d simplesamlphp || \
+                echo "SimpleSAMLphp disabled, skipping container."
 
                 echo "### Removing old images ###"
                 docker image prune -f
