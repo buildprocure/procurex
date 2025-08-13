@@ -80,7 +80,7 @@ stages:
 
 
         pool:
-          name: 'Azure Pipelines'
+          name: 'Default'
         steps:
           - checkout: self
           - checkout: ilife-build
