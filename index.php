@@ -8,7 +8,11 @@ session_start();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BuildProcure - Home</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="global_bp.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    --
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
@@ -58,24 +62,51 @@ session_start();
             color: #6c757d;
             margin-top: 4rem;
         }
-    </style>
+    </style> -->
+
+     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggle = document.getElementById('userDropdownToggle');
+            const menu = document.getElementById('userDropdownMenu');
+
+            toggle.addEventListener('click', function(e) {
+                console.log('Dropdown toggle clicked');
+                e.stopPropagation(); // Prevent click from bubbling up
+                menu.classList.toggle('show');
+            });
+
+            // Close dropdown if clicking outside
+            document.addEventListener('click', function() {
+                menu.classList.remove('show');
+            });
+        });
+</script>
+
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
-    <div class="container">
-        <a class="navbar-brand" href="#">BuildProcure</a>
-        <div class="ms-auto">
+<nav class="navbar-horizontal">
+    <div class="nav-container">
+        <a class="company-name" href="#">BuildProcure</a>
+        <div class="nav-actions">
             <?php if (isset($_SESSION['username'])): ?>
-                <span class="me-3">Welcome, <strong><?php echo htmlspecialchars($_SESSION['username']); ?></strong></span>
-                <a href="logout.php" class="btn btn-outline-danger btn-sm">Log Out</a>
+                <span class="welcome-text">Welcome, <strong><?php echo htmlspecialchars($_SESSION['username']); ?></strong></span>
+                <div class="user-dropdown">
+                    <i id="userDropdownToggle" class="fas fa-user-circle user-icon"></i>
+                    <ul id="userDropdownMenu" class="dropdown-menu">
+                        <li><a href="#">Profile</a></li>
+                        <li><a href="#">Settings</a></li>
+                        <li><a href="logout.php">Logout</a></li>
+                    </ul>
+                </div>
             <?php else: ?>
-                <a href="login.php" class="btn btn-primary btn-sm me-2">Log In</a>
+                <a href="login.php" class="btn btn-primary btn-sm">Log In</a>
                 <a href="Sign_up.php" class="btn btn-outline-primary btn-sm">Sign Up</a>
             <?php endif; ?>
         </div>
     </div>
 </nav>
+
 
 <section class="hero">
     <div class="container">
@@ -84,35 +115,28 @@ session_start();
         <a href="Sign_up.php" class="btn btn-light btn-lg mt-4">Get Started</a>
     </div>
 </section>
-
-<section class="features container">
-    <div class="row text-center mb-5">
-        <div class="col">
-            <h2 class="fw-bold">Why BuildProcure?</h2>
-            <p class="text-muted">A platform built for the future of construction procurement.</p>
-        </div>
+<section class="features">
+    <div class="features-header">
+        <h2>Why BuildProcure?</h2>
+        <p class="subtitle">A platform built for the future of construction procurement.</p>
     </div>
-    <div class="row g-4">
-        <div class="col-md-4">
-            <div class="card p-4 h-100">
-                <h5 class="fw-bold">Centralized Procurement</h5>
-                <p class="text-muted">Manage all your purchasing needs in one place – from RFQs to final orders.</p>
-            </div>
+
+    <div class="features-grid">
+        <div class="card">
+            <h5>Centralized Procurement</h5>
+            <p>Manage all your purchasing needs in one place – from RFQs to final orders.</p>
         </div>
-        <div class="col-md-4">
-            <div class="card p-4 h-100">
-                <h5 class="fw-bold">Supplier Transparency</h5>
-                <p class="text-muted">Compare supplier ratings, pricing, and delivery timelines for smarter decisions.</p>
-            </div>
+        <div class="card">
+            <h5>Supplier Transparency</h5>
+            <p>Compare supplier ratings, pricing, and delivery timelines for smarter decisions.</p>
         </div>
-        <div class="col-md-4">
-            <div class="card p-4 h-100">
-                <h5 class="fw-bold">Data-Driven Insights</h5>
-                <p class="text-muted">Get real-time analytics on your spending, usage patterns, and supplier performance.</p>
-            </div>
+        <div class="card">
+            <h5>Data-Driven Insights</h5>
+            <p>Get real-time analytics on your spending, usage patterns, and supplier performance.</p>
         </div>
     </div>
 </section>
+
 
 <footer class="footer">
     <div class="container">
