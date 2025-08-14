@@ -261,21 +261,22 @@ stages:
 
                 # Always pull & start db, phpmyadmin, web
                 echo "Pulling always-on services: db, phpmyadmin, web..."
-                docker-compose -f docker-compose.yml pull db phpmyadmin web
-                docker-compose -f docker-compose.yml up -d db phpmyadmin web
+                docker-compose -f $(appDirectory)/docker-compose.yml pull db phpmyadmin web
+                docker-compose -f $(appDirectory)/docker-compose.yml up -d db phpmyadmin web
+
 
                 # SFTP pull & start container based on variable
                 [ "${{ variables.SFTPEnable }}" = "true" ] && \
                 echo "SFTP enabled, pulling & starting..." && \
-                docker-compose -f docker-compose.yml pull sftp && \
-                docker-compose -f docker-compose.yml up -d sftp || \
+                docker-compose -f $(appDirectory)/docker-compose.yml pull sftp && \
+                docker-compose -f $(appDirectory)/docker-compose.yml up -d sftp || \
                 echo "SFTP disabled, skipping container."
 
                 # SimpleSAMLphp pull & start container based on variable
                 [ "${{ variables.simplesamlssoEnabled }}" = "true" ] && \
                 echo "SimpleSAMLphp enabled, pulling & starting..." && \
-                docker-compose -f docker-compose.yml pull simplesamlphp && \
-                docker-compose -f docker-compose.yml up -d simplesamlphp || \
+                docker-compose -f $(appDirectory)/docker-compose.yml pull simplesamlphp && \
+                docker-compose -f $(appDirectory)/docker-compose.yml up -d simplesamlphp || \
                 echo "SimpleSAMLphp disabled, skipping container."
 
                 echo "### Removing old images ###"
