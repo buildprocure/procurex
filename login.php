@@ -1,73 +1,82 @@
 <?php
-ob_start();
-// error_reporting(E_ALL);
-// ini_set('display_errors', 1);
-//require_once('simplesaml/lib/_autoload.php');
-
+session_start();
 include '_dbconnect.php';
-$timeout = $_GET['timeout'] ?? false;
-//add condition to check weather session is active or not
-if(isset($_SESSION['loggedin']) && $_SESSION['loggedin']==true){
-  if($_SESSION['role']=='Admin'){
-    header("location:../Admin/loggedinhome.php");
-  } 
-  if(($_SESSION['role']=='Buyer')){
-    header("location:../Buyer/loggedinhome.php");
-  }elseif(($_SESSION['role']=='Supplier')){
-    header("location:../Supplier/loggedinhome.php");
-  }
-  exit();
-}else{
+
 $login = false;
 $showerror = false;
 $notapproved = false;
 
-if($_SERVER['REQUEST_METHOD']=='POST'){
-  $username = $_POST['username'];
-  $password = $_POST["password"];
-  
-  
-  $sql = "SELECT * FROM user WHERE username= '$username'";
-  $result = mysqli_query($conn, $sql);
-  $num = mysqli_num_rows($result);
-  if ($num == 1){
-    while($rows = mysqli_fetch_assoc($result)){
-
-      if($rows['user_enrollment']=='Not approved' && $rows['Role']=='Buyer'){
-        $notapproved = true;
-      } else {
-
-      if(password_verify($password, $rows['password'])){
-        $login = true;
-        session_set_cookie_params(604800);
-        session_start();
-        $_SESSION['loggedin'] = true;
-        $_SESSION['username'] = $username;
-        $_SESSION['has_duplicate_payment_access'] = $rows['as_duplicate_payment_access'];
-        $sql = "SELECT Role FROM user WHERE username= '$username'";
-        $result = mysqli_query($conn, $sql);
-        while($role = mysqli_fetch_assoc($result)){
-          $_SESSION['role'] = $role['Role'];
-        }
-        if($_SESSION['role']=='Admin'){
-        header("location:../Admin/loggedinhome.php");
-      } 
-      if(($_SESSION['role']=='Buyer')){
-        header("location:../Buyer/loggedinhome.php");
-      }elseif(($_SESSION['role']=='Supplier')){
-        header("location:../Supplier/loggedinhome.php");
-      }
-      } else {
-        $showerror = true;
-
-      }
+// If already logged in, redirect
+if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
+    switch ($_SESSION['role']) {
+        case 'Admin': header("Location: ../Admin/loggedinhome.php"); exit;
+        case 'Buyer': header("Location: ../Buyer/loggedinhome.php"); exit;
+        case 'Supplier': header("Location: ../Supplier/loggedinhome.php"); exit;
     }
-  }
-} 
-}
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $username = trim($_POST['username']);
+    $password = $_POST['password'];
+
+    $sql = "SELECT SN, username, password, Role, user_enrollment, as_duplicate_payment_access 
+            FROM user WHERE username = ?";
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, "s", $username);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+
+    if ($row = mysqli_fetch_assoc($result)) {
+        $userId = $row['SN'];
+        $role = $row['Role'];
+        $ip = $_SERVER['REMOTE_ADDR'] ?? 'UNKNOWN';
+        $agent = $_SERVER['HTTP_USER_AGENT'] ?? 'UNKNOWN';
+
+        if ($row['user_enrollment'] === 'Not approved' && $role === 'Buyer') {
+            $notapproved = true;
+            // Log attempt
+            $logSql = "INSERT INTO login_history (user_id, username, role, ip_address, user_agent, status) 
+                       VALUES (?, ?, ?, ?, ?, 'NOT_APPROVED')";
+            $logStmt = mysqli_prepare($conn, $logSql);
+            mysqli_stmt_bind_param($logStmt, "issss", $userId, $username, $role, $ip, $agent);
+            mysqli_stmt_execute($logStmt);
+
+        } elseif (password_verify($password, $row['password'])) {
+            // ✅ Successful login
+            $_SESSION['loggedin'] = true;
+            $_SESSION['username'] = $username;
+            $_SESSION['role'] = $role;
+            $_SESSION['has_duplicate_payment_access'] = $row['as_duplicate_payment_access'];
+
+            // Log success
+            $logSql = "INSERT INTO login_history (user_id, username, role, ip_address, user_agent, status) 
+                       VALUES (?, ?, ?, ?, ?, 'SUCCESS')";
+            $logStmt = mysqli_prepare($conn, $logSql);
+            mysqli_stmt_bind_param($logStmt, "issss", $userId, $username, $role, $ip, $agent);
+            mysqli_stmt_execute($logStmt);
+
+            // Redirect
+            switch ($role) {
+                case 'Admin': header("Location: ../Admin/loggedinhome.php"); exit;
+                case 'Buyer': header("Location: ../Buyer/loggedinhome.php"); exit;
+                case 'Supplier': header("Location: ../Supplier/loggedinhome.php"); exit;
+            }
+
+        } else {
+            $showerror = true;
+            // Log failed password attempt
+            $logSql = "INSERT INTO login_history (user_id, username, role, ip_address, user_agent, status) 
+                       VALUES (?, ?, ?, ?, ?, 'FAILED')";
+            $logStmt = mysqli_prepare($conn, $logSql);
+            mysqli_stmt_bind_param($logStmt, "issss", $userId, $username, $role, $ip, $agent);
+            mysqli_stmt_execute($logStmt);
+        }
+    } else {
+        $showerror = true; // Username not found
+    }
+}
 ?>
+
 
 
 <!doctype html>

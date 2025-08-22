@@ -31,7 +31,7 @@ $isImpersonating = $vpab->isImpersonating();
               <ul id="userDropdownMenu" class="dropdown-menu">
                   <li><a href="#">Profile</a></li>
                   <li><a href="#">Settings</a></li>
-                  <li><a href="logout.php">Logout</a></li>
+                  <li><a href="/logout.php">Logout</a></li>
               </ul>
           </div>
           <?php else: ?>
