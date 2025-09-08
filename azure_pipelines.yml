@@ -267,10 +267,10 @@ stages:
 
 
                 # SFTP pull & start container based on variable
-                [ "$SFTPEnable" = "true" ] && echo "SFTP enabled, pulling & starting..." && docker-compose -f $(appDirectory)/docker-compose.yml pull sftp 2>&1 | tee -a docker-compose.log && docker-compose -f $(appDirectory)/docker-compose.yml up -d sftp 2>&1 | tee -a docker-compose.log || echo "SFTP disabled, skipping container."
+                [ "${{ variables.SFTPEnable }}" = "true" ] && echo "SFTP enabled, pulling & starting..." && docker-compose -f $(appDirectory)/docker-compose.yml pull sftp 2>&1 | tee -a docker-compose.log && docker-compose -f $(appDirectory)/docker-compose.yml up -d sftp 2>&1 | tee -a docker-compose.log || echo "SFTP disabled, skipping container."
 
                 # SimpleSAMLphp pull & start container based on variable
-                [ "$simplesamlssoEnabled" = "true" ] && echo "SimpleSAMLphp enabled, pulling & starting..." && docker-compose -f $(appDirectory)/docker-compose.yml pull simplesamlphp 2>&1 | tee -a docker-compose.log && docker-compose -f $(appDirectory)/docker-compose.yml up -d simplesamlphp 2>&1 | tee -a docker-compose.log || echo "SimpleSAMLphp disabled, skipping container."
+                [ "${{ variables.simplesamlssoEnabled }}" = "true" ] && echo "SimpleSAMLphp enabled, pulling & starting..." && docker-compose -f $(appDirectory)/docker-compose.yml pull simplesamlphp 2>&1 | tee -a docker-compose.log && docker-compose -f $(appDirectory)/docker-compose.yml up -d simplesamlphp 2>&1 | tee -a docker-compose.log || echo "SimpleSAMLphp disabled, skipping container."
 
 
                 echo "### Removing old images ###"
