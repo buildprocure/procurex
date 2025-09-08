@@ -159,6 +159,7 @@ stages:
             displayName: Build Docker Image with Site24x7 Agent
             inputs:
               command: build
+              containerRegistry: $(dockerRegistryServiceConnection)  
               repository: $(imageName)
               Dockerfile: buildprocure/dockerfile
               tags: |
