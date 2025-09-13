@@ -16,9 +16,7 @@ services:
       - app-network
 
   php-fpm:
-    build:
-      context: .
-      dockerfile: dockerfile
+    image: ilifesregistry.azurecr.io/ilifes-store:latest
     container_name: php-fpm
     volumes:
       - ./src:/var/www/html                     # Application code
