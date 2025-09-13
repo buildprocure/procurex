@@ -16,14 +16,14 @@ RUN chown -R buildprocure:buildprocure /var/www/html
 RUN /InstallAgentPHP.sh -lk "${S247_LICENSE_KEY}" -zpa.application_name "Buildprocure-${REPO_NAME}-${ENV_NAME}" && \
     /InstallDataExporter.sh -root -nsvc -lk "${S247_LICENSE_KEY}"
 
+# Entrypoint
+COPY ./entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 USER buildprocure
 WORKDIR /var/www/html
 
 # PHP-FPM exposes 9000
 EXPOSE 9000
-
-# Entrypoint
-COPY ./entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
