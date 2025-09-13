@@ -59,7 +59,7 @@ variables:
 
   - group: github-access-tokens
   - name: dockerRegistryServiceConnection
-    value: 'Azure-ACR-ARM'
+    value: 'ilifes-acr-docker'
   - name: imageName
     value: 'ilifes-store'
   - name: acrName
