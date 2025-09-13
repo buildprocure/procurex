@@ -7,4 +7,5 @@ sh /opt/S247DataExporter/bin/service.sh start
 #
 #php-fpm
 echo "Starting PHP-FPM..."
-exec apache2-foreground
+# Start PHP-FPM
+exec php-fpm

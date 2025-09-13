@@ -1,3 +1,5 @@
+version: "3.9"
+
 services:
   db:
     image: mysql:8.0
@@ -9,25 +11,33 @@ services:
     volumes:
       - db_data:/var/lib/mysql
     ports:
-      - "3306:3306"  # Add this to expose MySQL
+      - "3306:3306"
     networks:
       - app-network
 
-  web:
-    image: ilifesregistry.azurecr.io/ilifes-store:latest  # Use the fully qualified image name
-    env_file:
-      - php-env.env
+  php-fpm:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: php-fpm
+    volumes:
+      - ./src:/var/www/html
+    networks:
+      - app-network
+
+  apache:
+    image: httpd:2.4
+    container_name: apache
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - /mnt/ilifes_store/files:/var/www/html/files  # Bind mount for saving PDF files
-      - sftp-data:/var/www/html/userUploads  # Persistent storage for user uploads
+      - ./src:/var/www/html
+      - ./apache-config.conf:/usr/local/apache2/conf/httpd.conf
+      - ./certs:/etc/apache2/ssl
     depends_on:
-      - db
-  
-    command: >
-      /bin/bash -c "a2enmod ssl && a2ensite default-ssl && apache2-foreground"
+      - php-fpm
+      - simplesamlphp
     networks:
       - app-network
 
@@ -42,7 +52,7 @@ services:
       - db
     networks:
       - app-network
-      
+
   simplesamlphp:
     image: ilifesregistry.azurecr.io/simplesamlphp:latest
     container_name: simplesamlphp
@@ -59,8 +69,7 @@ services:
       - "2222:22"
     volumes:
       - ./docker/sftp/users.conf:/etc/sftp/users.conf:ro
-      - sftp-data:/var/www/html/userUploads  # Persistent storage for uploaded files
-
+      - sftp-data:/var/www/html/userUploads
     environment:
       SFTP_USERS: "file:/etc/sftp/users.conf"
     networks:
@@ -68,7 +77,6 @@ services:
 
 volumes:
   db_data:
-  ssl_certs:
   sftp-data:
 
 networks:
