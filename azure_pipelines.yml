@@ -59,7 +59,7 @@ variables:
 
   - group: github-access-tokens
   - name: dockerRegistryServiceConnection
-    value: 'acr-ilifes-docker-connection-v2'
+    value: 'Azure-ACR-ARM'
   - name: imageName
     value: 'ilifes-store'
   - name: acrName
@@ -160,34 +160,21 @@ stages:
               docker pull ilifesregistry.azurecr.io/ilifes/php-base:latest
             displayName: "Debug: Test docker pull after login"
 
-          - script: |
-              echo "🔧 Disabling BuildKit for docker build..."
-              export DOCKER_BUILDKIT=0
-              docker build \
-                --no-cache \
-                --build-arg S247_LICENSE_KEY=$(S247_LICENSE_KEY) \
-                --build-arg ENV_NAME=${{ parameters.environment }} \
-                --build-arg REPO_NAME=$(Build.Repository.Name) \
-                -t $(imageName):$(dockerImageTag) \
-                -f buildprocure/dockerfile \
-                buildprocure
-            displayName: "Build Docker Image (Classic Builder)"
-
-          # - task: Docker@2
-          #   displayName: Build Docker Image with Site24x7 Agent
-          #   inputs:
-          #     command: build
-          #     containerRegistry: $(dockerRegistryServiceConnection)  
-          #     repository: $(imageName)
-          #     Dockerfile: buildprocure/dockerfile
-          #     tags: |
-          #       $(dockerImageTag)
-          #     buildContext: buildprocure
-          #     arguments: >
-          #       --no-cache
-          #       --build-arg S247_LICENSE_KEY=$(S247_LICENSE_KEY)
-          #       --build-arg ENV_NAME=${{ parameters.environment }}
-          #       --build-arg REPO_NAME=$(Build.Repository.Name)
+          - task: Docker@2
+            displayName: Build Docker Image with Site24x7 Agent
+            inputs:
+              command: build
+              containerRegistry: $(dockerRegistryServiceConnection)  
+              repository: $(imageName)
+              Dockerfile: buildprocure/dockerfile
+              tags: |
+                $(dockerImageTag)
+              buildContext: buildprocure
+              arguments: >
+                --no-cache
+                --build-arg S247_LICENSE_KEY=$(S247_LICENSE_KEY)
+                --build-arg ENV_NAME=${{ parameters.environment }}
+                --build-arg REPO_NAME=$(Build.Repository.Name)
           
           - task: Docker@2
             displayName: 'Push Docker Image to ACR'
@@ -195,6 +182,7 @@ stages:
               command: push
               repository: $(imageName)
               tags: $(dockerImageTag)
+              containerRegistry: $(dockerRegistryServiceConnection)
 
             # Only run if simplesamlssoEnabled == true
           - ${{ if eq(variables.simplesamlssoEnabled, 'true') }}:
@@ -205,6 +193,7 @@ stages:
               displayName: 'Build simplesamlphp image'
               inputs:
                 command: build
+                containerRegistry: $(dockerRegistryServiceConnection)
                 dockerfile: $(Build.SourcesDirectory)/ilifes-simplesamlphp/Dockerfile
                 repository: simplesamlphp
                 tags: $(dockerImageTag)
@@ -214,6 +203,7 @@ stages:
               displayName: 'Push simplesamlphp image'
               inputs:
                 command: push
+                containerRegistry: $(dockerRegistryServiceConnection)
                 repository: simplesamlphp
                 tags: $(dockerImageTag)
           # End of Docker build and push tasks
