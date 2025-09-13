@@ -270,8 +270,8 @@ stages:
 
                 # Always pull & start db, phpmyadmin, web
                 echo "Pulling always-on services: db, phpmyadmin, web..."
-                docker-compose -f $(appDirectory)/docker-compose.yml pull db phpmyadmin web 2>&1 | tee -a docker-compose.log
-                docker-compose -f $(appDirectory)/docker-compose.yml up -d db phpmyadmin web 2>&1 | tee -a docker-compose.log
+                docker-compose -f $(appDirectory)/docker-compose.yml pull db phpmyadmin php-fpm apache 2>&1 | tee -a docker-compose.log
+                docker-compose -f $(appDirectory)/docker-compose.yml up -d db phpmyadmin php-fpm apache 2>&1 | tee -a docker-compose.log
 
 
                 # SFTP pull & start container based on variable
