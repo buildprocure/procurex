@@ -1,25 +1,15 @@
+# Use the new PHP-FPM base image
 FROM ilifesregistry.azurecr.io/ilifes/php-base:latest
 
 ARG S247_LICENSE_KEY
 ARG ENV_NAME
 ARG REPO_NAME
 
-# Create the group and user
-RUN groupadd -r buildprocure && useradd -r -g buildprocure buildprocure
-
-# Apache config and certificates
-COPY ./apache-config.conf /etc/apache2/sites-available/000-default.conf
-RUN mkdir -p /etc/apache2/ssl
-COPY certs/*.crt /etc/apache2/ssl/
-COPY certs/*.key /etc/apache2/ssl/
-
-# Enable Apache modules
-RUN a2enmod ssl rewrite proxy proxy_http && a2ensite 000-default.conf
-
-# Application code
+# Copy application code
 COPY . /var/www/html
 
 # Permissions
+USER root
 RUN chown -R buildprocure:buildprocure /var/www/html
 
 # Run Site24x7 Agent
@@ -31,6 +21,9 @@ COPY ./entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 USER buildprocure
-EXPOSE 80 443
+WORKDIR /var/www/html
 
-ENTRYPOINT ["sh", "/entrypoint.sh"]
+# PHP-FPM exposes 9000
+EXPOSE 9000
+
+ENTRYPOINT ["/entrypoint.sh"]
