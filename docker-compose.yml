@@ -34,7 +34,7 @@ services:
     volumes:
       - ./src:/var/www/html                     # Application code
       - /mnt/ilifes_store/files:/var/www/html/files  # Optional: for serving PDFs
-      - ./apache-config.conf:/usr/local/apache2/conf/httpd.conf
+      - ./apache-config.conf:/usr/local/apache2/conf/httpd.conf:ro 
       - ./certs:/etc/apache2/ssl
     depends_on:
       - php-fpm
