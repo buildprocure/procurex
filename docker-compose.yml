@@ -26,7 +26,7 @@ services:
       - app-network
 
   apache:
-    image: httpd:2.4
+    image: ilifesregistry.azurecr.io/buildprocure-apache:latest
     container_name: apache
     ports:
       - "80:80"
@@ -38,7 +38,6 @@ services:
       - ./certs:/etc/apache2/ssl
     depends_on:
       - php-fpm
-      - simplesamlphp
     networks:
       - app-network
 
