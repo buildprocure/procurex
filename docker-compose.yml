@@ -19,6 +19,7 @@ services:
     image: ilifesregistry.azurecr.io/ilifes-store:latest
     container_name: php-fpm
     volumes:
+      - app_code:/var/www/html  # Shared app code
       - /mnt/ilifes_store/files:/var/www/html/files  # Host bind for PDFs/files
       - sftp-data:/var/www/html/userUploads    # Persistent storage for user uploads
     networks:
@@ -31,6 +32,7 @@ services:
       - "80:80"
       - "443:443"
     volumes:
+      - app_code:/var/www/html  # Shared app code    
       - /mnt/ilifes_store/files:/var/www/html/files  # Optional: for serving PDFs
     depends_on:
       - php-fpm
@@ -74,6 +76,7 @@ services:
 volumes:
   db_data:
   sftp-data:
+  app_code:
 
 networks:
   app-network:
