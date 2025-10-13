@@ -19,7 +19,7 @@ services:
     image: ilifesregistry.azurecr.io/ilifes-store:latest
     container_name: php-fpm
     env_file:
-      - - php-env.env   
+      - php-env.env   
     volumes:
       - app_code:/var/www/html  # Shared app code
       - /mnt/ilifes_store/files:/var/www/html/files  # Host bind for PDFs/files
