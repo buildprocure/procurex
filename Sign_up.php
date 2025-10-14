@@ -17,7 +17,7 @@ if($_SERVER['REQUEST_METHOD']=='POST'){
     } else {
     if($password == $cpassword){
         $hash = password_hash($password, PASSWORD_DEFAULT);
-      $sql = "INSERT INTO `user` (`username`, `password`, `Role`, `dt`, `user_enrollment`) VALUES ('$username', '$hash', '$role', current_timestamp(),'Not approved');";
+      $sql = "INSERT INTO `user` (`username`, `password`, `Role`, `dt`, `user_enrollment`, `SFTP_Enabled`, `as_duplicate_payment_access`) VALUES ('$username', '$hash', '$role', current_timestamp(),'Not approved', 0, 0);";
       $result = mysqli_query($conn, $sql);
       if ($result){
         $insert = true;
