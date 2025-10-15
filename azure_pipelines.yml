@@ -70,7 +70,8 @@ variables:
     value: '/var/www/html'
   - name: dockerImageTag
     value: 'latest'
-
+  - name: IMAGE_LEVEL
+    value: $git(rev-parse --short HEAD)
 
 
 stages:
