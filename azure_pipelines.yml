@@ -72,17 +72,17 @@ variables:
     value: 'latest'
   - name: APP_COMMIT
     value: $(Build.SourceVersion)
-  - name: ENV_CONFIG_COMMIT
-    value: ${{ resources.repositories['ilife-build'].commit }}
-  - name: CSS_COMMIT
-    value: ${{ resources.repositories['ilifes-style-css'].commit }}
 
-  # Combine commits into a short hash
-  - name: COMBINED_HASH
-    value: ${{ toLower(format('{0:x}', hash(concat(variables.APP_COMMIT, variables.ENV_CONFIG_COMMIT, variables.CSS_COMMIT)))) }}
-
-  - name: IMAGE_LABEL
-    value: buildprocure:${{ substr(variables.COMBINED_HASH, 0, 8) }}
+steps:
+  - script: |
+      echo "APP_COMMIT=${APP_COMMIT}" >>$BASH_ENV
+      echo "ENV_COMMIT=${{ resources.repositories['ilife-build'].commit }}" >>$BASH_ENV
+      echo "STYLE_COMMIT=${{ resources.repositories['ilifes-style-css'].commit }}" >>$BASH_ENV
+    displayName: 'Set Commit Variables'
+  - script: |
+      COMBINED_COMMIT="${APP_COMMIT}-${ENV_COMMIT}-${STYLE_COMMIT}"
+      echo "##vso[task.setvariable variable=COMBINED_COMMIT]${COMBINED_COMMIT}"
+    displayName: 'Display Build Info'
 
 
 stages:
