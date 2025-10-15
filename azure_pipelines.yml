@@ -87,12 +87,9 @@ variables:
 
 stages:
   - stage: Build
-    displayName: 'Build and Push Docker Image'
-    jobs:      
-    - template: build-docker-image.yml
-      parameters:
-        environment: ${{ parameters.environment }}
-
+    displayName: 'Build and Push Docker Image'    
+    jobs:
+      - job: Build
         displayName: 'Build and Push'
 
 
