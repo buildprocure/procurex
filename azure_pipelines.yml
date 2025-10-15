@@ -72,7 +72,7 @@ variables:
     value: 'latest'
   - name: IMAGE_LEVEL
     ${{ if eq(parameters.environment, 'prod') }}:
-      value: $(git rev-parse --short HEAD)
+      value: $(Build.SourceVersion)
     ${{ if ne(parameters.environment, 'prod') }}:
       value: 'dev-$(git rev-parse --short HEAD)'
 
