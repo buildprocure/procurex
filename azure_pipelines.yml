@@ -71,7 +71,10 @@ variables:
   - name: dockerImageTag
     value: 'latest'
   - name: IMAGE_LEVEL
-    value: $(git rev-parse --short HEAD)
+    ${{ if eq(parameters.environment, 'prod') }}:
+      value: $(git rev-parse --short HEAD)
+    ${{ if ne(parameters.environment, 'prod') }}:
+      value: 'dev-$(git rev-parse --short HEAD)'
 
 
 stages:
