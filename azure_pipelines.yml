@@ -71,7 +71,7 @@ variables:
   - name: dockerImageTag
     value: 'latest'
   - name: IMAGE_LEVEL
-    value: $git(rev-parse --short HEAD)
+    value: $(git rev-parse --short HEAD)
 
 
 stages:
