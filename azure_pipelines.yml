@@ -70,18 +70,29 @@ variables:
     value: '/var/www/html'
   - name: dockerImageTag
     value: 'latest'
-  - name: IMAGE_LEVEL
-    ${{ if eq(parameters.environment, 'prod') }}:
-      value: $(Build.SourceVersion)
-    ${{ if ne(parameters.environment, 'prod') }}:
-      value: 'dev-$(git rev-parse --short HEAD)'
+  - name: APP_COMMIT
+    value: $(Build.SourceVersion)
+  - name: ENV_CONFIG_COMMIT
+    value: ${{ resources.repositories['ilife-build'].commit }}
+  - name: CSS_COMMIT
+    value: ${{ resources.repositories['ilifes-style-css'].commit }}
+
+  # Combine commits into a short hash
+  - name: COMBINED_HASH
+    value: ${{ toLower(format('{0:x}', hash(concat(variables.APP_COMMIT, variables.ENV_CONFIG_COMMIT, variables.CSS_COMMIT)))) }}
+
+  - name: IMAGE_LABEL
+    value: buildprocure:${{ substr(variables.COMBINED_HASH, 0, 8) }}
 
 
 stages:
   - stage: Build
     displayName: 'Build and Push Docker Image'
-    jobs:
-      - job: Build
+    jobs:      
+    - template: build-docker-image.yml
+      parameters:
+        environment: ${{ parameters.environment }}
+
         displayName: 'Build and Push'
 
 
