@@ -96,14 +96,14 @@ stages:
           - checkout: ilifes-style-css
         
           - script: |
-              echo "APP_COMMIT=${APP_COMMIT}" >>$BASH_ENV
-              echo "ENV_COMMIT=${{ resources.repositories['ilife-build'].commit }}" >>$BASH_ENV
-              echo "STYLE_COMMIT=${{ resources.repositories['ilifes-style-css'].commit }}" >>$BASH_ENV
+              echo "APP_COMMIT=$APP_COMMIT"
+              echo "ENV_COMMIT=$ENV_COMMIT"
+              echo "STYLE_COMMIT=$STYLE_COMMIT"
             displayName: 'Set Commit Variables'
-          - script: |
-              COMBINED_COMMIT="${APP_COMMIT}-${ENV_COMMIT}-${STYLE_COMMIT}"
-              echo "##vso[task.setvariable variable=COMBINED_COMMIT]${COMBINED_COMMIT}"
-            displayName: 'Display Build Info'
+            env:
+              APP_COMMIT: $(Build.SourceVersion)
+              ENV_COMMIT: ${{ resources.repositories['ilife-build'].commit }}
+              STYLE_COMMIT: ${{ resources.repositories['ilifes-style-css'].commit }}
 
           #Debugging and logging related scripts
           - script: |
