@@ -73,16 +73,7 @@ variables:
   - name: APP_COMMIT
     value: $(Build.SourceVersion)
 
-steps:
-  - script: |
-      echo "APP_COMMIT=${APP_COMMIT}" >>$BASH_ENV
-      echo "ENV_COMMIT=${{ resources.repositories['ilife-build'].commit }}" >>$BASH_ENV
-      echo "STYLE_COMMIT=${{ resources.repositories['ilifes-style-css'].commit }}" >>$BASH_ENV
-    displayName: 'Set Commit Variables'
-  - script: |
-      COMBINED_COMMIT="${APP_COMMIT}-${ENV_COMMIT}-${STYLE_COMMIT}"
-      echo "##vso[task.setvariable variable=COMBINED_COMMIT]${COMBINED_COMMIT}"
-    displayName: 'Display Build Info'
+
 
 
 stages:
@@ -103,7 +94,16 @@ stages:
             path: s/ilife-items-frontend
 
           - checkout: ilifes-style-css
-
+        
+          - script: |
+              echo "APP_COMMIT=${APP_COMMIT}" >>$BASH_ENV
+              echo "ENV_COMMIT=${{ resources.repositories['ilife-build'].commit }}" >>$BASH_ENV
+              echo "STYLE_COMMIT=${{ resources.repositories['ilifes-style-css'].commit }}" >>$BASH_ENV
+            displayName: 'Set Commit Variables'
+          - script: |
+              COMBINED_COMMIT="${APP_COMMIT}-${ENV_COMMIT}-${STYLE_COMMIT}"
+              echo "##vso[task.setvariable variable=COMBINED_COMMIT]${COMBINED_COMMIT}"
+            displayName: 'Display Build Info'
 
           #Debugging and logging related scripts
           - script: |
