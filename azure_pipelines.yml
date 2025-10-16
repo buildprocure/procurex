@@ -76,7 +76,7 @@ variables:
 
 
 stages:
-  - template: azure-pipelines/build-deploy-template.yaml@docker-build
+  - template: azure-pipelines/build-docker-template.yaml@docker-build
     parameters:
       environment: ${{ parameters.environment }}
       dockerRegistryServiceConnection: $(dockerRegistryServiceConnection)
