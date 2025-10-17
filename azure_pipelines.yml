@@ -73,6 +73,12 @@ variables:
   - name: APP_COMMIT
     value: $(Build.SourceVersion)
 
+  - name: FRONTEND_COMMIT
+    value: ${{ resources.repositories['ilife-items-frontend'].commit }}
+
+  - name: CSS_COMMIT
+    value: ${{ resources.repositories['ilifes-style-css'].commit }}
+
 
 
 stages:
