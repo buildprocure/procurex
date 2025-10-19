@@ -19,9 +19,9 @@ resources:
       ref: refs/heads/main
       endpoint: github.com_rabinkhadkaa
 
-    - repository: ilife-build
+    - repository: docker-build
       type: github
-      name: rabinkhadkaa/ilife-build
+      name: rabinkhadkaa/buildprocure-docker-build
       ref: refs/heads/main
       endpoint: github.com_rabinkhadkaa
 
@@ -70,251 +70,19 @@ variables:
     value: '/var/www/html'
   - name: dockerImageTag
     value: 'latest'
-  - name: IMAGE_LEVEL
-    ${{ if eq(parameters.environment, 'prod') }}:
-      value: $(Build.SourceVersion)
-    ${{ if ne(parameters.environment, 'prod') }}:
-      value: 'dev-$(git rev-parse --short HEAD)'
+  - name: APP_COMMIT
+    value: $(Build.SourceVersion)
+
 
 
 stages:
-  - stage: Build
-    displayName: 'Build and Push Docker Image'
-    jobs:
-      - job: Build
-        displayName: 'Build and Push'
-
-
-        pool:
-          name: 'Default'
-        steps:
-          - checkout: self
-          - checkout: ilife-build
-
-          - checkout: ilife-items-frontend
-            path: s/ilife-items-frontend
-
-          - checkout: ilifes-style-css
-
-
-          #Debugging and logging related scripts
-          - script: |
-              echo "Listing Pipeline.workspace files after checkout:"
-              ls -laR $(Pipeline.Workspace)
-            displayName: 'Debug: Show checked out files'
-
-          - script: |
-              env | sort
-            displayName: 'Debug: Pre-check Variable Resolution'
-
-          - script: |
-              echo "DOCKER_EXTRA_ARGS: $(DOCKER_EXTRA_ARGS)"
-            displayName: 'Debug: Show DOCKER_EXTRA_ARGS'
-
-          - script: echo "Key is- $(S247_LICENSE_KEY)"
-            displayName: 'Debug Key Output'
-          # End of debugging and logging related scripts         
-
-          - script: |
-              echo "Cleaning up disk space..."
-              sudo docker system prune -af
-              sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc
-              sudo apt-get clean
-              df -h
-            displayName: 'Free up disk space'
-
-          # Items Frontend related tasks
-          - task: NodeTool@0
-            inputs:
-              versionSpec: '18.x'
-            displayName: 'Install Node.js'
-
-          - script: |
-              cd $(Build.SourcesDirectory)/ilife-items-frontend
-              npm install
-              npm run build
-            displayName: 'Build React Frontend'
-
-          - script: |
-              echo "Copying built frontend to ilifes/public/items-frontend"
-              rm -rf $(Build.SourcesDirectory)/public/items-frontend
-              mkdir -p $(Build.SourcesDirectory)/public/items-frontend
-              cp -r $(Build.SourcesDirectory)/ilife-items-frontend/dist/* $(Build.SourcesDirectory)/buildprocure/public/items-frontend
-            displayName: 'Copy React Build to Public Folder'
-          # End of Items Frontend related tasks
-
-          # CSS: Directly copy the global_bp.css to buildprocure/css
-          - script: |
-              echo "Copying global_bp.css from ilifes-style-css repo to buildprocure/"
-              mkdir -p $(Build.SourcesDirectory)/buildprocure/css
-              cp $(Build.SourcesDirectory)/ilifes-style-css/global_bp.css $(Build.SourcesDirectory)/buildprocure/
-            displayName: 'Copy global_bp.css to buildprocure/'
-
-          # End of downloading CSS and copying to build directory
-
-          # Docker build and push tasks
-          - task: Docker@2
-            displayName: 'Docker Login to ACR'
-            inputs:
-              command: login
-              containerRegistry: $(dockerRegistryServiceConnection)
-
-          - script: |
-              echo "🔍 Testing ACR login inside pipeline..."
-              docker pull ilifesregistry.azurecr.io/ilifes/php-base:latest
-            displayName: "Debug: Test docker pull after login"
-
-          - task: Docker@2
-            displayName: Build Docker Image with Site24x7 Agent
-            inputs:
-              command: build
-              containerRegistry: $(dockerRegistryServiceConnection)  
-              repository: $(imageName)
-              Dockerfile: buildprocure/dockerfile
-              tags: |
-                $(dockerImageTag)
-              buildContext: buildprocure
-              arguments: >
-                --no-cache
-                --build-arg S247_LICENSE_KEY=$(S247_LICENSE_KEY)
-                --build-arg ENV_NAME=${{ parameters.environment }}
-                --build-arg REPO_NAME=$(Build.Repository.Name)
-          
-          - task: Docker@2
-            displayName: 'Push Docker Image to ACR'
-            inputs:
-              command: push
-              repository: $(imageName)
-              tags: $(dockerImageTag)
-              containerRegistry: $(dockerRegistryServiceConnection)
-
-            # Only run if simplesamlssoEnabled == true
-          - ${{ if eq(variables.simplesamlssoEnabled, 'true') }}:
-            - checkout: ilifes-simplesamlphp
-              path: s/ilifes-simplesamlphp
-
-            - task: Docker@2
-              displayName: 'Build simplesamlphp image'
-              inputs:
-                command: build
-                containerRegistry: $(dockerRegistryServiceConnection)
-                dockerfile: $(Build.SourcesDirectory)/ilifes-simplesamlphp/Dockerfile
-                repository: simplesamlphp
-                tags: $(dockerImageTag)
-                buildContext: $(Build.SourcesDirectory)/ilifes-simplesamlphp
-
-            - task: Docker@2
-              displayName: 'Push simplesamlphp image'
-              inputs:
-                command: push
-                containerRegistry: $(dockerRegistryServiceConnection)
-                repository: simplesamlphp
-                tags: $(dockerImageTag)
-          # End of Docker build and push tasks
-          - ${{ if eq(variables.SFTPEnable, 'true') }}:
-              - script: |
-                  echo "$(SFTP_USERS)" > $(Build.SourcesDirectory)/docker/sftp/users.conf
-                displayName: 'Create SFTP users.conf file'
-
-  - stage: Deploy
-    displayName: 'Deploy Application'
-    dependsOn: Build
-    jobs:
-      - job: Deploy
-        displayName: 'Deploy on Remote Server'
-        pool:
-          name: 'Default'
-        steps:
-          - checkout: self
-
-          - task: CopyFilesOverSSH@0
-            displayName: 'Copy docker-compose.yml and .env to server'
-            inputs:
-              sshEndpoint: $(sshServiceConnection)
-              sourceFolder: '$(Build.SourcesDirectory)'
-              contents: |
-                docker-compose.yml
-                php-env-${{ parameters.environment }}.env
-                docker/sftp/users.conf
-              targetFolder: '$(appDirectory)'
-
-          - task: SSH@0
-            displayName: 'Debugging: List Files in Build Source Directory'
-            inputs:
-              sshEndpoint: $(sshServiceConnection)
-              runOptions: 'commands'
-              commands: |
-                echo "Listing files in $(appDirectory)"
-                ls -la $(appDirectory)
-                echo "Listing files in $(Build.SourcesDirectory)"
-                ls -la $(Build.SourcesDirectory)
-
-          - task: Docker@2
-            displayName: 'Login to ACR on Remote Server'
-            inputs:
-              command: login
-              containerRegistry: $(dockerRegistryServiceConnection)
-          
-          - script: |
-              echo "Waiting for the image to be available in ACR....and print env name: php-env-${{ parameters.environment }}.env"
-              sleep 10
-            displayName: 'Wait for Image Availability'
-
-          - task: SSH@0
-            displayName: 'Pull and Restart Docker Containers'
-            inputs:
-              sshEndpoint: $(sshServiceConnection)
-              runOptions: 'commands'
-              commands: |
-                echo "Changing to $(appDirectory)"
-                cd $(appDirectory) && ls -la
-
-                echo "### Stopping existing containers ###"
-                [ "$(docker ps -q)" ] && docker-compose -f $(appDirectory)/docker-compose.yml down 2>&1 | tee docker-compose.log || echo "No running containers to stop."
-
-                # Always pull & start db, phpmyadmin, web
-                echo "Pulling always-on services: db, phpmyadmin, web..."
-                docker-compose -f $(appDirectory)/docker-compose.yml pull db phpmyadmin php-fpm apache 2>&1 | tee -a docker-compose.log
-                docker-compose -f $(appDirectory)/docker-compose.yml up -d db phpmyadmin php-fpm apache 2>&1 | tee -a docker-compose.log
-
-
-                # SFTP pull & start container based on variable
-                [ "$(SFTPEnable)" = "true" ] && echo "SFTP enabled, pulling & starting..." && docker-compose -f $(appDirectory)/docker-compose.yml pull sftp 2>&1 | tee -a docker-compose.log && docker-compose -f $(appDirectory)/docker-compose.yml up -d sftp 2>&1 | tee -a docker-compose.log || echo "SFTP disabled, skipping container."
-
-                # SimpleSAMLphp pull & start container based on variable
-                [ "$(simplesamlssoEnabled)" = "true" ] && echo "SimpleSAMLphp enabled, pulling & starting..." && docker-compose -f $(appDirectory)/docker-compose.yml pull simplesamlphp 2>&1 | tee -a docker-compose.log && docker-compose -f $(appDirectory)/docker-compose.yml up -d simplesamlphp 2>&1 | tee -a docker-compose.log || echo "SimpleSAMLphp disabled, skipping container."
-
-
-                echo "### Removing old images ###"
-                docker image prune -f
-
-                echo "### Verifying running containers ###"
-                docker ps -a
-        
-          - task: SSH@0
-            displayName: 'Fix volume permissions for SFTP uploads'
-            inputs:
-              sshEndpoint: $(sshServiceConnection)
-              runOptions: 'inline'
-              inline: |
-                echo "🔍 Looking for Docker volume name..."
-                volume_name=$(docker volume ls --format '{{.Name}}' | grep 'sftp-data$')
-
-                if [ -z "$volume_name" ]; then
-                  echo "❌ Volume sftp-data not found"
-                  exit 1
-                fi
-
-                echo "✅ Found volume: $volume_name"
-
-                echo "📁 Inspecting mount path..."
-                mount_path=$(docker volume inspect "$volume_name" --format '{{ .Mountpoint }}')
-
-                if [ -z "$mount_path" ] || [ ! -d "$mount_path" ]; then
-                  echo "❌ Invalid mount path: $mount_path"
-                  exit 1
-                fi
-
-                echo "✅ Changing ownership of $mount_path to UID 1000"
-                sudo chown -R 999:999 "$mount_path"
-                echo "✅ Permissions fixed."
+  - template: azure-pipelines/build-docker-template.yaml@docker-build
+    parameters:
+      environment: ${{ parameters.environment }}
+      dockerRegistryServiceConnection: $(dockerRegistryServiceConnection)
+      sshServiceConnection: $(sshServiceConnection)
+      acrName: $(acrName)
+      imageName: $(imageName)
+      simplesamlssoEnabled: $(EnableSimpleSamlPhpSSO)
+      SFTPEnable: $(EnableSFTP)
+      S247_LICENSE_KEY: $(S247_LICENSE_KEY)
