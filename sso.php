@@ -48,5 +48,5 @@ if (isset($_GET['username'])) {
         echo "User not found.";
     }
 } else {
-    echo "No username provided.";
+    echo "No username provided. ";
 }
