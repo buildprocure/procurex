@@ -8,6 +8,7 @@ session_start();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BuildProcure - Home</title>
+    <link rel="icon" type="image/png" href="img/buildprocure_icon.png">
     <link rel="stylesheet" href="global_bp.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
