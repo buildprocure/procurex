@@ -21,7 +21,6 @@ services:
     env_file:
       - php-env.env   
     volumes:
-      - app_code:/var/www/html                      # Application code
       - /mnt/ilifes_store/files:/var/www/html/files  # Host bind for PDFs/files
       - sftp-data:/var/www/html/userUploads    # Persistent storage for user uploads
     networks:
@@ -36,8 +35,6 @@ services:
     volumes:
       - /mnt/ilifes_store/files:/var/www/html/files  # Optional: for serving PDFs
       - sftp-data:/var/www/html/userUploads    # Optional: for serving user uploads
-      - app_code:/var/www/html:ro                      # Application code
-
     depends_on:
       - php-fpm
     networks:
