@@ -21,7 +21,7 @@ RUN apt-get update && \
 COPY apache-config.conf /etc/apache2/sites-available/000-default.conf
 
 # Copy SSL certificates
-COPY cert/ /usr/local/apache2/conf/ssl/
+COPY certs/ /usr/local/apache2/conf/ssl/
 
 # Copy application code
 COPY . /var/www/html
