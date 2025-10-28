@@ -2,14 +2,15 @@
 set -e
 echo "Starting BuildProcure combined container as $(whoami)"
 
-# Start PHP-FPM
+# Start PHP-FPM directly (not as a service)
 if command -v php-fpm8.2 >/dev/null 2>&1; then
   echo "Starting PHP-FPM..."
-  service php8.2-fpm start
+  php-fpm8.2 -D
 else
-  echo "PHP-FPM not found, skipping."
+  echo "PHP-FPM not found!"
+  exit 1
 fi
 
-# Start Apache (Debian package uses apachectl)
+# Start Apache in foreground
 echo "Starting Apache in foreground..."
 exec apachectl -D FOREGROUND
