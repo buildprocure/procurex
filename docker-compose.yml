@@ -14,29 +14,20 @@ services:
       - "3306:3306"
     networks:
       - app-network
-
-  php-fpm:
+  web:
     image: ilifesregistry.azurecr.io/ilifes-store:latest
-    container_name: php-fpm
+    container_name: buildprocure
     env_file:
-      - php-env.env   
-    volumes:
-      - /mnt/ilifes_store/files:/var/www/html/files  # Host bind for PDFs/files
-      - sftp-data:/var/www/html/userUploads    # Persistent storage for user uploads
-    networks:
-      - app-network
-
-  apache:
-    image: ilifesregistry.azurecr.io/buildprocure-apache:latest
-    container_name: apache
+      - php-env.env
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - /mnt/ilifes_store/files:/var/www/html/files  # Optional: for serving PDFs
-      - sftp-data:/var/www/html/userUploads    # Optional: for serving user uploads
+      - /mnt/ilifes_store/files:/var/www/html/files
+      - sftp-data:/var/www/html/userUploads
     depends_on:
-      - php-fpm
+      - db
+      - simplesamlphp
     networks:
       - app-network
 
@@ -77,7 +68,6 @@ services:
 volumes:
   db_data:
   sftp-data:
-  app_code:
 
 networks:
   app-network:

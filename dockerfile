@@ -1,29 +1,46 @@
-# Use the new PHP-FPM base image
+# =========================================================
+# Combined Apache + PHP-FPM image for BuildProcure
+# Base: PHP 8.2 with Site24x7 Agent
+# =========================================================
+
 FROM ilifesregistry.azurecr.io/ilifes/php-base:latest
 
 ARG S247_LICENSE_KEY
 ARG ENV_NAME
 ARG REPO_NAME
 
+USER root
+
+# Install Apache & required modules
+RUN apt-get update && \
+    apt-get install -y apache2 libapache2-mod-fcgid && \
+    a2enmod proxy_fcgi setenvif rewrite ssl headers && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Configure Apache for PHP-FPM socket
+COPY apache-config.conf /etc/apache2/sites-available/000-default.conf
+
+# Copy SSL certificates
+COPY certs/ /usr/local/apache2/conf/ssl/
+
 # Copy application code
 COPY . /var/www/html
 
 # Permissions
-USER root
-RUN chown -R buildprocure:buildprocure /var/www/html
+RUN chown -R buildprocure:www-data /var/www/html
 
-# Run Site24x7 Agent
+# Run Site24x7 agent setup
 RUN /InstallAgentPHP.sh -lk "${S247_LICENSE_KEY}" -zpa.application_name "Buildprocure-${REPO_NAME}-${ENV_NAME}" && \
     /InstallDataExporter.sh -root -nsvc -lk "${S247_LICENSE_KEY}"
 
-# Entrypoint
+# Copy entrypoint
 COPY ./entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-USER buildprocure
-WORKDIR /var/www/html
+# Expose ports
+EXPOSE 80 443
 
-# PHP-FPM exposes 9000
-EXPOSE 9000
+USER root
+WORKDIR /var/www/html
 
 ENTRYPOINT ["/entrypoint.sh"]

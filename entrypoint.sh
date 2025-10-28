@@ -1,11 +1,15 @@
-#!/bin/sh
-#Start S247DataExporter
-echo "Starting S247DataExporter..."
-sudo sh /opt/S247DataExporter/bin/service.sh start
-#
-#Your code
-#
-#php-fpm
-echo "Starting PHP-FPM..."
+#!/bin/bash
+set -e
+echo "Starting BuildProcure combined container as $(whoami)"
+
 # Start PHP-FPM
-exec php-fpm
+if command -v php-fpm8.2 >/dev/null 2>&1; then
+  echo "Starting PHP-FPM..."
+  service php8.2-fpm start
+else
+  echo "PHP-FPM not found, skipping."
+fi
+
+# Start Apache (Debian package uses apachectl)
+echo "Starting Apache in foreground..."
+exec apachectl -D FOREGROUND
