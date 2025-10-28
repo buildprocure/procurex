@@ -5,7 +5,7 @@ echo "Starting BuildProcure combined container as $(whoami)"
 # Start PHP-FPM directly (not as a service)
 if command -v php-fpm8.2 >/dev/null 2>&1; then
   echo "Starting PHP-FPM..."
-  php-fpm8.2 -D
+  php-fpm -D
 else
   echo "PHP-FPM not found!"
   exit 1
