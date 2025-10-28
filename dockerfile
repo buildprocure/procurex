@@ -20,6 +20,9 @@ RUN apt-get update && \
 # Configure Apache for PHP-FPM socket
 COPY apache-config.conf /etc/apache2/sites-available/000-default.conf
 
+# Copy SSL certificates
+COPY cert/ /usr/local/apache2/conf/ssl/
+
 # Copy application code
 COPY . /var/www/html
 
