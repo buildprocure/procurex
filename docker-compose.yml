@@ -1,6 +1,19 @@
 version: "3.9"
 
 services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: '@Shova595Bhandari'
+      MYSQL_DATABASE: "ilife"
+    env_file:
+      - php-env.env
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - app-network
   web:
     image: ilifesregistry.azurecr.io/buildprocure-web:latest
     container_name: buildprocure
@@ -15,18 +28,6 @@ services:
     depends_on:
       - db
       - simplesamlphp
-    networks:
-      - app-network
-
-  db:
-    image: mysql:8.0
-    environment:
-      MYSQL_ROOT_PASSWORD: '@Shova595Bhandari'
-      MYSQL_DATABASE: "ilife"
-    volumes:
-      - db_data:/var/lib/mysql
-    ports:
-      - "3306:3306"
     networks:
       - app-network
 
