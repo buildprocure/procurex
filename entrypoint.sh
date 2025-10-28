@@ -1,11 +1,8 @@
-#!/bin/sh
-#Start S247DataExporter
-echo "Starting S247DataExporter..."
-sudo sh /opt/S247DataExporter/bin/service.sh start
-#
-#Your code
-#
-#php-fpm
-echo "Starting PHP-FPM..."
+#!/bin/bash
+echo "Starting BuildProcure combined container as $(whoami)"
+
 # Start PHP-FPM
-exec php-fpm
+service php8.2-fpm start
+
+# Start Apache (foreground)
+exec apache2-foreground
