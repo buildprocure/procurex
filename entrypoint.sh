@@ -2,16 +2,15 @@
 set -e
 echo "Starting BuildProcure combined container as $(whoami)"
 
-# Start PHP-FPM with explicit config (ensures socket is created)
-if command -v php-fpm8.2 >/dev/null 2>&1; then
+# Start PHP-FPM (already in base image)
+if command -v php-fpm >/dev/null 2>&1; then
   echo "Starting PHP-FPM..."
-  php-fpm8.2 -y /etc/php/8.2/fpm/php-fpm.conf -D
+  php-fpm -D
 else
-  echo "Installing PHP-FPM runtime..."
-  apt-get update && apt-get install -y php8.2-fpm
-  php-fpm8.2 -y /etc/php/8.2/fpm/php-fpm.conf -D
+  echo "ERROR: PHP-FPM not found in the container!"
+  exit 1
 fi
 
-# Start Apache
-echo "Starting Apache in foreground..."
+# Start Apache in foreground
+echo "Starting Apache..."
 exec apachectl -D FOREGROUND
