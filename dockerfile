@@ -14,7 +14,7 @@ USER root
 # Install Apache & required modules
 RUN apt-get update && \
     apt-get install -y apache2 libapache2-mod-fcgid && \
-    a2enmod proxy_fcgi setenvif rewrite ssl headers && \
+    a2enmod proxy proxy_http proxy_fcgi setenvif rewrite ssl headers && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Configure Apache for PHP-FPM socket
