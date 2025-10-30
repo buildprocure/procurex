@@ -109,9 +109,9 @@ if($_SERVER['REQUEST_METHOD']=='POST'){
             <div class="mb-3">
               <select name = "role" class="form-select" aria-label="Default select example">
                 Role
-                <option value="admin">Admin</option>
-                <option value="supplier">Supplier</option>
-                <option value="buyer">Buyer</option>
+                <option value="Admin">Admin</option>
+                <option value="Supplier">Supplier</option>
+                <option value="Buyer">Buyer</option>
               </select>
             </div>
             <button type="submit" class="btn btn-primary">Sign Up</button> <br><br><br><br><br><br><br>
