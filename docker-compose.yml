@@ -7,7 +7,7 @@ services:
       MYSQL_ROOT_PASSWORD: '@Shova595Bhandari'
       MYSQL_DATABASE: "ilife"
     env_file:
-      - php-env.env
+      - php-env-prod.env
     volumes:
       - db_data:/var/lib/mysql
     ports:
@@ -18,7 +18,7 @@ services:
     image: ilifesregistry.azurecr.io/ilifes-store:latest
     container_name: buildprocure
     env_file:
-      - php-env.env
+      - php-env-prod.env
     ports:
       - "80:80"
       - "443:443"
