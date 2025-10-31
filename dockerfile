@@ -27,11 +27,6 @@ RUN chown -R buildprocure:www-data /var/www/html
 RUN /InstallAgentPHP.sh -lk "${S247_LICENSE_KEY}" -zpa.application_name "Buildprocure-${REPO_NAME}-${ENV_NAME}" && \
     /InstallDataExporter.sh -root -nsvc -lk "${S247_LICENSE_KEY}"
 
-# Copy entrypoint
-COPY ./entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
 
 EXPOSE 80 443
 
-WORKDIR /var/www/html
-ENTRYPOINT ["/entrypoint.sh"]
