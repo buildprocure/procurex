@@ -11,12 +11,6 @@ ARG REPO_NAME
 
 USER root
 
-# Install Apache & required modules
-RUN apt-get update && \
-    apt-get install -y apache2 libapache2-mod-fcgid && \
-    a2enmod proxy proxy_http proxy_fcgi setenvif rewrite ssl headers && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
-
 # Configure Apache for PHP-FPM socket
 COPY apache-config.conf /etc/apache2/sites-available/000-default.conf
 
@@ -33,14 +27,6 @@ RUN chown -R buildprocure:www-data /var/www/html
 RUN /InstallAgentPHP.sh -lk "${S247_LICENSE_KEY}" -zpa.application_name "Buildprocure-${REPO_NAME}-${ENV_NAME}" && \
     /InstallDataExporter.sh -root -nsvc -lk "${S247_LICENSE_KEY}"
 
-# Copy entrypoint
-COPY ./entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
 
-# Expose ports
 EXPOSE 80 443
 
-USER root
-WORKDIR /var/www/html
-
-ENTRYPOINT ["/entrypoint.sh"]
