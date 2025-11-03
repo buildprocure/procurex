@@ -34,7 +34,7 @@ resources:
     - repository: ilifes-simplesamlphp
       type: github
       name: rabinkhadkaa/ilifes-simplesamlphp
-      ref: refs/heads/main
+      ref: refs/heads/AB#22_main
       endpoint: github.com_rabinkhadkaa
 
 
