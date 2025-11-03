@@ -3,7 +3,7 @@
 # Base: PHP 8.2 with Site24x7 Agent
 # =========================================================
 
-FROM ilifesregistry.azurecr.io/ilifes/php-base:AB21_apache-fpm-setup-on-base-image
+FROM ilifesregistry.azurecr.io/ilifes/php-base:latest
 
 ARG S247_LICENSE_KEY
 ARG ENV_NAME
