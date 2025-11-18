@@ -1,0 +1,85 @@
+name: Warn Stale Branches
+
+on:
+  schedule:
+    - cron: "30 * * * *" # Runs at minute 30 of every hour
+  workflow_dispatch:
+
+jobs:
+  warn-stale:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install jq & gh
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Ensure stale-tracking file exists
+        run: |
+          mkdir -p .github
+          [[ -f .github/stale-branches.json ]] || echo "{}" > .github/stale-branches.json
+
+      - name: Identify stale branches & send warnings
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DAYS: 30
+        run: |
+          THRESHOLD=$(date -d "$DAYS days ago" +%s) # +%s converts days to seconds since unix timestamp 
+          EXCLUDE="main master develop feature uat"
+
+          for BRANCH in $(gh api repos/${{ github.repository }}/branches --jq '.[].name'); do
+
+            if [[ " $EXCLUDE " =~ " $BRANCH " ]]; then
+              continue
+            fi
+
+            LAST_COMMIT=$(gh api repos/${{ github.repository }}/commits/$BRANCH --jq '.commit.committer.date')
+            LAST_TS=$(date -d "$LAST_COMMIT" +%s)
+
+            if (( LAST_TS > THRESHOLD )); then
+              continue
+            fi
+
+            PR=$(gh pr list --head "$BRANCH" --state open --json number --jq '.[].number')
+            if [[ ! -z "$PR" ]]; then
+              continue
+            fi
+
+            WARNED=$(jq -r --arg b "$BRANCH" '.[$b].warned_at // empty' .github/stale-branches.json)
+            if [[ ! -z "$WARNED" ]]; then
+              continue
+            fi
+
+            CREATOR=$(gh api repos/${{ github.repository }}/branches/$BRANCH --jq '.commit.committer.email')
+
+            echo "Sending warning email for branch $BRANCH to $CREATOR"
+
+            echo "subject=⚠ Stale Branch Warning: $BRANCH" >> mail.txt
+            echo "Branch '$BRANCH' has had no commits for $DAYS days." >> mail.txt
+            echo "It will be deleted in 7 days unless new commits are added." >> mail.txt
+
+            # Store the email address for the next action
+            echo "CREATOR=$CREATOR" >> $GITHUB_ENV
+            echo "BRANCH=$BRANCH" >> $GITHUB_ENV
+
+            NOW=$(date +%s)
+            jq --arg b "$BRANCH" --arg ts "$NOW" \
+                '.[$b] = {warned_at: $ts}' \
+                .github/stale-branches.json > temp.json
+            mv temp.json .github/stale-branches.json
+
+            # Send email
+            gh workflow run send-mail.yml -f to="$CREATOR" -f subject="⚠ Stale Branch Warning: $BRANCH" -f body="Branch '$BRANCH' is stale."
+
+            rm -f mail.txt
+          done
+
+      - name: Commit stale file
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add .github/stale-branches.json
+          git commit -m "Update stale branch warnings" || true
+          git push
