@@ -1,8 +1,6 @@
-name: Delete Stale Branches
+name: Delete ONE Stale Branch (TEST)
 
 on:
-  schedule: 
-    - cron: "45 * * * *"
   workflow_dispatch:
 
 permissions:
@@ -10,7 +8,7 @@ permissions:
   pull-requests: read
 
 jobs:
-  delete-stale:
+  delete-one:
     runs-on: ubuntu-latest
 
     steps:
@@ -26,74 +24,60 @@ jobs:
         run: |
           [[ -f .github/stale-branches.json ]] || echo "{}" > .github/stale-branches.json
 
-      - name: Process deletions
+      - name: Delete ONLY Branch_test
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DEFAULT_EMAIL: "connect2ilife@gmail.com"
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASS: ${{ secrets.SMTP_PASS }}
-
+          DEFAULT_EMAIL: "connect2ilife@gmail.com"
+          TARGET_BRANCH: "Branch_test"
         run: |
-          NOW=$(date +%s)
-          NEWDATA="{}"
+          # Check if branch exists in JSON
+          EXISTS=$(jq -r --arg b "$TARGET_BRANCH" 'has($b)' .github/stale-branches.json)
 
-          for BRANCH in $(jq -r 'keys[]' .github/stale-branches.json); do
-            WARNED_AT=$(jq -r --arg b "$BRANCH" '.[$b].warned_at' .github/stale-branches.json)
-            ELAPSED=$(( NOW - WARNED_AT ))
+          if [[ "$EXISTS" != "true" ]]; then
+            echo "Branch $TARGET_BRANCH not found in stale-branches.json. Exiting."
+            exit 0
+          fi
 
-            ENCODED_BRANCH=$(printf '%s' "$BRANCH" | jq -sRr @uri)
+          echo "Processing delete for branch: $TARGET_BRANCH"
 
-            # ---- 1️⃣ Not 7 days yet → keep tracking ----
-            if (( ELAPSED < 604800 )); then
-              NEWDATA=$(echo "$NEWDATA" | jq --arg b "$BRANCH" --argjson ts "$WARNED_AT" '.[$b]={warned_at:$ts}')
-              continue
-            fi
+          ENCODED_BRANCH=$(printf '%s' "$TARGET_BRANCH" | jq -sRr @uri)
 
-            # ---- 2️⃣ Check if branch received new commits ----
-            LAST_COMMIT=$(gh api repos/${{ github.repository }}/commits/$ENCODED_BRANCH --jq '.commit.committer.date')
-            LAST_TS=$(date -d "$LAST_COMMIT" +%s)
+          # Get creator email
+          CREATOR=$(gh api repos/${{ github.repository }}/branches/$ENCODED_BRANCH --jq '.commit.committer.email' || echo "")
 
-            if (( LAST_TS > WARNED_AT )); then
-              echo "Skipping deletion: $BRANCH has new commits. Removing from stale tracking."
-              continue # DO NOT add it back to NEWDATA
-            fi
+          if [[ -z "$CREATOR" || "$CREATOR" == "null" ]]; then
+            CREATOR="$DEFAULT_EMAIL"
+          fi
 
-            # ---- 3️⃣ Skip if PR exists (branch is in active use) ----
-            PR=$(gh pr list --head "$BRANCH" --state open --json number --jq '.[].number')
-            if [[ ! -z "$PR" ]]; then
-              echo "Skipping deletion: $BRANCH has an open PR. Removing from stale tracking."
-              continue  # DO NOT keep tracking
-            fi
+          echo "Deleting stale branch: $TARGET_BRANCH"
 
-            # ---- 4️⃣ Get creator email ----
-            CREATOR=$(gh api repos/${{ github.repository }}/branches/$ENCODED_BRANCH --jq '.commit.committer.email')
-            if [[ -z "$CREATOR" || "$CREATOR" == "null" ]]; then
-              CREATOR="$DEFAULT_EMAIL"
-            fi
+          # Delete branch from GitHub
+          gh api -X DELETE repos/${{ github.repository }}/git/refs/heads/$ENCODED_BRANCH || \
+            echo "Warning: Failed to delete branch $TARGET_BRANCH"
 
-            # ---- 5️⃣ Delete branch ----
-            echo "Deleting stale branch: $BRANCH"
-            gh api -X DELETE repos/${{ github.repository }}/git/refs/heads/$ENCODED_BRANCH
+          echo "Deleted branch '$TARGET_BRANCH', notifying '$CREATOR'"
 
-            # ---- 6️⃣ Email notification ----
-            swaks --to "$CREATOR" \
-                  --from "$SMTP_USER" \
-                  --server smtp.gmail.com:587 \
-                  --auth LOGIN \
-                  --auth-user "$SMTP_USER" \
-                  --auth-password "$SMTP_PASS" \
-                  --tls \
-                  --header "Subject: ⚠ Branch Deleted: $BRANCH" \
-                  --body "The branch '$BRANCH' was deleted from the ${{ github.repository }} repo due to inactivity."
+          # Send email notification
+          swaks --to "$CREATOR" \
+                --from "buildprocure@gmail.com" \
+                --server smtp.gmail.com:587 \
+                --auth LOGIN \
+                --auth-user "$SMTP_USER" \
+                --auth-password "$SMTP_PASS" \
+                --tls \
+                --header "Subject: ⚠ Branch Deleted: $TARGET_BRANCH" \
+                --body "The branch '$TARGET_BRANCH' has been deleted intentionally for testing."
 
-          done
+          # Remove only this branch from stale-branches.json
+          jq --arg b "$TARGET_BRANCH" 'del(.[$b])' .github/stale-branches.json > temp.json
+          mv temp.json .github/stale-branches.json
 
-          echo "$NEWDATA" > .github/stale-branches.json
-
-      - name: Commit updates
+      - name: Commit updated tracking file
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add .github/stale-branches.json
-          git commit -m "Updated stale tracking" || true
+          git commit -m "Removed $TARGET_BRANCH from stale-tracking after test delete" || true
           git push
