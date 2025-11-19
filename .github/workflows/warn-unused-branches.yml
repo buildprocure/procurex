@@ -70,7 +70,7 @@ jobs:
             #Get the creators email of the branch
             CREATOR=$(gh api repos/${{ github.repository }}/branches/$ENCODED_BRANCH --jq '.commit.committer.email')
 
-            if [[ -z "$CREATOR" || "$CREATOR" == "null"]]; then
+            if [[ -z "$CREATOR" || "$CREATOR" == "null" ]]; then
               CREATOR="$DEFAULT_EMAIL"
             fi
 
