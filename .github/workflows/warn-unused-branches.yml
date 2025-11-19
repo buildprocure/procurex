@@ -61,6 +61,12 @@ jobs:
             CREATOR=$(gh api repos/${{ github.repository }}/branches/$BRANCH --jq '.commit.committer.email')
 
             echo "Sending warning email for branch $BRANCH to $CREATOR"
+            echo "subject=⚠ Stale Branch Warning: $BRANCH" >> mail.txt
+            echo "Branch '$BRANCH' has had no commits for $DAYS days." >> mail.txt
+            echo "It will be deleted in 7 days unless new commits are added." >> mail.txt
+            # Store the email address for the next action
+            echo "CREATOR=$CREATOR" >> $GITHUB_ENV
+            echo "BRANCH=$BRANCH" >> $GITHUB_ENV
 
             # Update stale-tracking JSON
             NOW=$(date +%s)
