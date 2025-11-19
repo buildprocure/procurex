@@ -86,7 +86,7 @@ jobs:
                   --auth-password "$SMTP_PASS" \
                   --tls \
                   --header "Subject: ⚠ Stale Branch Warning: $BRANCH" \
-                  --body "The branch '$BRANCH' has been inactive for over $DAYS days on '{{ github.repository }}' repository. Please take action to either update or delete this branch within the next 7 days to avoid automatic deletion."
+                  --body "The branch '$BRANCH' has been inactive for over $DAYS days on ${{ github.repository }} repository. Please take action to either update or delete this branch within the next 7 days to avoid automatic deletion."
 
 
             # Update stale-tracking file
