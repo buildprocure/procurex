@@ -32,6 +32,7 @@ jobs:
           DAYS: 30
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          DEFAULT_EMAIL: connect2ilife@gmail.com  # Fallback email
         run: |
           THRESHOLD=$(date -d "$DAYS days ago" +%s)
           EXCLUDE="main master develop feature uat"
@@ -68,6 +69,11 @@ jobs:
 
             #Get the creators email of the branch
             CREATOR=$(gh api repos/${{ github.repository }}/branches/$ENCODED_BRANCH --jq '.commit.committer.email')
+
+            if [[ -z "$CREATOR" || "$CREATOR" == "null"]]; then
+              CREATOR="$DEFAULT_EMAIL"
+            fi
+
             echo "Branch '$BRANCH' is stale. Sending warning to $CREATOR."
 
             # Send warning email
@@ -77,7 +83,7 @@ jobs:
               -f server_port=587 \
               -f username="$SMTP_USER" \
               -f password="$SMTP_PASS" \
-              -f from="BuildProcure <info@buildprocure.com>" \
+              -f from="BuildProcure <buildprocure@gmail.com>" \
               -f to="$CREATOR" \
               -f subject="⚠ Stale Branch Warning: $BRANCH" \
               -f body="The branch '$BRANCH' has been inactive for over $DAYS days. Please take action to either update or delete this branch within the next 7 days to avoid automatic deletion."
