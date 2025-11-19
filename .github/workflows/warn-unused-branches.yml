@@ -30,8 +30,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DAYS: 30
-          SMTP_USER: ${{ secrets.SMTP_USER }}
-          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          SMTP_USER: ${{ secrets.SMTP_USERNAME }}
+          SMTP_PASS: ${{ secrets.SMTP_PASSWORD }}
           DEFAULT_EMAIL: connect2ilife@gmail.com  # Fallback email
         run: |
           THRESHOLD=$(date -d "$DAYS days ago" +%s)
@@ -81,7 +81,7 @@ jobs:
             # Send email via SMTP (requires swaks)
             sudo apt-get install -y swaks
             swaks --to "$CREATOR" \
-                  --from "BuildProcure <buildprocure@gmail.com>" \
+                  --from "buildprocure@gmail.com" \
                   --server smtp.gmail.com:587 \
                   --auth LOGIN \
                   --auth-user "$SMTP_USER" \
