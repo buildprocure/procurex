@@ -28,10 +28,11 @@ jobs:
 
       - name: Identify stale branches & send warnings
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}   # keep default token for branch operations
+          GH_PAT: ${{ secrets.PAT_TOKEN }}            # <-- PAT used ONLY for triggering send-mail.yml
           DAYS: 30
         run: |
-          THRESHOLD=$(date -d "$DAYS days ago" +%s) # +%s converts days to seconds since unix timestamp 
+          THRESHOLD=$(date -d "$DAYS days ago" +%s)
           EXCLUDE="main master develop feature uat"
 
           for BRANCH in $(gh api repos/${{ github.repository }}/branches --jq '.[].name'); do
@@ -60,25 +61,32 @@ jobs:
             CREATOR=$(gh api repos/${{ github.repository }}/branches/$BRANCH --jq '.commit.committer.email')
 
             echo "Sending warning email for branch $BRANCH to $CREATOR"
-
             echo "subject=⚠ Stale Branch Warning: $BRANCH" >> mail.txt
             echo "Branch '$BRANCH' has had no commits for $DAYS days." >> mail.txt
             echo "It will be deleted in 7 days unless new commits are added." >> mail.txt
-
             # Store the email address for the next action
             echo "CREATOR=$CREATOR" >> $GITHUB_ENV
             echo "BRANCH=$BRANCH" >> $GITHUB_ENV
 
+            # Update stale-tracking JSON
             NOW=$(date +%s)
             jq --arg b "$BRANCH" --arg ts "$NOW" \
                 '.[$b] = {warned_at: $ts}' \
                 .github/stale-branches.json > temp.json
             mv temp.json .github/stale-branches.json
 
-            # Send email
-            gh workflow run send-mail.yml -f to="$CREATOR" -f subject="⚠ Stale Branch Warning: $BRANCH" -f body="Branch '$BRANCH' is stale."
+            # Use PAT only for triggering workflow
+            export GH_TOKEN="$GH_PAT"
+
+            gh workflow run send-mail.yml \
+              -f to="$CREATOR" \
+              -f subject="⚠ Stale Branch Warning: $BRANCH" \
+              -f body="Branch '$BRANCH' is stale."
 
             rm -f mail.txt
+            
+            # reset token back to GitHub token (good practice)
+            export GH_TOKEN="$GITHUB_TOKEN"
           done
 
       - name: Commit stale file
