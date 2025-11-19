@@ -5,11 +5,6 @@ on:
     - cron: "30 * * * *" # Runs at minute 30 of every hour
   workflow_dispatch:
 
-permissions:
-  contents: write          # Needed to update stale-branches.json
-  pull-requests: read      # Needed for gh pr list
-  actions: read            # Allows calling another workflow (send-mail.yml)
-
 jobs:
   warn-stale:
     runs-on: ubuntu-latest
@@ -26,10 +21,9 @@ jobs:
           mkdir -p .github
           [[ -f .github/stale-branches.json ]] || echo "{}" > .github/stale-branches.json
 
-      - name: Identify stale branches & send warnings
+      - name: Identify stale branches (NO EMAIL)
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}   # keep default token for branch operations
-          GH_PAT: ${{ secrets.PAT_TOKEN }}            # <-- PAT used ONLY for triggering send-mail.yml
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DAYS: 30
         run: |
           THRESHOLD=$(date -d "$DAYS days ago" +%s)
@@ -37,6 +31,7 @@ jobs:
 
           for BRANCH in $(gh api repos/${{ github.repository }}/branches --jq '.[].name'); do
 
+            # Skip protected branches
             if [[ " $EXCLUDE " =~ " $BRANCH " ]]; then
               continue
             fi
@@ -44,49 +39,32 @@ jobs:
             LAST_COMMIT=$(gh api repos/${{ github.repository }}/commits/$BRANCH --jq '.commit.committer.date')
             LAST_TS=$(date -d "$LAST_COMMIT" +%s)
 
+            # Skip if branch is active
             if (( LAST_TS > THRESHOLD )); then
               continue
             fi
 
+            # Skip if a PR exists
             PR=$(gh pr list --head "$BRANCH" --state open --json number --jq '.[].number')
-            if [[ -n "$PR" ]]; then
+            if [[ ! -z "$PR" ]]; then
               continue
             fi
 
+            # Skip if already warned
             WARNED=$(jq -r --arg b "$BRANCH" '.[$b].warned_at // empty' .github/stale-branches.json)
-            if [[ -n "$WARNED" ]]; then
+            if [[ ! -z "$WARNED" ]]; then
               continue
             fi
 
-            CREATOR=$(gh api repos/${{ github.repository }}/branches/$BRANCH --jq '.commit.committer.email')
+            echo "Marking branch $BRANCH as warned (no email sent)"
 
-            echo "Sending warning email for branch $BRANCH to $CREATOR"
-            echo "subject=⚠ Stale Branch Warning: $BRANCH" >> mail.txt
-            echo "Branch '$BRANCH' has had no commits for $DAYS days." >> mail.txt
-            echo "It will be deleted in 7 days unless new commits are added." >> mail.txt
-            # Store the email address for the next action
-            echo "CREATOR=$CREATOR" >> $GITHUB_ENV
-            echo "BRANCH=$BRANCH" >> $GITHUB_ENV
-
-            # Update stale-tracking JSON
+            # Update stale-tracking file
             NOW=$(date +%s)
             jq --arg b "$BRANCH" --arg ts "$NOW" \
-                '.[$b] = {warned_at: $ts}' \
-                .github/stale-branches.json > temp.json
+              '.[$b] = {warned_at: $ts}' \
+              .github/stale-branches.json > temp.json
             mv temp.json .github/stale-branches.json
 
-            # Use PAT only for triggering workflow
-            export GH_TOKEN="$GH_PAT"
-
-            gh workflow run send-mail.yml \
-              -f to="$CREATOR" \
-              -f subject="⚠ Stale Branch Warning: $BRANCH" \
-              -f body="Branch '$BRANCH' is stale."
-
-            rm -f mail.txt
-            
-            # reset token back to GitHub token (good practice)
-            export GH_TOKEN="$GITHUB_TOKEN"
           done
 
       - name: Commit stale file
