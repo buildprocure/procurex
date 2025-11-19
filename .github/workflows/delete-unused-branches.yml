@@ -2,8 +2,12 @@ name: Delete Stale Branches
 
 on:
   schedule: 
-    - cron: "45 * * * *" # Runs at minute 45 of every hour
+    - cron: "45 * * * *"
   workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: read
 
 jobs:
   delete-stale:
@@ -13,63 +17,81 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Install jq & gh
-        run: sudo apt-get update && sudo apt-get install -y jq
+      - name: Install jq, gh, swaks
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq swaks
 
       - name: Load stale file
         run: |
           [[ -f .github/stale-branches.json ]] || echo "{}" > .github/stale-branches.json
 
-      - name: Process stale branch deletions
+      - name: Process deletions
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEFAULT_EMAIL: "connect2ilife@gmail.com"
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
         run: |
           NOW=$(date +%s)
-          NEWDATA="{}"
 
-          # Iterate over stale branches
           for BRANCH in $(jq -r 'keys[]' .github/stale-branches.json); do
             WARNED_AT=$(jq -r --arg b "$BRANCH" '.[$b].warned_at' .github/stale-branches.json)
             ELAPSED=$(( NOW - WARNED_AT ))
 
-            ENCODED_BRANCH=$(printf '%s' "$BRANCH" | jq -sRr @uri)
-
+            # Skip if 7 days have not yet passed
             if (( ELAPSED < 604800 )); then
-              NEWDATA=$(echo "$NEWDATA" | jq --arg b "$BRANCH" --argjson ts "$WARNED_AT" '.[$b] = {warned_at: $ts}')
               continue
             fi
 
+            # Encode branch name for API
+            ENCODED_BRANCH=$(printf '%s' "$BRANCH" | jq -sRr @uri)
+
+            # Get last commit timestamp
             LAST_COMMIT=$(gh api repos/${{ github.repository }}/commits/$ENCODED_BRANCH --jq '.commit.committer.date')
             LAST_TS=$(date -d "$LAST_COMMIT" +%s)
 
+            # Skip if someone pushed after warning
             if (( LAST_TS > WARNED_AT )); then
-              NEWDATA=$(echo "$NEWDATA" | jq --arg b "$BRANCH" --argjson ts "$WARNED_AT" '.[$b] = {warned_at: $ts}')
               continue
             fi
 
+            # Skip if PR exists
             PR=$(gh pr list --head "$BRANCH" --state open --json number --jq '.[].number')
             if [[ ! -z "$PR" ]]; then
-              NEWDATA=$(echo "$NEWDATA" | jq --arg b "$BRANCH" --argjson ts "$WARNED_AT" '.[$b] = {warned_at: $ts}')
               continue
             fi
 
-            CREATOR=$(gh api repos/${{ github.repository }}/branches/ENCODED_BRANCH --jq '.commit.committer.email')
+            # Get branch creator
+            CREATOR=$(gh api repos/${{ github.repository }}/branches/$ENCODED_BRANCH --jq '.commit.committer.email')
+            if [[ -z "$CREATOR" || "$CREATOR" == "null" ]]; then
+              CREATOR="$DEFAULT_EMAIL"
+            fi
 
             echo "Deleting stale branch: $BRANCH"
 
             gh api -X DELETE repos/${{ github.repository }}/git/refs/heads/$ENCODED_BRANCH
 
-            # Send deletion email
-            gh workflow run send-mail.yml -f to="$CREATOR" -f subject="🗑 Branch Deleted: $BRANCH" -f body="Branch '$BRANCH' has been deleted after 7+ days of inactivity."
+            echo "Deleted branch '$BRANCH'. Sending notification to $CREATOR"
 
+            swaks --to "$CREATOR" \
+                  --from "$SMTP_USER" \
+                  --server smtp.gmail.com:587 \
+                  --auth LOGIN \
+                  --auth-user "$SMTP_USER" \
+                  --auth-password "$SMTP_PASS" \
+                  --tls \
+                  --header "Subject: ⚠ Branch Deleted: $BRANCH" \
+                  --body "The branch '$BRANCH' has been deleted due to inactivity in the repository ${{ github.repository }}. If this was a mistake, you can recreate the branch."
           done
 
-          echo "$NEWDATA" > .github/stale-branches.json
+          # Clean the stale JSON file fully
+          echo "{}" > .github/stale-branches.json
 
-      - name: Commit updated tracking
+      - name: Commit cleanup
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add .github/stale-branches.json
-          git commit -m "Stale branch cleanup" || true
+          git commit -m "Reset stale branch tracking" || true
           git push
