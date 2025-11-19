@@ -78,17 +78,18 @@ jobs:
 
             echo "Branch '$BRANCH' is stale. Sending warning to $CREATOR."
 
-            # Send warning email
-            - uses: dawidd6/action-send-mail@v3
-              with:
-                server_address: smtp.gmail.com
-                server_port: 587
-                username: ${{ secrets.SMTP_USER }}
-                password: ${{ secrets.SMTP_PASS }}
-                subject: "⚠ Stale Branch Warning: $BRANCH"
-                body: "The branch '$BRANCH' has been inactive for over $DAYS days. Please take action to either update or delete this branch within the next 7 days to avoid automatic deletion."
-                to: $CREATOR
-                from: "BuildProcure <buildprocure@gmail.com>"
+            # Send email via SMTP (requires swaks)
+            sudo apt-get install -y swaks
+            swaks --to "$CREATOR" \
+                  --from "BuildProcure <buildprocure@gmail.com>" \
+                  --server smtp.gmail.com:587 \
+                  --auth LOGIN \
+                  --auth-user "$SMTP_USER" \
+                  --auth-password "$SMTP_PASS" \
+                  --tls \
+                  --header "Subject: ⚠ Stale Branch Warning: $BRANCH" \
+                  --body "The branch '$BRANCH' has been inactive for over $DAYS days. Please take action to either update or delete this branch within the next 7 days to avoid automatic deletion."
+
 
             # Update stale-tracking file
             NOW=$(date +%s)
