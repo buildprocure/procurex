@@ -32,12 +32,14 @@ jobs:
             WARNED_AT=$(jq -r --arg b "$BRANCH" '.[$b].warned_at' .github/stale-branches.json)
             ELAPSED=$(( NOW - WARNED_AT ))
 
+            ENCODED_BRANCH=$(printf '%s' "$BRANCH" | jq -sRr @uri)
+
             if (( ELAPSED < 604800 )); then
               NEWDATA=$(echo "$NEWDATA" | jq --arg b "$BRANCH" --argjson ts "$WARNED_AT" '.[$b] = {warned_at: $ts}')
               continue
             fi
 
-            LAST_COMMIT=$(gh api repos/${{ github.repository }}/commits/$BRANCH --jq '.commit.committer.date')
+            LAST_COMMIT=$(gh api repos/${{ github.repository }}/commits/$ENCODED_BRANCH --jq '.commit.committer.date')
             LAST_TS=$(date -d "$LAST_COMMIT" +%s)
 
             if (( LAST_TS > WARNED_AT )); then
@@ -51,11 +53,11 @@ jobs:
               continue
             fi
 
-            CREATOR=$(gh api repos/${{ github.repository }}/branches/$BRANCH --jq '.commit.committer.email')
+            CREATOR=$(gh api repos/${{ github.repository }}/branches/ENCODED_BRANCH --jq '.commit.committer.email')
 
             echo "Deleting stale branch: $BRANCH"
 
-            gh api -X DELETE repos/${{ github.repository }}/git/refs/heads/$BRANCH
+            gh api -X DELETE repos/${{ github.repository }}/git/refs/heads/$ENCODED_BRANCH
 
             # Send deletion email
             gh workflow run send-mail.yml -f to="$CREATOR" -f subject="🗑 Branch Deleted: $BRANCH" -f body="Branch '$BRANCH' has been deleted after 7+ days of inactivity."
