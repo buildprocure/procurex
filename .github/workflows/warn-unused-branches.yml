@@ -83,6 +83,8 @@ jobs:
               -f subject="⚠ Stale Branch Warning: $BRANCH" \
               -f body="Branch '$BRANCH' is stale."
 
+            rm -f mail.txt
+            
             # reset token back to GitHub token (good practice)
             export GH_TOKEN="$GITHUB_TOKEN"
           done
