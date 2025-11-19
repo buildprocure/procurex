@@ -17,7 +17,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Install jq, gh, swaks
+      - name: Install jq & swaks
         run: |
           sudo apt-get update
           sudo apt-get install -y jq swaks
@@ -32,48 +32,50 @@ jobs:
           DEFAULT_EMAIL: "connect2ilife@gmail.com"
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASS: ${{ secrets.SMTP_PASS }}
+
         run: |
           NOW=$(date +%s)
+          NEWDATA="{}"
 
           for BRANCH in $(jq -r 'keys[]' .github/stale-branches.json); do
             WARNED_AT=$(jq -r --arg b "$BRANCH" '.[$b].warned_at' .github/stale-branches.json)
             ELAPSED=$(( NOW - WARNED_AT ))
 
-            # Skip if 7 days have not yet passed
+            ENCODED_BRANCH=$(printf '%s' "$BRANCH" | jq -sRr @uri)
+
+            # ---- 1️⃣ Not 7 days yet → keep tracking ----
             if (( ELAPSED < 604800 )); then
+              NEWDATA=$(echo "$NEWDATA" | jq --arg b "$BRANCH" --argjson ts "$WARNED_AT" '.[$b]={warned_at:$ts}')
               continue
             fi
 
-            # Encode branch name for API
-            ENCODED_BRANCH=$(printf '%s' "$BRANCH" | jq -sRr @uri)
-
-            # Get last commit timestamp
+            # ---- 2️⃣ Check if branch received new commits ----
             LAST_COMMIT=$(gh api repos/${{ github.repository }}/commits/$ENCODED_BRANCH --jq '.commit.committer.date')
             LAST_TS=$(date -d "$LAST_COMMIT" +%s)
 
-            # Skip if someone pushed after warning
             if (( LAST_TS > WARNED_AT )); then
-              continue
+              echo "Skipping deletion: $BRANCH has new commits. Removing from stale tracking."
+              continue # DO NOT add it back to NEWDATA
             fi
 
-            # Skip if PR exists
+            # ---- 3️⃣ Skip if PR exists (branch is in active use) ----
             PR=$(gh pr list --head "$BRANCH" --state open --json number --jq '.[].number')
             if [[ ! -z "$PR" ]]; then
-              continue
+              echo "Skipping deletion: $BRANCH has an open PR. Removing from stale tracking."
+              continue  # DO NOT keep tracking
             fi
 
-            # Get branch creator
+            # ---- 4️⃣ Get creator email ----
             CREATOR=$(gh api repos/${{ github.repository }}/branches/$ENCODED_BRANCH --jq '.commit.committer.email')
             if [[ -z "$CREATOR" || "$CREATOR" == "null" ]]; then
               CREATOR="$DEFAULT_EMAIL"
             fi
 
+            # ---- 5️⃣ Delete branch ----
             echo "Deleting stale branch: $BRANCH"
-
             gh api -X DELETE repos/${{ github.repository }}/git/refs/heads/$ENCODED_BRANCH
 
-            echo "Deleted branch '$BRANCH'. Sending notification to $CREATOR"
-
+            # ---- 6️⃣ Email notification ----
             swaks --to "$CREATOR" \
                   --from "$SMTP_USER" \
                   --server smtp.gmail.com:587 \
@@ -82,16 +84,16 @@ jobs:
                   --auth-password "$SMTP_PASS" \
                   --tls \
                   --header "Subject: ⚠ Branch Deleted: $BRANCH" \
-                  --body "The branch '$BRANCH' has been deleted due to inactivity in the repository ${{ github.repository }}. If this was a mistake, you can recreate the branch."
+                  --body "The branch '$BRANCH' was deleted from the ${{ github.repository }} repo due to inactivity."
+
           done
 
-          # Clean the stale JSON file fully
-          echo "{}" > .github/stale-branches.json
+          echo "$NEWDATA" > .github/stale-branches.json
 
-      - name: Commit cleanup
+      - name: Commit updates
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add .github/stale-branches.json
-          git commit -m "Reset stale branch tracking" || true
+          git commit -m "Updated stale tracking" || true
           git push
