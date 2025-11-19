@@ -41,7 +41,10 @@ jobs:
               continue
             fi
 
-            LAST_COMMIT=$(gh api repos/${{ github.repository }}/commits/$BRANCH --jq '.commit.committer.date')
+            # URL-encode branch names so / does not break GitHub API
+            ENCODED_BRANCH=$(printf '%s' "$BRANCH" | jq -sRr @uri)
+            
+            LAST_COMMIT=$(gh api repos/${{ github.repository }}/commits/$ENCODED_BRANCH --jq '.commit.committer.date')
             LAST_TS=$(date -d "$LAST_COMMIT" +%s)
 
             # Skip if branch is active
