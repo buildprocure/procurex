@@ -27,8 +27,8 @@ jobs:
       - name: Delete ONLY Branch_test
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SMTP_USER: ${{ secrets.SMTP_USER }}
-          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          SMTP_USER: ${{ secrets.SMTP_USERNAME }}
+          SMTP_PASS: ${{ secrets.SMTP_PASSWORD }}
           DEFAULT_EMAIL: "connect2ilife@gmail.com"
           TARGET_BRANCH: "Branch_test"
         run: |
