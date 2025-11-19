@@ -76,18 +76,19 @@ jobs:
 
             echo "Branch '$BRANCH' is stale. Sending warning to $CREATOR."
 
-            # Send warning email
-            gh run run-action \
-              -f action=dawidd6/action-send-mail@v3 \
-              -f server_address=smtp.gmail.com \
-              -f server_port=587 \
-              -f username="$SMTP_USER" \
-              -f password="$SMTP_PASS" \
-              -f from="BuildProcure <buildprocure@gmail.com>" \
-              -f to="$CREATOR" \
-              -f subject="⚠ Stale Branch Warning: $BRANCH" \
-              -f body="The branch '$BRANCH' has been inactive for over $DAYS days. Please take action to either update or delete this branch within the next 7 days to avoid automatic deletion."
+            echo "Branch '$BRANCH' is stale. Sending warning to $CREATOR."
 
+            # Send warning email
+            - uses: dawidd6/action-send-mail@v3
+              with:
+                server_address: smtp.gmail.com
+                server_port: 587
+                username: ${{ secrets.SMTP_USER }}
+                password: ${{ secrets.SMTP_PASS }}
+                subject: "⚠ Stale Branch Warning: $BRANCH"
+                body: "The branch '$BRANCH' has been inactive for over $DAYS days. Please take action to either update or delete this branch within the next 7 days to avoid automatic deletion."
+                to: $CREATOR
+                from: "BuildProcure <buildprocure@gmail.com>"
 
             # Update stale-tracking file
             NOW=$(date +%s)
