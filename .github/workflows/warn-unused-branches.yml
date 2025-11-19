@@ -5,6 +5,11 @@ on:
     - cron: "30 * * * *" # Runs at minute 30 of every hour
   workflow_dispatch:
 
+permissions:
+  contents: write          # Needed to update stale-branches.json
+  pull-requests: read      # Needed for gh pr list
+  actions: read            # Allows calling another workflow (send-mail.yml)
+
 jobs:
   warn-stale:
     runs-on: ubuntu-latest
