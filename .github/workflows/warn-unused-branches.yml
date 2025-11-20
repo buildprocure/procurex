@@ -2,14 +2,13 @@ name: Warn Stale Branches
 
 on:
   schedule:
-    - cron: "30 * * * *" # Runs at minute 30 of every hour
+    - cron: "30 * * * *"
   workflow_dispatch:
 
 permissions:
-  contents: write          # Needed to update stale-branches.json
-  pull-requests: read      # Needed for gh pr list
-  issues: write            # Needed to create issues
-  actions: read
+  contents: write
+  issues: write
+  pull-requests: read
 
 jobs:
   warn-stale:
@@ -18,16 +17,22 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+        with:
+          persist-credentials: true
 
-      - name: Install jq & gh
-        run: sudo apt-get update && sudo apt-get install -y jq
+      - name: Install jq
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
 
-      - name: Ensure stale-tracking file exists
+      - name: Ensure JSON file exists
         run: |
           mkdir -p .github
           [[ -f .github/stale-branches.json ]] || echo "{}" > .github/stale-branches.json
+          echo "Current stale JSON:"
+          cat .github/stale-branches.json
 
-      - name: Identify stale branches (via GitHub Issue Notification)
+      - name: Process branches
         env:
           GH_TOKEN: ${{ github.token }}
           DAYS: 30
@@ -35,78 +40,89 @@ jobs:
           THRESHOLD=$(date -d "$DAYS days ago" +%s)
           EXCLUDE="main master develop feature uat"
 
+          # Loop all branches
           for BRANCH in $(gh api repos/${{ github.repository }}/branches --jq '.[].name'); do
+            echo "---"
+            echo "Processing branch: $BRANCH"
 
             # Skip protected branches
             if [[ " $EXCLUDE " =~ " $BRANCH " ]]; then
+              echo "Skipping protected branch."
               continue
             fi
 
-            # URL encode branch name
+            # URL-safe branch name
             ENCODED_BRANCH=$(printf '%s' "$BRANCH" | jq -sRr @uri)
+            # JSON-safe key
+            BRANCH_JSON=$(echo "$BRANCH" | sed 's/\//_/g')
 
-            # Get last commit date
+            # Get last commit
             LAST_COMMIT=$(gh api repos/${{ github.repository }}/commits/$ENCODED_BRANCH --jq '.commit.committer.date')
             LAST_TS=$(date -d "$LAST_COMMIT" +%s)
 
-            # Skip active branches
             if (( LAST_TS > THRESHOLD )); then
+              echo "Branch active recently → skip"
               continue
             fi
 
             # Skip if PR exists
             PR=$(gh pr list --head "$BRANCH" --state open --json number --jq '.[].number')
             if [[ ! -z "$PR" ]]; then
+              echo "Open PR exists → skip"
               continue
             fi
 
             # Skip if already warned
-            WARNED=$(jq -r --arg b "$BRANCH" '.[$b].warned_at // empty' .github/stale-branches.json)
+            WARNED=$(jq -r --arg b "$BRANCH_JSON" '.[$b].warned_at // empty' .github/stale-branches.json)
             if [[ ! -z "$WARNED" ]]; then
+              echo "Already warned → skip"
               continue
             fi
 
-            # Get GitHub username of author
-            CREATOR_GH_USERNAME=$(gh api repos/${{ github.repository }}/commits/$ENCODED_BRANCH --jq '.author.login')
+            echo "Stale branch detected → creating GitHub Issue…"
 
-            # Fallback if null (GitHub sometimes returns null)
-            if [[ -z "$CREATOR_GH_USERNAME" || "$CREATOR_GH_USERNAME" == "null" ]]; then
-              CREATOR_GH_USERNAME=""
+            # Get GitHub username (author.login)
+            CREATOR=$(gh api repos/${{ github.repository }}/commits/$ENCODED_BRANCH --jq '.author.login')
+
+            if [[ -z "$CREATOR" || "$CREATOR" == "null" ]]; then
+              CREATOR=""
             fi
 
-            echo "Branch '$BRANCH' is stale. Creating issue for $CREATOR_GH_USERNAME."
+            ISSUE_BODY="The branch **$BRANCH** has been inactive for more than **$DAYS days** in the repository **${{ github.repository }}**. Please review this branch and either update it or delete it if it's no longer needed. This is an automated stale-branch warning."
 
-            # Create GitHub issue (GitHub sends email automatically)
-            ISSUE_BODY="The branch '$BRANCH' has been inactive for over $DAYS days in the ${{ github.repository }} repository. Please update or delete this branch within the next 7 days. If no changes occur, this branch will be deleted automatically."
-
-            if [[ -z "$CREATOR_GH_USERNAME" ]]; then
-              # No creator username found → issue without assignee
+            # Create GitHub Issue
+            if [[ -z "$CREATOR" ]]; then
               gh issue create \
                 --repo ${{ github.repository }} \
                 --title "⚠ Stale Branch Warning: $BRANCH" \
                 --body "$ISSUE_BODY"
             else
-              # Issue assigned to creator → GitHub emails them
               gh issue create \
                 --repo ${{ github.repository }} \
                 --title "⚠ Stale Branch Warning: $BRANCH" \
                 --body "$ISSUE_BODY" \
-                --assignee "$CREATOR_GH_USERNAME"
+                --assignee "$CREATOR"
             fi
 
-            # Update stale-tracking JSON
+            # Update JSON
+            echo "Updating stale-branches.json for branch: $BRANCH_JSON"
             NOW=$(date +%s)
-            jq --arg b "$BRANCH" --arg ts "$NOW" \
-              '.[$b] = {warned_at: $ts}' \
+            jq --arg b "$BRANCH_JSON" --arg ts "$NOW" \
+              '.[$b] = { warned_at: ($ts|tonumber) }' \
               .github/stale-branches.json > temp.json
+
             mv temp.json .github/stale-branches.json
+
+            echo "Updated stale JSON for: $BRANCH_JSON"
+            cat .github/stale-branches.json
 
           done
 
-      - name: Commit stale file
+      - name: Commit stale JSON updates
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
+
           git add .github/stale-branches.json
-          git commit -m "Update stale branch warnings" || true
+          git commit -m "Update stale branch warnings" || echo "No changes to commit"
           git push
