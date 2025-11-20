@@ -8,7 +8,8 @@ on:
 permissions:
   contents: write          # Needed to update stale-branches.json
   pull-requests: read      # Needed for gh pr list
-  actions: read            # Allows calling another workflow (send-mail.yml)
+  issues: write            # Needed to create issues
+  actions: read
 
 jobs:
   warn-stale:
@@ -26,13 +27,9 @@ jobs:
           mkdir -p .github
           [[ -f .github/stale-branches.json ]] || echo "{}" > .github/stale-branches.json
 
-      - name: Identify stale branches (NO EMAIL)
+      - name: Identify stale branches (via GitHub Issue Notification)
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DAYS: 30
-          SMTP_USER: ${{ secrets.SMTP_USERNAME }}
-          SMTP_PASS: ${{ secrets.SMTP_PASSWORD }}
-          DEFAULT_EMAIL: connect2ilife@gmail.com  # Fallback email
         run: |
           THRESHOLD=$(date -d "$DAYS days ago" +%s)
           EXCLUDE="main master develop feature uat"
@@ -44,18 +41,19 @@ jobs:
               continue
             fi
 
-            # URL-encode branch names so / does not break GitHub API
+            # URL encode branch name
             ENCODED_BRANCH=$(printf '%s' "$BRANCH" | jq -sRr @uri)
-            
+
+            # Get last commit date
             LAST_COMMIT=$(gh api repos/${{ github.repository }}/commits/$ENCODED_BRANCH --jq '.commit.committer.date')
             LAST_TS=$(date -d "$LAST_COMMIT" +%s)
 
-            # Skip if branch is active
+            # Skip active branches
             if (( LAST_TS > THRESHOLD )); then
               continue
             fi
 
-            # Skip if a PR exists
+            # Skip if PR exists
             PR=$(gh pr list --head "$BRANCH" --state open --json number --jq '.[].number')
             if [[ ! -z "$PR" ]]; then
               continue
@@ -67,29 +65,35 @@ jobs:
               continue
             fi
 
-            #Get the creators email of the branch
-            CREATOR=$(gh api repos/${{ github.repository }}/branches/$ENCODED_BRANCH --jq '.commit.committer.email')
+            # Get GitHub username of author
+            CREATOR_GH_USERNAME=$(gh api repos/${{ github.repository }}/commits/$ENCODED_BRANCH --jq '.author.login')
 
-            if [[ -z "$CREATOR" || "$CREATOR" == "null" ]]; then
-              CREATOR="$DEFAULT_EMAIL"
+            # Fallback if null (GitHub sometimes returns null)
+            if [[ -z "$CREATOR_GH_USERNAME" || "$CREATOR_GH_USERNAME" == "null" ]]; then
+              CREATOR_GH_USERNAME=""
             fi
 
-            echo "Branch '$BRANCH' is stale. Sending warning to $CREATOR."
+            echo "Branch '$BRANCH' is stale. Creating issue for $CREATOR_GH_USERNAME."
 
-            # Send email via SMTP (requires swaks)
-            sudo apt-get install -y swaks
-            swaks --to "$CREATOR" \
-                  --from "buildprocure@gmail.com" \
-                  --server smtp.gmail.com:587 \
-                  --auth LOGIN \
-                  --auth-user "$SMTP_USER" \
-                  --auth-password "$SMTP_PASS" \
-                  --tls \
-                  --header "Subject: ⚠ Stale Branch Warning: $BRANCH" \
-                  --body "The branch '$BRANCH' has been inactive for over $DAYS days on ${{ github.repository }} repository. Please take action to either update or delete this branch within the next 7 days to avoid automatic deletion."
+            # Create GitHub issue (GitHub sends email automatically)
+            ISSUE_BODY="The branch '$BRANCH' has been inactive for over $DAYS days in the ${{ github.repository }} repository. Please update or delete this branch within the next 7 days. If no changes occur, this branch will be deleted automatically."
 
+            if [[ -z "$CREATOR_GH_USERNAME" ]]; then
+              # No creator username found → issue without assignee
+              gh issue create \
+                --repo ${{ github.repository }} \
+                --title "⚠ Stale Branch Warning: $BRANCH" \
+                --body "$ISSUE_BODY"
+            else
+              # Issue assigned to creator → GitHub emails them
+              gh issue create \
+                --repo ${{ github.repository }} \
+                --title "⚠ Stale Branch Warning: $BRANCH" \
+                --body "$ISSUE_BODY" \
+                --assignee "$CREATOR_GH_USERNAME"
+            fi
 
-            # Update stale-tracking file
+            # Update stale-tracking JSON
             NOW=$(date +%s)
             jq --arg b "$BRANCH" --arg ts "$NOW" \
               '.[$b] = {warned_at: $ts}' \
