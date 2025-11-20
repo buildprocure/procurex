@@ -29,6 +29,7 @@ jobs:
 
       - name: Identify stale branches (via GitHub Issue Notification)
         env:
+          GH_TOKEN: ${{ github.token }}
           DAYS: 30
         run: |
           THRESHOLD=$(date -d "$DAYS days ago" +%s)
