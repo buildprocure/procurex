@@ -3,7 +3,7 @@ name: Stale Branch Monitor
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 2 * * *"
+    - cron: "30 9-17 * * *"
 
 jobs:
   scan-branches:
