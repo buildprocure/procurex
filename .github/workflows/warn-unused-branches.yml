@@ -76,10 +76,13 @@ jobs:
             # Properly encode branch names (slashes, #, spaces, etc)
             ENCODED_BRANCH=$(python3 - <<EOF
             import urllib.parse
-            print(urllib.parse.quote("${BRANCH}", safe=""))
+            import os
+            branch = os.environ["BRANCH"]
+            print(urllib.parse.quote(branch, safe=""))
             EOF
             )
-            
+
+
             CREATOR_GH_USERNAME=$(gh api repos/${{ github.repository }}/commits/$ENCODED_BRANCH --jq '.author.login')
 
             ISSUE_BODY="Branch **$BRANCH** has not received any commits recently and may be stale."
