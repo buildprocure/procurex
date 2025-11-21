@@ -1,4 +1,4 @@
-name: Stale Branch Monitor
+name: Stale Branch Monitor and Issue Creator
 
 on:
   workflow_dispatch:
