@@ -73,7 +73,13 @@ jobs:
 
             echo "Stale branch detected → creating GitHub Issue…"
 
-            ENCODED_BRANCH=$(printf '%s\n' "$BRANCH" | jq -sRr @uri)
+            # Properly encode branch names (slashes, #, spaces, etc)
+            ENCODED_BRANCH=$(python3 - <<EOF
+            import urllib.parse
+            print(urllib.parse.quote("${BRANCH}", safe=""))
+            EOF
+            )
+            
             CREATOR_GH_USERNAME=$(gh api repos/${{ github.repository }}/commits/$ENCODED_BRANCH --jq '.author.login')
 
             ISSUE_BODY="Branch **$BRANCH** has not received any commits recently and may be stale."
