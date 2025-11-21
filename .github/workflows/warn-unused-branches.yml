@@ -74,13 +74,7 @@ jobs:
             echo "Stale branch detected → creating GitHub Issue…"
 
             # Properly encode branch names (slashes, #, spaces, etc)
-            ENCODED_BRANCH=$(python3 - <<EOF
-            import urllib.parse
-            import os
-            branch = os.environ["BRANCH"]
-            print(urllib.parse.quote(branch, safe=""))
-            EOF
-            )
+            ENCODED_BRANCH=$(printf '%s' "$BRANCH" | jq -sRr @uri)
 
 
             CREATOR_GH_USERNAME=$(gh api repos/${{ github.repository }}/commits/$ENCODED_BRANCH --jq '.author.login')
