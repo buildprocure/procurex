@@ -58,7 +58,7 @@ jobs:
 
           BRANCHES=$(git for-each-ref --format='%(refname:short)' refs/remotes/origin)
 
-          echo "$BRANCHES" | while read BRANCH; do
+          for BRANCH in $BRANCHES; do
             BRANCH=${BRANCH#origin/}
 
             echo "---"
@@ -88,12 +88,11 @@ jobs:
 
             echo "$ISSUE_URL"
 
+
             echo "Updating stale-branches.json for branch: $BRANCH"
 
-            cat .github/stale-branches.json \
-              | jq --arg br "$BRANCH" \
-                   --arg issuedate "$(date +%Y-%m-%d)" \
-                   '.[$br] = { "first_detected": $issuedate }' \
+            jq --arg br "$BRANCH" --arg issuedate "$(date +%Y-%m-%d)" \
+              '.[$br] = { "first_detected": $issuedate }' .github/stale-branches.json \
               > .github/stale-branches.tmp
 
             mv .github/stale-branches.tmp .github/stale-branches.json
