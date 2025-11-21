@@ -88,32 +88,18 @@ jobs:
 
             echo "$ISSUE_URL"
 
+            # Update JSON and commit immediately
+            jq --arg br "$BRANCH" --arg issuedate "$(date +%Y-%m-%d)" \
+              '.[$br] = { "first_detected": $issuedate }' .github/stale-branches.json \
+              > .github/stale-branches.tmp && mv .github/stale-branches.tmp .github/stale-branches.json
 
-          jq --arg br "$BRANCH" --arg issuedate "$(date +%Y-%m-%d)" \
-            '.[$br] = { "first_detected": $issuedate }' .github/stale-branches.json \
-            | tee .github/stale-branches.json > /dev/null
+            git config user.name "github-actions"
+            git config user.email "github-actions@github.com"
+            git add .github/stale-branches.json
+            git commit -m "Update stale branch info for $BRANCH" || echo "No changes to commit"
+            git push origin main || echo "Nothing to push"
 
           done
 
       # --------------------------------------------
-      # 6. DEBUG – show git status + file content
-      # --------------------------------------------
-      - name: Debug git status & file
-        run: |
-          echo "======== GIT STATUS ========"
-          git status
-          echo "======== stale-branches.json ========"
-          cat .github/stale-branches.json
-
-      # --------------------------------------------
-      # 7. Commit & push changes
-      # --------------------------------------------
-      - name: Commit & Push changes
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-
-          git add .github/stale-branches.json
-
-          git commit -m "Update stale branches JSON" || echo "No changes to commit"
-          git push origin main || echo "Nothing to push"
+ 
