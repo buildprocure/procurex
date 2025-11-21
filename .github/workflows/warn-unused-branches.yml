@@ -89,15 +89,10 @@ jobs:
             echo "$ISSUE_URL"
 
 
-            echo "Updating stale-branches.json for branch: $BRANCH"
+          jq --arg br "$BRANCH" --arg issuedate "$(date +%Y-%m-%d)" \
+            '.[$br] = { "first_detected": $issuedate }' .github/stale-branches.json \
+            | tee .github/stale-branches.json > /dev/null
 
-            jq --arg br "$BRANCH" --arg issuedate "$(date +%Y-%m-%d)" \
-              '.[$br] = { "first_detected": $issuedate }' .github/stale-branches.json \
-              > .github/stale-branches.tmp
-
-            mv .github/stale-branches.tmp .github/stale-branches.json
-
-            echo "Updated stale JSON for: $BRANCH"
           done
 
       # --------------------------------------------
