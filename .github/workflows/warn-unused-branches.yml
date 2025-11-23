@@ -10,44 +10,49 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # --------------------------------------------
-      # 1. CHECKOUT MAIN BRANCH (NOT JUST HEAD)
-      # --------------------------------------------
+      # ---------------------------------------------------------
+      # 1. CHECKOUT MAIN BRANCH WITH FULL HISTORY
+      # ---------------------------------------------------------
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: main   # <-- IMPORTANT
+          ref: main
 
-      # --------------------------------------------
-      # 2. Git safe-directory fix
-      # --------------------------------------------
-      - name: Allow workflow file writes
+      # ---------------------------------------------------------
+      # 2. Ensure jq is installed
+      # ---------------------------------------------------------
+      - name: Install jq
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+
+      # ---------------------------------------------------------
+      # 3. Enable safe git directory
+      # ---------------------------------------------------------
+      - name: Git safe directory fix
         run: |
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
-      # --------------------------------------------
-      # 3. Setup GitHub CLI
-      # --------------------------------------------
-      - name: Setup GitHub CLI token
-        run: |
-          echo "${{ github.token }}" > ~/.git_token
-          export GH_TOKEN="${{ github.token }}"
-
-      # --------------------------------------------
-      # 4. Load/create JSON file
-      # --------------------------------------------
-      - name: Ensure stale-branches.json exists
+      # ---------------------------------------------------------
+      # 4. Guarantee JSON file exists and is valid
+      # ---------------------------------------------------------
+      - name: Ensure JSON file exists
         run: |
           mkdir -p .github
           if [ ! -f .github/stale-branches.json ]; then
             echo "{}" > .github/stale-branches.json
           fi
 
-      # --------------------------------------------
-      # 5. Scan branches + update JSON + create issues
-      # --------------------------------------------
-      - name: Process branches
+          # Fix empty file case
+          if [ ! -s .github/stale-branches.json ]; then
+            echo "{}" > .github/stale-branches.json
+          fi
+
+      # ---------------------------------------------------------
+      # 5. Process branches
+      # ---------------------------------------------------------
+      - name: Scan and update stale branches
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -56,29 +61,38 @@ jobs:
           DAYS=30
           THRESHOLD=$(date -d "$DAYS days ago" +%s)
 
+          # Get branch list
           BRANCHES=$(git for-each-ref --format='%(refname:short)' refs/remotes/origin)
 
           for BRANCH in $BRANCHES; do
             BRANCH=${BRANCH#origin/}
 
-            echo "---"
+            echo "----------------------------------"
             echo "Processing branch: $BRANCH"
 
-            LAST_COMMIT=$(git log -1 --pretty="%ct" origin/$BRANCH 2>/dev/null || echo 0)
-
-            if [ "$LAST_COMMIT" -gt "$THRESHOLD" ]; then
-              echo "Branch active recently → skip"
+            # Skip main
+            if [[ "$BRANCH" == "main" ]]; then
+              echo "Skipping main branch"
               continue
             fi
 
-            echo "Stale branch detected → creating GitHub Issue…"
+            # Get last commit timestamp
+            LAST_COMMIT=$(git log -1 --pretty="%ct" origin/$BRANCH 2>/dev/null || echo 0)
 
-            # Properly encode branch names (slashes, #, spaces, etc)
+            if [ "$LAST_COMMIT" -gt "$THRESHOLD" ]; then
+              echo "Branch active → skip"
+              continue
+            fi
+
+            echo "Stale branch detected → will create issue"
+
+            # Encode branch name for API
             ENCODED_BRANCH=$(printf '%s' "$BRANCH" | jq -sRr @uri)
 
-
+            # Get commit author
             CREATOR_GH_USERNAME=$(gh api repos/${{ github.repository }}/commits/$ENCODED_BRANCH --jq '.author.login')
 
+            # Create GitHub issue
             ISSUE_BODY="Branch **$BRANCH** has not received any commits recently and may be stale."
             ISSUE_URL=$(gh issue create \
               --repo ${{ github.repository }} \
@@ -86,13 +100,26 @@ jobs:
               --body "$ISSUE_BODY" \
               --assignee "$CREATOR_GH_USERNAME")
 
-            echo "$ISSUE_URL"
+            echo "Created issue: $ISSUE_URL"
 
-            # Update JSON and commit immediately
-            jq --arg br "$BRANCH" --arg issuedate "$(date +%Y-%m-%d)" \
-              '.[$br] = { "first_detected": $issuedate }' .github/stale-branches.json \
-              > .github/stale-branches.tmp && mv .github/stale-branches.tmp .github/stale-branches.json
+            # ---------------------------------------------------------
+            # Update JSON with unique timestamp → ALWAYS changes file
+            # ---------------------------------------------------------
+            UPDATED_AT=$(date +%Y-%m-%dT%H:%M:%S)
 
+            jq --arg br "$BRANCH" \
+               --arg detected "$UPDATED_AT" \
+               '.[$br] = { "first_detected": $detected }' \
+               .github/stale-branches.json > .github/stale-branches.tmp
+
+            mv .github/stale-branches.tmp .github/stale-branches.json
+
+            echo "Updated JSON entry for: $BRANCH"
+            cat .github/stale-branches.json
+
+            # ---------------------------------------------------------
+            # Commit changes
+            # ---------------------------------------------------------
             git config user.name "github-actions"
             git config user.email "github-actions@github.com"
             git add .github/stale-branches.json
@@ -100,6 +127,3 @@ jobs:
             git push origin main || echo "Nothing to push"
 
           done
-
-      # --------------------------------------------
- 
