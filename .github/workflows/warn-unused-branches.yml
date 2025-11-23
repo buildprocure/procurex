@@ -61,7 +61,7 @@ jobs:
           DAYS=30
           THRESHOLD=$(date -d "$DAYS days ago" +%s)
           PROTECTED_BRANCHES="main develop stage uat feature"
-          File=".github/stale-branches.json"
+          FILE=".github/stale-branches.json"
 
           # Get branch list
           BRANCHES=$(git for-each-ref --format='%(refname:short)' refs/remotes/origin)
