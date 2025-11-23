@@ -60,6 +60,8 @@ jobs:
 
           DAYS=30
           THRESHOLD=$(date -d "$DAYS days ago" +%s)
+          PROTECTED_BRANCHES="main develop stage uat feature"
+          File=".github/stale-branches.json"
 
           # Get branch list
           BRANCHES=$(git for-each-ref --format='%(refname:short)' refs/remotes/origin)
@@ -70,11 +72,19 @@ jobs:
             echo "----------------------------------"
             echo "Processing branch: $BRANCH"
 
-            # Skip main
-            if [[ "$BRANCH" == "main" ]]; then
-              echo "Skipping main branch"
+            # Skip protected & system branches
+            if echo "$PROTECTED_BRANCHES" | grep -wq "$BRANCH"; then
+              echo "Skipping protected: $BRANCH"
               continue
             fi
+            #skip if already in json
+            WARNED=$(jq --arg b "$BRANCH" 'map(select(.branch==$b)) | length' "$FILE")
+
+            if [[ "$WARNED" -gt 0 ]]; then
+              echo "$BRANCH already warned. Skipping."
+              continue
+            fi
+
 
             # Get last commit timestamp
             LAST_COMMIT=$(git log -1 --pretty="%ct" origin/$BRANCH 2>/dev/null || echo 0)
