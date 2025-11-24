@@ -110,6 +110,8 @@ jobs:
           done
           echo "Branch scan completed. Deleting branch already warned before warning period."
       - name: Cleanup already warned branches
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           FILE=".github/stale-branches.json"
           WARNED_BRANCHES=$(jq -r 'keys[]' "$FILE")
@@ -135,7 +137,10 @@ jobs:
                 jq "del(.\"$BRANCH\")" "$FILE" > "$FILE.tmp"
                 mv "$FILE.tmp" "$FILE"
 
-                # Commit JSON cleanup
+                #----Identify github user to commit----
+                git config user.name "github-actions"
+                git config user.email "github-actions@github.com"
+                #----Commit JSON cleanup----
                 git add "$FILE"
                 git commit -m "Deleted stale branch $BRANCH and removed from JSON" || echo "No changes"
                 git push origin main || echo "Nothing to push"
