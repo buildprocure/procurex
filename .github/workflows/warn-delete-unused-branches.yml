@@ -135,7 +135,9 @@ jobs:
               jq "del(.\"$BRANCH\")" "$FILE" > "$FILE.tmp"
               mv "$FILE.tmp" "$FILE"
 
-              # Commit cleanup
+              # Commit cleanup              
+              git config user.name "github-actions"
+              git config user.email "github-actions@github.com"
               git add "$FILE"
               git commit -m "Removed non-existent branch $BRANCH from tracking file" || echo "No changes"
               git push origin main || echo "Nothing to push"
