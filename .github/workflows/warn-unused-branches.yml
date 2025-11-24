@@ -10,48 +10,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # ---------------------------------------------------------
-      # 1. CHECKOUT MAIN BRANCH WITH FULL HISTORY
-      # ---------------------------------------------------------
+
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: main
 
-      # ---------------------------------------------------------
-      # 2. Ensure jq is installed
-      # ---------------------------------------------------------
       - name: Install jq
         run: |
           sudo apt-get update
           sudo apt-get install -y jq
 
-      # ---------------------------------------------------------
-      # 3. Enable safe git directory
-      # ---------------------------------------------------------
       - name: Git safe directory fix
         run: |
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
-      # ---------------------------------------------------------
-      # 4. Guarantee JSON file exists and is valid
-      # ---------------------------------------------------------
       - name: Ensure JSON file exists
         run: |
           mkdir -p .github
-          if [ ! -f .github/stale-branches.json ]; then
+          if [ ! -f .github/stale-branches.json ] || [ ! -s .github/stale-branches.json ]; then
             echo "{}" > .github/stale-branches.json
           fi
 
-          # Fix empty file case
-          if [ ! -s .github/stale-branches.json ]; then
-            echo "{}" > .github/stale-branches.json
-          fi
-
-      # ---------------------------------------------------------
-      # 5. Process branches
-      # ---------------------------------------------------------
       - name: Scan and update stale branches
         env:
           GH_TOKEN: ${{ github.token }}
@@ -63,7 +44,6 @@ jobs:
           PROTECTED_BRANCHES="main develop stage uat feature"
           FILE=".github/stale-branches.json"
 
-          # Get branch list
           BRANCHES=$(git for-each-ref --format='%(refname:short)' refs/remotes/origin)
 
           for BRANCH in $BRANCHES; do
@@ -72,68 +52,59 @@ jobs:
             echo "----------------------------------"
             echo "Processing branch: $BRANCH"
 
-            # Skip protected & system branches
             if echo "$PROTECTED_BRANCHES" | grep -wq "$BRANCH"; then
               echo "Skipping protected: $BRANCH"
               continue
             fi
-            #skip if already in json
-            WARNED=$(jq -r --arg b "$BRANCH" 'has($b)' $FILE | grep -c true)
 
-            if [[ "$WARNED" -gt 0 ]]; then
+            # FIX: prevent exit 1 by using safe jq check
+            WARNED=$(jq -r --arg b "$BRANCH" 'has($b)' "$FILE" 2>/dev/null || echo "false")
+
+            if [[ "$WARNED" == "true" ]]; then
               echo "$BRANCH already warned. Skipping."
               continue
             fi
 
-
-            # Get last commit timestamp
-            LAST_COMMIT=$(git log -1 --pretty="%ct" origin/$BRANCH 2>/dev/null || echo 0)
+            LAST_COMMIT=$(git log -1 --pretty="%ct" "origin/$BRANCH" 2>/dev/null || echo 0)
 
             if [ "$LAST_COMMIT" -gt "$THRESHOLD" ]; then
               echo "Branch active → skip"
               continue
             fi
 
-            echo "Stale branch detected → will create issue"
+            echo "Stale branch detected → creating issue..."
 
-            # Encode branch name for API
             ENCODED_BRANCH=$(printf '%s' "$BRANCH" | jq -sRr @uri)
 
-            # Get commit author
-            CREATOR_GH_USERNAME=$(gh api repos/${{ github.repository }}/commits/$ENCODED_BRANCH --jq '.author.login')
+            # FIX: added quotes so branch names resolve correctly
+            CREATOR_GH_USERNAME=$(gh api "repos/${{ github.repository }}/commits/$ENCODED_BRANCH" --jq '.author.login')
 
-            # Create GitHub issue
             ISSUE_BODY="Branch **$BRANCH** has not received any commits recently and may be stale."
             ISSUE_URL=$(gh issue create \
-              --repo ${{ github.repository }} \
+              --repo "${{ github.repository }}" \
               --title "⚠ Stale Branch Warning: $BRANCH" \
               --body "$ISSUE_BODY" \
               --assignee "$CREATOR_GH_USERNAME")
 
             echo "Created issue: $ISSUE_URL"
 
-            # ---------------------------------------------------------
-            # Update JSON with unique timestamp → ALWAYS changes file
-            # ---------------------------------------------------------
             UPDATED_AT=$(date +%Y-%m-%dT%H:%M:%S)
 
+            # FIX: always write safely to a temp file
             jq --arg br "$BRANCH" \
                --arg detected "$UPDATED_AT" \
                '.[$br] = { "first_detected": $detected }' \
-               .github/stale-branches.json > .github/stale-branches.tmp
+               "$FILE" > "$FILE.tmp"
 
-            mv .github/stale-branches.tmp .github/stale-branches.json
+            mv "$FILE.tmp" "$FILE"
 
-            echo "Updated JSON entry for: $BRANCH"
-            cat .github/stale-branches.json
-
-            # ---------------------------------------------------------
-            # Commit changes
-            # ---------------------------------------------------------
             git config user.name "github-actions"
             git config user.email "github-actions@github.com"
-            git add .github/stale-branches.json
+            git add "$FILE"
+
+            # FIX: prevent workflow from failing when no changes
             git commit -m "Update stale branch info for $BRANCH" || echo "No changes to commit"
+
             git push origin main || echo "Nothing to push"
 
           done
