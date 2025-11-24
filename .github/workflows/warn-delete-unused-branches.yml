@@ -114,53 +114,93 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           FILE=".github/stale-branches.json"
+          WARNING_PERIOD_DAYS=1
+
           WARNED_BRANCHES=$(jq -r 'keys[]' "$FILE")
 
           for BRANCH in $WARNED_BRANCHES; do
             echo "Checking warned branch: $BRANCH"
+
             WARNED_DATE=$(jq -r --arg b "$BRANCH" '.[$b].first_detected // empty' "$FILE")
+            [[ -z "$WARNED_DATE" ]] && continue
 
-            if [[ -n "$WARNED_DATE" ]]; then
-              WARNED_TS=$(date -d "$WARNED_DATE" +%s)
-              ONE_DAY_AGO=$(date -d '1 day ago' +%s)
+            WARNED_TS=$(date -d "$WARNED_DATE" +%s)
+            THRESHOLD_TS=$(date -d "$WARNING_PERIOD_DAYS days ago" +%s)
 
-              # If was warned more than 1 day ago → delete branch
-              if [ "$WARNED_TS" -lt "$ONE_DAY_AGO" ]; then
-                echo "⚠ $BRANCH was warned 1+ day ago → deleting branch..."
+            # Encode branch
+            ENCODED_BRANCH=$(printf '%s' "$BRANCH" | jq -sRr @uri)
 
-                # Delete remote branch
-                ENCODED_BRANCH=$(printf '%s' "$BRANCH" | jq -sRr @uri)
-                gh api -X DELETE "repos/${{ github.repository }}/git/refs/heads/$ENCODED_BRANCH" || echo "Failed to delete branch via API"
+            # Get last commit SHA of branch
+            LAST_COMMIT_SHA=$(gh api \
+              "repos/${{ github.repository }}/branches/$ENCODED_BRANCH" \
+              --jq '.commit.sha' 2>/dev/null || echo "")
 
+            if [[ -n "$LAST_COMMIT_SHA" ]]; then
+              LATEST_COMMIT_DATE=$(gh api \
+                "repos/${{ github.repository }}/commits/$LAST_COMMIT_SHA" \
+                --jq '.commit.committer.date')
 
-
-                # FIX: added quotes so branch names resolve correctly
-                CREATOR_GH_USERNAME=$(gh api "repos/${{ github.repository }}/commits/$ENCODED_BRANCH" --jq '.author.login')
-
-                ISSUE_BODY="Branch **$BRANCH** has not received any commits after warning. It has now been deleted to keep the repository clean."
-                ISSUE_URL=$(gh issue create \
-                  --repo "${{ github.repository }}" \
-                  --title "⚠ Stale Branch Deleted: $BRANCH" \
-                  --body "$ISSUE_BODY" \
-                  --assignee "$CREATOR_GH_USERNAME")
-
-                echo "Created issue: $ISSUE_URL"
-
-                # Remove from JSON file
-                jq "del(.\"$BRANCH\")" "$FILE" > "$FILE.tmp"
-                mv "$FILE.tmp" "$FILE"
-
-                #----Identify github user to commit----
-                git config user.name "github-actions"
-                git config user.email "github-actions@github.com"
-                #----Commit JSON cleanup----
-                git add "$FILE"
-                git commit -m "Deleted stale branch $BRANCH and removed from JSON" || echo "No changes"
-                git push origin main || echo "Nothing to push"
-
-                # Skip further processing of this branch
-                continue
-              fi
+              LATEST_COMMIT_TS=$(date -d "$LATEST_COMMIT_DATE" +%s)
+            else
+              LATEST_COMMIT_TS=0
             fi
-            echo "$BRANCH not old enough to delete. Skipping."
+
+            # =============================================
+            #  CONDITION 2: Warned LESS than X days → skip
+            # =============================================
+            if [[ "$WARNED_TS" -ge "$THRESHOLD_TS" ]]; then
+              echo "⏳ $BRANCH warned less than $WARNING_PERIOD_DAYS days ago → skipping"
+              continue
+            fi
+
+            # =============================================
+            #  CONDITION 1.1: New commits after warning → keep branch, remove from JSON
+            # =============================================
+            if [[ "$LATEST_COMMIT_TS" -gt "$WARNED_TS" ]]; then
+              echo "✅ $BRANCH has new commits after warning → not stale anymore"
+
+              # Remove from JSON
+              jq "del(.\"$BRANCH\")" "$FILE" > "$FILE.tmp"
+              mv "$FILE.tmp" "$FILE"
+
+              git config user.name "github-actions"
+              git config user.email "github-actions@github.com"
+
+              git add "$FILE"
+              git commit -m "Branch $BRANCH updated after warning — removed from tracking" || echo "No changes"
+              git push origin main || echo "Nothing to push"
+
+              continue
+            fi
+
+            # =============================================
+            #  CONDITION 1.2: No new commits → delete branch
+            # =============================================
+            echo "⚠ $BRANCH is stale and past warning period → deleting branch..."
+
+            gh api -X DELETE \
+              "repos/${{ github.repository }}/git/refs/heads/$ENCODED_BRANCH" \
+              || echo "Failed to delete branch via API"
+
+            AUTHOR=$(gh api \
+              "repos/${{ github.repository }}/commits/$LAST_COMMIT_SHA" \
+              --jq '.author.login' 2>/dev/null || echo "${{ github.actor }}")
+
+            gh issue create \
+              --repo "${{ github.repository }}" \
+              --title "⚠ Stale Branch Deleted: $BRANCH" \
+              --body "Branch **$BRANCH** received no updates after warning and has been deleted." \
+              --assignee "$AUTHOR"
+
+            # Remove from JSON
+            jq "del(.\"$BRANCH\")" "$FILE" > "$FILE.tmp"
+            mv "$FILE.tmp" "$FILE"
+
+            git config user.name "github-actions"
+            git config user.email "github-actions@github.com"
+
+            git add "$FILE"
+            git commit -m "Deleted stale branch $BRANCH and removed from tracking" || echo "No changes"
+            git push origin main || echo "Nothing to push"
+
           done
