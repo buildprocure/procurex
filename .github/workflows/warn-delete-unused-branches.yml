@@ -3,7 +3,7 @@ name: Stale Branch Monitor and Delete after Warning
 on:
   workflow_dispatch:
   schedule:
-    - cron: "30 9-17 * * *"
+    - cron: "0 10 * * 1" # Every Monday at 10:00 AM UTC
 
 jobs:
   scan-branches:
@@ -114,7 +114,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           FILE=".github/stale-branches.json"
-          WARNING_PERIOD_DAYS=1
+          WARNING_PERIOD_DAYS=7
 
           WARNED_BRANCHES=$(jq -r 'keys[]' "$FILE")
 
