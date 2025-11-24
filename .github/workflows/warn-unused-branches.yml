@@ -111,31 +111,38 @@ jobs:
           echo "Branch scan completed. Deleting branch already warned before warning period."
       - name: Cleanup already warned branches
         run: |
-          WARNED_DATE=$(jq -r --arg b "$BRANCH" '.[$b].first_detected // empty' "$FILE")
+          FILE=".github/stale-branches.json"
+          WARNED_BRANCHES=$(jq -r 'keys[]' "$FILE")
 
-          if [[ -n "$WARNED_DATE" ]]; then
-            WARNED_TS=$(date -d "$WARNED_DATE" +%s)
-            ONE_DAY_AGO=$(date -d '1 day ago' +%s)
+          for BRANCH in $WARNED_BRANCHES; do
+            echo "Checking warned branch: $BRANCH"
+            WARNED_DATE=$(jq -r --arg b "$BRANCH" '.[$b].first_detected // empty' "$FILE")
 
-            # If was warned more than 1 day ago → delete branch
-            if [ "$WARNED_TS" -lt "$ONE_DAY_AGO" ]; then
-              echo "⚠ $BRANCH was warned 1+ day ago → deleting branch..."
+            if [[ -n "$WARNED_DATE" ]]; then
+              WARNED_TS=$(date -d "$WARNED_DATE" +%s)
+              ONE_DAY_AGO=$(date -d '1 day ago' +%s)
 
-              # Delete remote branch
-              ENCODED_BRANCH=$(printf '%s' "$BRANCH" | jq -sRr @uri)
-              gh api -X DELETE "repos/${{ github.repository }}/git/refs/heads/$ENCODED_BRANCH" || echo "Failed to delete branch via API"
+              # If was warned more than 1 day ago → delete branch
+              if [ "$WARNED_TS" -lt "$ONE_DAY_AGO" ]; then
+                echo "⚠ $BRANCH was warned 1+ day ago → deleting branch..."
+
+                # Delete remote branch
+                ENCODED_BRANCH=$(printf '%s' "$BRANCH" | jq -sRr @uri)
+                gh api -X DELETE "repos/${{ github.repository }}/git/refs/heads/$ENCODED_BRANCH" || echo "Failed to delete branch via API"
 
 
-              # Remove from JSON file
-              jq "del(.\"$BRANCH\")" "$FILE" > "$FILE.tmp"
-              mv "$FILE.tmp" "$FILE"
+                # Remove from JSON file
+                jq "del(.\"$BRANCH\")" "$FILE" > "$FILE.tmp"
+                mv "$FILE.tmp" "$FILE"
 
-              # Commit JSON cleanup
-              git add "$FILE"
-              git commit -m "Deleted stale branch $BRANCH and removed from JSON" || echo "No changes"
-              git push origin main || echo "Nothing to push"
+                # Commit JSON cleanup
+                git add "$FILE"
+                git commit -m "Deleted stale branch $BRANCH and removed from JSON" || echo "No changes"
+                git push origin main || echo "Nothing to push"
 
-              # Skip further processing of this branch
-              continue
+                # Skip further processing of this branch
+                continue
+              fi
             fi
-          fi
+            echo "$BRANCH not old enough to delete. Skipping."
+          done
