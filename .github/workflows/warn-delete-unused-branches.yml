@@ -127,6 +127,22 @@ jobs:
             WARNED_TS=$(date -d "$WARNED_DATE" +%s)
             THRESHOLD_TS=$(date -d "$WARNING_PERIOD_DAYS days ago" +%s)
 
+            if ! git ls-remote --heads origin "$BRANCH" >/dev/null; then
+              echo "⚠️ Branch '$BRANCH' found in JSON but does NOT exist on GitHub."
+              echo "Cleaning JSON entry..."
+
+              # Remove from JSON
+              jq "del(.\"$BRANCH\")" "$FILE" > "$FILE.tmp"
+              mv "$FILE.tmp" "$FILE"
+
+              # Commit cleanup
+              git add "$FILE"
+              git commit -m "Removed non-existent branch $BRANCH from tracking file" || echo "No changes"
+              git push origin main || echo "Nothing to push"
+
+              continue
+            fi
+
             # Encode branch
             ENCODED_BRANCH=$(printf '%s' "$BRANCH" | jq -sRr @uri)
 
