@@ -127,7 +127,7 @@ jobs:
             WARNED_TS=$(date -d "$WARNED_DATE" +%s)
             THRESHOLD_TS=$(date -d "$WARNING_PERIOD_DAYS days ago" +%s)
 
-            if ! git ls-remote --heads origin "$BRANCH" >/dev/null; then
+            if ! git ls-remote --heads origin "$BRANCH" | grep -q "$BRANCH"; then
               echo "⚠️ Branch '$BRANCH' found in JSON but does NOT exist on GitHub."
               echo "Cleaning JSON entry..."
 
