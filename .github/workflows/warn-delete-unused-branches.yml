@@ -1,4 +1,4 @@
-name: Stale Branch Monitor and Issue Creator
+name: Stale Branch Monitor and Delete after Warning
 
 on:
   workflow_dispatch:
@@ -132,6 +132,19 @@ jobs:
                 ENCODED_BRANCH=$(printf '%s' "$BRANCH" | jq -sRr @uri)
                 gh api -X DELETE "repos/${{ github.repository }}/git/refs/heads/$ENCODED_BRANCH" || echo "Failed to delete branch via API"
 
+
+
+                # FIX: added quotes so branch names resolve correctly
+                CREATOR_GH_USERNAME=$(gh api "repos/${{ github.repository }}/commits/$ENCODED_BRANCH" --jq '.author.login')
+
+                ISSUE_BODY="Branch **$BRANCH** has not received any commits after warning. It has now been deleted to keep the repository clean."
+                ISSUE_URL=$(gh issue create \
+                  --repo "${{ github.repository }}" \
+                  --title "⚠ Stale Branch Deleted: $BRANCH" \
+                  --body "$ISSUE_BODY" \
+                  --assignee "$CREATOR_GH_USERNAME")
+
+                echo "Created issue: $ISSUE_URL"
 
                 # Remove from JSON file
                 jq "del(.\"$BRANCH\")" "$FILE" > "$FILE.tmp"
