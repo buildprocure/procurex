@@ -1,91 +1,110 @@
-name: Detect Stale Branches
+name: Stale Branch Monitor and Issue Creator
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 7 * * *"   # daily
+    - cron: "30 9-17 * * *"
 
 jobs:
-  scan:
+  scan-branches:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
 
-    - name: Install jq & gh
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y jq
-        sudo apt-get install -y git
-        sudo apt-get install -y gh
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
 
-    - name: Detect stale branches
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        echo "Starting branch scan..."
+      - name: Install jq
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
 
-        DAYS=30
-        THRESHOLD=$(date -d "$DAYS days ago" +%s)
-        PROTECTED_BRANCHES="main develop stage uat feature"
-        FILE=".github/stale-branches.json"
+      - name: Git safe directory fix
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
-        BRANCHES=$(git for-each-ref --format='%(refname:short)' refs/remotes/origin)
-
-        printf "%s\n" "$BRANCHES" | while IFS= read -r BRANCH; do
-          BRANCH="${BRANCH#origin/}"
-
-          echo "----------------------------------"
-          echo "Processing branch: $BRANCH"
-
-          if echo "$PROTECTED_BRANCHES" | grep -wq "$BRANCH"; then
-            echo "Skipping protected: $BRANCH"
-            continue
+      - name: Ensure JSON file exists
+        run: |
+          mkdir -p .github
+          if [ ! -f .github/stale-branches.json ] || [ ! -s .github/stale-branches.json ]; then
+            echo "{}" > .github/stale-branches.json
           fi
 
-          WARNED=$(jq -r --arg b "$BRANCH" 'has($b)' "$FILE")
+      - name: Scan and update stale branches
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "Starting branch scan..."
 
-          if [[ "$WARNED" == "true" ]]; then
-            echo "$BRANCH already warned. Skipping."
-            continue
-          fi
+          DAYS=30
+          THRESHOLD=$(date -d "$DAYS days ago" +%s)
+          PROTECTED_BRANCHES="main develop stage uat feature"
+          FILE=".github/stale-branches.json"
 
-          LAST_COMMIT=$(git log -1 --pretty="%ct" "origin/$BRANCH" 2>/dev/null || echo 0)
+          BRANCHES=$(git for-each-ref --format='%(refname:short)' refs/remotes/origin)
 
-          if [ "$LAST_COMMIT" -gt "$THRESHOLD" ]; then
-            echo "Branch active → skip"
-            continue
-          fi
+          for BRANCH in $BRANCHES; do
+            BRANCH=${BRANCH#origin/}
 
-          echo "Stale branch detected → will create issue"
+            echo "----------------------------------"
+            echo "Processing branch: $BRANCH"
 
-          ENCODED_BRANCH=$(printf '%s' "$BRANCH" | jq -sRr @uri)
+            if echo "$PROTECTED_BRANCHES" | grep -wq "$BRANCH"; then
+              echo "Skipping protected: $BRANCH"
+              continue
+            fi
 
-          CREATOR_GH_USERNAME=$(gh api "repos/${GITHUB_REPOSITORY}/commits/$ENCODED_BRANCH" --jq '.author.login')
+            # FIX: prevent exit 1 by using safe jq check
+            WARNED=$(jq -r --arg b "$BRANCH" 'has($b)' "$FILE" 2>/dev/null || echo "false")
 
-          ISSUE_BODY="Branch **$BRANCH** has not received any commits recently and may be stale."
-          ISSUE_URL=$(gh issue create \
-              --repo "${GITHUB_REPOSITORY}" \
+            if [[ "$WARNED" == "true" ]]; then
+              echo "$BRANCH already warned. Skipping."
+              continue
+            fi
+
+            LAST_COMMIT=$(git log -1 --pretty="%ct" "origin/$BRANCH" 2>/dev/null || echo 0)
+
+            if [ "$LAST_COMMIT" -gt "$THRESHOLD" ]; then
+              echo "Branch active → skip"
+              continue
+            fi
+
+            echo "Stale branch detected → creating issue..."
+
+            ENCODED_BRANCH=$(printf '%s' "$BRANCH" | jq -sRr @uri)
+
+            # FIX: added quotes so branch names resolve correctly
+            CREATOR_GH_USERNAME=$(gh api "repos/${{ github.repository }}/commits/$ENCODED_BRANCH" --jq '.author.login')
+
+            ISSUE_BODY="Branch **$BRANCH** has not received any commits recently and may be stale."
+            ISSUE_URL=$(gh issue create \
+              --repo "${{ github.repository }}" \
               --title "⚠ Stale Branch Warning: $BRANCH" \
               --body "$ISSUE_BODY" \
               --assignee "$CREATOR_GH_USERNAME")
 
-          echo "Created issue: $ISSUE_URL"
+            echo "Created issue: $ISSUE_URL"
 
-          UPDATED_AT=$(date +%Y-%m-%dT%H:%M:%S)
+            UPDATED_AT=$(date +%Y-%m-%dT%H:%M:%S)
 
-          jq --arg br "$BRANCH" --arg detected "$UPDATED_AT" \
-             '.[$br] = { "first_detected": $detected }' \
-             "$FILE" > .github/stale-branches.tmp
+            # FIX: always write safely to a temp file
+            jq --arg br "$BRANCH" \
+               --arg detected "$UPDATED_AT" \
+               '.[$br] = { "first_detected": $detected }' \
+               "$FILE" > "$FILE.tmp"
 
-          mv .github/stale-branches.tmp "$FILE"
+            mv "$FILE.tmp" "$FILE"
 
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git add "$FILE"
-          git commit -m "Update stale branch info for $BRANCH" || echo "No changes to commit"
-          git push origin main || echo "Nothing to push"
+            git config user.name "github-actions"
+            git config user.email "github-actions@github.com"
+            git add "$FILE"
 
-        done
+            # FIX: prevent workflow from failing when no changes
+            git commit -m "Update stale branch info for $BRANCH" || echo "No changes to commit"
+
+            git push origin main || echo "Nothing to push"
+
+          done
