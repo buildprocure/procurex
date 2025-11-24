@@ -78,7 +78,7 @@ jobs:
               continue
             fi
             #skip if already in json
-            WARNED=$(jq --arg b "$BRANCH" 'map(select(.branch==$b)) | length' "$FILE")
+            WARNED=$(jq -r --arg b "$BRANCH" 'has($b)' $FILE | grep -c true)
 
             if [[ "$WARNED" -gt 0 ]]; then
               echo "$BRANCH already warned. Skipping."
