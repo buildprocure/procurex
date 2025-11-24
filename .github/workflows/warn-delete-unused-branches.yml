@@ -135,14 +135,16 @@ jobs:
               "repos/${{ github.repository }}/branches/$ENCODED_BRANCH" \
               --jq '.commit.sha' 2>/dev/null || echo "")
 
-            if [[ -n "$LAST_COMMIT_SHA" ]]; then
-              LATEST_COMMIT_DATE=$(gh api \
-                "repos/${{ github.repository }}/commits/$LAST_COMMIT_SHA" \
-                --jq '.commit.committer.date')
-
-              LATEST_COMMIT_TS=$(date -d "$LATEST_COMMIT_DATE" +%s)
-            else
+            if [[ -z "$LAST_COMMIT_SHA" || "$LAST_COMMIT_SHA" == "null" ]]; then
+              echo "⚠ Branch $BRANCH does not exist on GitHub (404). Treating as stale with NO new commits."
               LATEST_COMMIT_TS=0
+            else            
+            # Branch exists → fetch commit timestamp
+            LATEST_COMMIT_DATE=$(gh api \
+              "repos/${{ github.repository }}/commits/$LAST_COMMIT_SHA" \
+              --jq '.commit.committer.date')
+
+            LATEST_COMMIT_TS=$(date -d "$LATEST_COMMIT_DATE" +%s)
             fi
 
             # =============================================
