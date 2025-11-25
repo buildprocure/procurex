@@ -31,9 +31,9 @@ resources:
       ref: $(branchRef)
       endpoint: github.com_rabinkhadkaa
 
-    - repository: ilifes-simplesamlphp
+    - repository: buildprocure-simplesamlphp
       type: github
-      name: rabinkhadkaa/ilifes-simplesamlphp
+      name: rabinkhadkaa/buildprocure-simplesamlphp
       ref: refs/heads/main
       endpoint: github.com_rabinkhadkaa
 
