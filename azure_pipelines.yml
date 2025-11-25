@@ -22,7 +22,7 @@ resources:
     - repository: docker-build
       type: github
       name: rabinkhadkaa/buildprocure-docker-build
-      ref: refs/heads/AB#25-main
+      ref: refs/heads/main
       endpoint: github.com_rabinkhadkaa
 
     - repository: ilifes-style-css
