@@ -1,5 +1,6 @@
 <?php
 session_start();
+include_once '_config.php';
 ?>
 
 <!DOCTYPE html>
@@ -8,12 +9,12 @@ session_start();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BuildProcure - Home</title>
-    <link rel="icon" type="image/png" href="img/buildprocure_icon.png">
+    <link rel="icon" type="image/png" href="img/buildprocure.jpg">
     <link rel="stylesheet" href="global_bp.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    --
+   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!----
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
@@ -89,7 +90,8 @@ session_start();
 <nav class="navbar-horizontal">
     <div class="nav-container">
         <a class="company-name" href="#">BuildProcure</a>
-        <div class="nav-actions">
+        
+        <div class="nav-actions">            
             <?php if (isset($_SESSION['username'])): ?>
                 <span class="welcome-text">Welcome, <strong><?php echo htmlspecialchars($_SESSION['username']); ?></strong></span>
                 <div class="user-dropdown">
@@ -114,6 +116,11 @@ session_start();
         <h1>Revolutionizing Construction Procurement</h1>
         <p>Streamline your material sourcing, supplier management, and project procurement with confidence.</p>
         <a href="Sign_up.php" class="btn btn-light btn-lg mt-4">Get Started</a>
+        <a href="<?php echo MARKETPLACE_URL; ?>"
+               target="_blank"
+               class="btn btn-outline-light btn-lg fw-semibold mt-4">
+                Visit Marketplace
+            </a>
     </div>
 </section>
 <section class="features">
