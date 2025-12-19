@@ -12,5 +12,6 @@
     define ('MYSQL_USER', getenv('MYSQL_USER') ?: 'root');
     define ('MYSQL_PASSWORD', getenv('MYSQL_PASSWORD') ?: '');
     define ('INFOPAGE_USER', getenv('INFOPAGE_USER'));
-    define ('INFOPAGE_PASS', getenv('INFOPAGE_PASS'));  
+    define ('INFOPAGE_PASS', getenv('INFOPAGE_PASS')); 
+    define ('MARKETPLACE_URL', getenv('MARKETPLACE_URL') ?: 'http://buildprocure.com:3000'); 
 ?>
