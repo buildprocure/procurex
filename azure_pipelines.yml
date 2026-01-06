@@ -15,25 +15,25 @@ resources:
   repositories:
     - repository: ilife-items-frontend
       type: github
-      name: rabinkhadkaa/ilife-items-frontend
+      name: buildprocure/buildhub
       ref: refs/heads/main
       endpoint: github.com_rabinkhadkaa
 
     - repository: docker-build
       type: github
-      name: rabinkhadkaa/buildprocure-docker-build
+      name: buildprocure/bp-docker-build
       ref: refs/heads/main
       endpoint: github.com_rabinkhadkaa
 
     - repository: ilifes-style-css
       type: github
-      name: rabinkhadkaa/ilifes-style-css
+      name: buildprocure/bp-style-css
       ref: $(branchRef)
       endpoint: github.com_rabinkhadkaa
 
     - repository: buildprocure-simplesamlphp
       type: github
-      name: rabinkhadkaa/buildprocure-simplesamlphp
+      name: buildprocure/bp-simplesamlphp
       ref: refs/heads/main
       endpoint: github.com_rabinkhadkaa
 
