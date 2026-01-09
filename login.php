@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username']);
     $password = $_POST['password'];
 
-    $sql = "SELECT SN, username, password, Role, user_enrollment, as_duplicate_payment_access 
+    $sql = "SELECT id, username, password, Role, user_enrollment, as_duplicate_payment_access 
             FROM user WHERE username = ?";
     $stmt = mysqli_prepare($conn, $sql);
     mysqli_stmt_bind_param($stmt, "s", $username);
@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $result = mysqli_stmt_get_result($stmt);
 
     if ($row = mysqli_fetch_assoc($result)) {
-        $userId = $row['SN'];
+        $userId = $row['id'];
         $role = $row['Role'];
         $ip = $_SERVER['REMOTE_ADDR'] ?? 'UNKNOWN';
         $agent = $_SERVER['HTTP_USER_AGENT'] ?? 'UNKNOWN';

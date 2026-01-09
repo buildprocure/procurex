@@ -10,6 +10,11 @@ ARG ENV_NAME
 ARG REPO_NAME
 
 USER root
+WORKDIR /var/www/html
+
+# Copy and Install PHP libraries via Composer
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --optimize-autoloader
 
 # Configure Apache for PHP-FPM socket
 COPY apache-config.conf /etc/apache2/sites-available/000-default.conf
@@ -19,6 +24,8 @@ COPY certs/ /usr/local/apache2/conf/ssl/
 
 # Copy application code
 COPY . /var/www/html
+
+
 
 # Permissions
 RUN chown -R buildprocure:www-data /var/www/html
