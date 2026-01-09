@@ -1,1 +1,4 @@
 global_bp.css
+vendor/
+vendor/*/
+composer.lock
