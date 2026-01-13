@@ -16,7 +16,7 @@ WORKDIR /var/www/html
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Copy and Install PHP libraries via Composer
 COPY composer.json composer.lock ./
-RUN composer install --no-dev --optimize-autoloader
+RUN composer update --no-dev --optimize-autoloader
 
 # Configure Apache for PHP-FPM socket
 COPY apache-config.conf /etc/apache2/sites-available/000-default.conf
