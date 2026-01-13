@@ -12,6 +12,8 @@ ARG REPO_NAME
 USER root
 WORKDIR /var/www/html
 
+# Copy the Composer binary from the official Composer image
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Copy and Install PHP libraries via Composer
 COPY composer.json composer.lock ./
 RUN composer install --no-dev --optimize-autoloader
