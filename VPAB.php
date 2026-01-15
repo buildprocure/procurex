@@ -13,7 +13,7 @@ class VPAB
     // 1. Fetch all buyers from the database
     public function getAllBuyers()
     {
-        $query = "SELECT SN, username FROM user WHERE role = 'Buyer'";
+        $query = "SELECT id, username FROM user WHERE role = 'Buyer'";
         $result = mysqli_query($this->db, $query);
         $buyers = [];
         while ($row = mysqli_fetch_assoc($result)) {
@@ -26,7 +26,7 @@ class VPAB
     public function switchToBuyer($buyerId)
     {
         // Validate the buyer ID
-        $stmt = $this->db->prepare("SELECT SN, username FROM user WHERE SN = ? AND role = 'Buyer'");
+        $stmt = $this->db->prepare("SELECT id, username FROM user WHERE id = ? AND role = 'Buyer'");
         $stmt->bind_param('i', $buyerId);
         $stmt->execute();
         $result = $stmt->get_result();
