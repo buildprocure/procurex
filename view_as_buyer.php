@@ -31,33 +31,41 @@ if (isset($_POST['restore_role'])) {
 
 // Function to Render the Dropdown Menu for Buyers
 function renderViewAsBuyerDropdown($vpab) {
-    if ($_SESSION['role'] === 'Admin'): ?>
-        <form method="POST" action="" style="display: flex; flex-direction: column;">
+if ($_SESSION['role'] === 'Admin'): ?>
+        <form method="POST" action="" style="display: flex; flex-direction: column; gap: 5px;">
             <select name="buyer_id" required>
                 <option value="">View as Buyer</option>
                 <?php foreach ($vpab->getAllBuyers() as $buyer): ?>
-                    <option id ='SN' value="<?php echo $buyer['SN']; ?>">
+                    <option value="<?php echo htmlspecialchars($buyer['SN']); ?>">
                         <?php echo htmlspecialchars($buyer['username']); ?>
                     </option>
                 <?php endforeach; ?>
             </select>
-            <button type="submit" name="switch_to_buyer" style="width: 152px; background: #007bff; color: white; cursor: pointer;">
+            <input type="hidden" name="switch_to_buyer" value="1">
+            
+            <a href="javascript:void(0)" 
+               class="js-switch-buyer" 
+               style="width: 152px; background: #007bff; color: white; text-align: center; text-decoration: none; padding: 5px 0; display: inline-block;">
                 Switch
-            </button>
+            </a>
         </form>
     <?php endif;
 
     if ($vpab->isImpersonating()): ?>
     <div style="display: flex; align-items: center; gap: 10px; padding-top: 5px;">
         <form method="POST" action="">
-            <button type="submit" name="restore_role" style="width: 152px; background: #ff6347; color: white; cursor: pointer;">
+            <input type="hidden" name="restore_role" value="1">
+            <a href="javascript:void(0)" 
+               class="js-restore-admin" 
+               style="width: 152px; background: #ff6347; color: white; text-align: center; text-decoration: none; padding: 5px 0; display: inline-block;">
                 Return to Admin
-            </button>
+            </a>
         </form>
-        <div type="submit" style="width: 100%; cursor: pointer;">
-                Viewing as <?php echo htmlspecialchars($vpab->getCurrentUsername());?>
+        <div style="width: 100%;">
+            Viewing as <strong><?php echo htmlspecialchars($vpab->getCurrentUsername());?></strong>
         </div>
     </div>
     <?php endif;
 }
+
 ?>
