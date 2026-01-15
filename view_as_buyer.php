@@ -36,7 +36,7 @@ if ($_SESSION['role'] === 'Admin'): ?>
             <select name="buyer_id" required>
                 <option value="">View as Buyer</option>
                 <?php foreach ($vpab->getAllBuyers() as $buyer): ?>
-                    <option value="<?php echo htmlspecialchars($buyer['SN']); ?>">
+                    <option value="<?php echo htmlspecialchars($buyer['id']); ?>">
                         <?php echo htmlspecialchars($buyer['username']); ?>
                     </option>
                 <?php endforeach; ?>
