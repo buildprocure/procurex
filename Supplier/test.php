@@ -1,7 +1,5 @@
 <?php
-// error_reporting(E_ALL);
-// ini_set('display_errors', 1);
-// ini_set('memory_limit', '256M');
+
 
 // Hardcoded values for testing
 $employee_name = 'Rabin';  // Example employee name

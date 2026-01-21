@@ -1,4 +1,6 @@
 <?php
+libxml_use_internal_errors(true);
+ob_start();
 include '_loggedindatabase.php';
 //include 'iuploads.php'; 
 // session_start();
@@ -29,3 +31,25 @@ if(!isset($_SESSION['loggedin'])|| $_SESSION['loggedin'] != true){
      <?php include __DIR__ .'/../footer.php'; ?>
 </body>
 </html>
+<?php
+$html = ob_get_clean();
+
+$dom = new DOMDocument('1.0', 'UTF-8');
+libxml_use_internal_errors(true);
+
+// Trick DOMDocument into UTF-8 safely (NO deprecation)
+$dom->loadHTML(
+    '<?xml encoding="UTF-8">' . $html,
+    LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
+);
+
+// Remove stray invalid text nodes
+$xpath = new DOMXPath($dom);
+foreach ($xpath->query('//text()') as $textNode) {
+    if (preg_match('/^[\'"\x{200B}\x{FEFF}]+$/u', trim($textNode->nodeValue))) {
+        $textNode->parentNode->removeChild($textNode);
+    }
+}
+
+echo $dom->saveHTML();
+

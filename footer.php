@@ -65,3 +65,23 @@
 
 <!-- Chat Script -->
 <script src="/js/chat.js"></script>
+<script>
+  document.addEventListener('click', function(event) {
+    // Handle Switch Buyer Link
+    if (event.target.classList.contains('js-switch-buyer')) {
+        const form = event.target.closest('form');
+        const select = form.querySelector('select[name="buyer_id"]');
+        
+        if (select.value) {
+            form.submit();
+        } else {
+            alert('Please select a buyer first.');
+        }
+    }
+
+    // Handle Restore Admin Link
+    if (event.target.classList.contains('js-restore-admin')) {
+        event.target.closest('form').submit();
+    }
+});
+</script>

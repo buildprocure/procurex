@@ -3,9 +3,6 @@
 include '../../_dbconnect.php';
 session_start();
 
-// ini_set('display_errors', 1);
-// ini_set('display_startup_errors', 1);
-// error_reporting(E_ALL);
 
 // Check if 'username' is set in the session
 if (isset($_SESSION['username']) && !empty($_SESSION['username'])) {

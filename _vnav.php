@@ -1,9 +1,6 @@
 <div class="navbar-vertical" style="width: 200px;">
   <?php 
-  //    error_reporting(E_ALL);
-  //  ini_set('display_errors', 1);
-    // Ensure session is started
-    //session_start();
+  
     include_once 'view_as_buyer.php';
 
     // Compare the role correctly

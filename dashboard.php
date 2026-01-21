@@ -1,9 +1,4 @@
 <?php
-
-// error_reporting(E_ALL);
-// ini_set("display_errors", 1);
-// ini_set('error_reporting', E_ALL);
-
 // Include the SimpleSAMLphp autoloader
 require_once('/var/www/simplesamlphp/lib/_autoload.php');
 

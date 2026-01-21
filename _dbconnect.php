@@ -18,4 +18,5 @@ $delete = false; */
  if (!$conn){
     die("Sorry we failed to connect to database: ". mysqli_connect_error());
  }
+ return $conn;
 ?>

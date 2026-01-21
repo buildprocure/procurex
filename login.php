@@ -9,9 +9,9 @@ $notapproved = false;
 // If already logged in, redirect
 if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
     switch ($_SESSION['role']) {
-        case 'Admin': header("Location: ../Admin/loggedinhome.php"); exit;
-        case 'Buyer': header("Location: ../Buyer/loggedinhome.php"); exit;
-        case 'Supplier': header("Location: ../Supplier/loggedinhome.php"); exit;
+        case 'Admin': header("Location: ../Admin/dashboard.php"); exit;
+        case 'Buyer': header("Location: ../Buyer/dashboard.php"); exit;
+        case 'Supplier': header("Location: ../Supplier/dashboard.php"); exit;
     }
 }
 
@@ -57,9 +57,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // Redirect
             switch ($role) {
-                case 'Admin': header("Location: ../Admin/loggedinhome.php"); exit;
-                case 'Buyer': header("Location: ../Buyer/loggedinhome.php"); exit;
-                case 'Supplier': header("Location: ../Supplier/loggedinhome.php"); exit;
+                case 'Admin': header("Location: ../Admin/dashboard.php"); exit;
+                case 'Buyer': header("Location: ../Buyer/dashboard.php"); exit;
+                case 'Supplier': header("Location: ../Supplier/dashboard.php"); exit;
             }
 
         } else {
