@@ -1,45 +1,45 @@
 <?php
-// if(session_status() == PHP_SESSION_NONE){
-//     session_start();
-// }
-require_once $_SERVER['DOCUMENT_ROOT'] . '/header.php';
-require '../vendor/autoload.php';
-include_once '../_config.php';
-use App\Modules\Buyer\BOQUpload;
-// 1️⃣ Security check
-if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] != true) {
+// 1️⃣ Bootstrap FIRST
+require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../_config.php';
 
+use App\Modules\Buyer\BOQUpload;
+
+// 2️⃣ Security check
+if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     header("Location: " . SITE_URL . "login.php");
     exit;
-    if ($_SESSION['role'] !== 'buyer') {
-        header("Location: unauthorized.php");
-        exit;
-    }
 }
 
-// 2️⃣ Handle form submit
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-   
+if (strtolower($_SESSION['role']) !== 'buyer') {
+    header("Location: unauthorized.php");
+    exit;
+}
 
+// 3️⃣ Handle form submit
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         BOQUpload::handle($_POST, $_FILES);
         $_SESSION['success'] = "BOQ uploaded successfully";
         header("Location: boq_list.php");
         exit;
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
         $error = $e->getMessage();
     }
 }
 ?>
 
-<!-- 3️⃣ UI -->
+<!-- 4️⃣ UI -->
 <!DOCTYPE html>
 <html>
 <head>
     <title>Upload BOQ</title>
 </head>
 <body>
-<div class = "main-content" >
+
+<?php require_once $_SERVER['DOCUMENT_ROOT'] . '/header.php'; ?>
+
+<div class="main-content">
     <h2>Upload BOQ</h2>
 
     <?php if (!empty($error)): ?>
@@ -59,4 +59,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 </body>
 </html>
-
+<?php require_once $_SERVER['DOCUMENT_ROOT'] . '/footer.php'; ?>
