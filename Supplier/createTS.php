@@ -1,10 +1,6 @@
 <?php 
     include '../_dbconnect.php';
     
-    // error_reporting(-1);
-    // ini_set("display_errors", 1);
-    // ini_set('error_reporting', E_ALL);
-
     //include './nocatche.php';
     if (session_status() == PHP_SESSION_NONE) {
         session_start();

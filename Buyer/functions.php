@@ -2,10 +2,6 @@
 // Database connection
 include '../_dbconnect.php';
 
-// ini_set('display_errors', 1);
-// ini_set('display_startup_errors', 1);
-// error_reporting(E_ALL);
-
 // Function to generate the new timesheet ID
 function generateNewId($conn, $tablename, $pre) {
     $prefix = $pre.date("mdY")."-";

@@ -1,9 +1,6 @@
 <?php 
     include '../_dbconnect.php';
-   
-   // error_reporting(E_ALL);
-   // ini_set('display_errors', 1);
-    
+      
     //include './nocatche.php';
     session_start();
     if(!isset($_SESSION['loggedin'])|| $_SESSION['loggedin'] != true){
@@ -73,9 +70,7 @@
         require '../_nav_afterLogin.php';
         require '../_vnav.php';
         require_once 'functions.php';
-        // error_reporting(-1);
-        // ini_set("display_errors", 1);
-        // ini_set('error_reporting', E_ALL);
+   
         $tableName = 'Purchase_Order';
         $prefix = 'PO';
         $POID = generateNewId($conn, $tableName, $prefix);

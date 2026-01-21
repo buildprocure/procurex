@@ -1,8 +1,5 @@
 <?php
-//    error_reporting(E_ALL);
-//    ini_set('display_errors', 1); 
-    //require  './_nav.php'; 
-   
+  
 session_start();
 
 if(!isset($_SESSION['loggedin'])|| $_SESSION['loggedin'] != true){

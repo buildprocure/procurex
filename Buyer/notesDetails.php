@@ -12,10 +12,6 @@ if(!isset($_SESSION['loggedin'])|| $_SESSION['loggedin'] != true){
 require '../_nav.php';
 
 
-// Enable error reporting for debugging
-error_reporting(E_ALL);
-ini_set("display_errors", 1);
-ini_set('error_reporting', E_ALL);
 $POupdate = false;
 $POupdateFailed = false;
 // Start session
@@ -102,10 +98,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if($POupdateFailed){
                 echo '<div class="alert alert-danger alert-dismissible fade show" role="alert"><strong>Sorry! </strong>PO request has not been updated.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
             }
-
-            error_reporting(E_ALL);
-ini_set("display_errors", 1);
-ini_set('error_reporting', E_ALL);
         ?>
         <h1>PO Request Details</h1>
         
