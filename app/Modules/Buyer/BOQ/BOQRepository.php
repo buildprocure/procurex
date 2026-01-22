@@ -2,7 +2,8 @@
 namespace App\Modules\Buyer\BOQ;
 
 use App\Core\DB;
-use App\Modules\Buyer\BOQupload;
+use App\Modules\Buyer\BOQUpload;
+
 class BOQRepository {
        private $db;
 
