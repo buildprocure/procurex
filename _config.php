@@ -14,4 +14,5 @@
     define ('INFOPAGE_USER', getenv('INFOPAGE_USER'));
     define ('INFOPAGE_PASS', getenv('INFOPAGE_PASS')); 
     define ('MARKETPLACE_URL', getenv('MARKETPLACE_URL') ?: 'http://buildprocure.com:3000'); 
+    define ('BOQUPLOAD_PATH', getenv('BOQUPLOAD_PATH') ?: BASE_PATH . 'storage/uploads/boq/');
 ?>
