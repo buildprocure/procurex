@@ -25,7 +25,7 @@ services:
     volumes:
       - /mnt/ilifes_store/files:/var/www/html/files
       - sftp-data:/var/www/html/userUploads
-      - boq-uploads:/var/www/html/storage/uploads/boq
+      - app-uploads:/var/www/html/storage/uploads
     depends_on:
       - db
       - simplesamlphp
@@ -69,7 +69,7 @@ services:
 volumes:
   db_data:
   sftp-data:
-  boq-uploads:
+  app-uploads:
 
 networks:
   app-network:
