@@ -5,7 +5,7 @@ use Exception;
 
 class FileUploader {
     public function uploadBOQ($file) {
-        $path = __DIR__ . '/../../storage/uploads/boq/';
+        $path = BOQUPLOAD_PATH ?? BASE_PATH . '/../../storage/uploads/boq/';
         if (!is_dir($path)) {
             mkdir($path, 0777, true);
         }
