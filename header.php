@@ -60,7 +60,13 @@ $isImpersonating = $vpab->isImpersonating();
     <a href="../<?php echo htmlspecialchars($role) ?>/receivedInvoice.php" class="nav-link">Invoice</a>
     <a href="../<?php echo htmlspecialchars($role) ?>/invoicePayment.php" class="nav-link">Invoice Payment</a>
     <a href="/modules/duplicate_payment/index.php" class="nav-link">Duplicate Payment</a>
-    <a href="../<?php echo htmlspecialchars($role) ?>/boq_upload.php" class="nav-link">BOQ Upload</a>
+    <div class="accordion-item">
+      <button class="accordion-toggle" aria-expanded="false" aria-controls="tsMenu">BOQ</button>
+      <div class="accordion-content" id="tsMenu" hidden>
+        <a href="../<?php echo htmlspecialchars($role) ?>/boq_upload.php" class="nav-link sub-link">BOQ Upload</a>
+        <a href="../<?php echo htmlspecialchars($role) ?>/boq_list.php" class="nav-link sub-link">BOQ List</a>
+      </div>
+    </div>
   <?php endif; ?>
 
   <?php if ($role == 'Supplier'): ?>

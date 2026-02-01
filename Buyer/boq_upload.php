@@ -3,7 +3,7 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../_config.php';
 
-use App\Modules\Buyer\BOQUpload;
+use App\Modules\Buyer\BOQ\BOQController;
 
 // 2️⃣ Security check
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
@@ -19,12 +19,12 @@ if (strtolower($_SESSION['role']) !== 'buyer') {
 // 3️⃣ Handle form submit
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
-        BOQUpload::handle($_POST, $_FILES);
+        (new BOQController())->handle($_POST, $_FILES);
         $_SESSION['success'] = "BOQ uploaded successfully";
         header("Location: boq_list.php");
         exit;
     } catch (Throwable $e) {
-        $error = $e->getMessage();
+        $error = $e->getMessage()." in ".$e->getFile()." at line ".$e->getLine();
     }
 }
 ?>
@@ -49,7 +49,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <form method="POST" enctype="multipart/form-data">
         <label>Project Name</label>
         <input type="text" name="project_name" required>
-
+        <label>Project Location</label>
+        <input type="text" name="location" required>
         <label>BOQ Excel File</label>
         <input type="file" name="boq_file" accept=".xls,.xlsx" required>
 

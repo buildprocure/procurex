@@ -7,7 +7,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-use App\Modules\Buyer\BOQ\BOQRepository;
+use App\Modules\Buyer\BOQ\BOQController;
 
 // 2️⃣ Security
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
@@ -15,8 +15,23 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     exit;
 }
 
-$boqRepo = new BOQRepository();
-$boqs = $boqRepo->getByUser($_SESSION['username']);
+$boqController = new BOQController();
+$boqs = $boqController->getBOQListByUser($_SESSION['username']);
+
+// Display messages
+if (isset($_GET['display'])) {
+
+    switch ($_GET['display']) {
+        case 'edited':
+            $message = "BOQ edited successfully. New BOQ ID: " . (int)($_GET['boq_id'] ?? 0);
+            break;
+        case 'published':
+            $message = "BOQ with ID " . (int)($_GET['boq_id'] ?? 0) . " has been published successfully!!";
+            break;
+        default:
+            $message = "";
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -30,7 +45,9 @@ $boqs = $boqRepo->getByUser($_SESSION['username']);
 
 <div class="main-content">
     <h2>My BOQs</h2>
-
+    <?php if (!empty($message)): ?>
+        <p style="color:green"><?= $message ?></p>
+    <?php endif; ?>
     <table border="1" width="100%">
         <tr>
             <th>BOQ ID</th>
@@ -49,8 +66,15 @@ $boqs = $boqRepo->getByUser($_SESSION['username']);
                 <td><?= $boq['status'] ?></td>
                 <td><?= date('d M Y', strtotime($boq['created_at'])) ?></td>
                 <td>
-                    <a href="boq_view.php?id=<?= $boq['id'] ?>">View</a> |
-                    <a href="boq_edit.php?id=<?= $boq['id'] ?>">Edit</a>
+                    <a href="boq_view.php?boq_id=<?= $boq['id'] ?>">View</a> 
+                    <?php if ($boq['status'] === 'DRAFT') { ?>
+                    | <a href="boq_edit.php?boq_id=<?= $boq['id'] ?>">Edit</a>
+                    | <a href="boq_publish.php" onclick="event.preventDefault(); if(confirm('Publish BOQ? This action cannot be undone.')) { document.getElementById('publish-form-<?= $boq['id'] ?>').submit(); }">Publish</a> |
+                    <form id="publish-form-<?= $boq['id'] ?>" method="POST" action="boq_publish.php" style="display:none;">
+                        <input type="hidden" name="boq_id" value="<?= $boq['id'] ?>"> 
+                    </form>                    
+                    <a onclick="deleteboq(<?= $boq['id'] ?>)" href="javascript:void(0)">Delete</a>   
+                    <?php }  ?>                   
                 </td>
             </tr>
         <?php endforeach; ?>
@@ -59,4 +83,11 @@ $boqs = $boqRepo->getByUser($_SESSION['username']);
 
 </body>
 </html>
+<script>
+    function deleteboq(boqId) {
+        if (confirm('Are you sure you want to delete BOQ #' + boqId + '? This action cannot be undone.')) {
+            window.location.href = 'boq_delete.php?boq_id=' + boqId;
+        }
+    }
+</script>
 <?php require_once $_SERVER['DOCUMENT_ROOT'] . '/footer.php'; ?>

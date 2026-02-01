@@ -4,7 +4,7 @@ namespace App\Core;
 use Exception;
 
 class FileUploader {
-    public function uploadBOQ($file) {
+    public static function uploadBOQ($file) {
         $path = BOQUPLOAD_PATH ?? BASE_PATH . '/../../storage/uploads/boq/';
         if (!is_dir($path)) {
             mkdir($path, 0777, true);
