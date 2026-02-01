@@ -69,8 +69,8 @@ if (isset($_GET['display'])) {
                     <a href="boq_view.php?boq_id=<?= $boq['id'] ?>">View</a> 
                     <?php if ($boq['status'] === 'DRAFT') { ?>
                     | <a href="boq_edit.php?boq_id=<?= $boq['id'] ?>">Edit</a>
-                    | <a href="boq_publish.php" onclick="event.preventDefault(); if(confirm('Publish BOQ? This action cannot be undone.')) { document.getElementById('publish-form-<?= $boq['id'] ?>').submit(); }">Publish</a> |
-                    <form id="publish-form-<?= $boq['id'] ?>" method="POST" action="boq_publish.php" style="display:none;">
+                    | <a href="boq_lock.php" onclick="event.preventDefault(); if(confirm('Are you sure you want to Lock BOQ? This action cannot be undone.')) { document.getElementById('lock-form-<?= $boq['id'] ?>').submit(); }">Lock</a> |
+                    <form id="lock-form-<?= $boq['id'] ?>" method="POST" action="boq_lock.php" style="display:none;">
                         <input type="hidden" name="boq_id" value="<?= $boq['id'] ?>"> 
                     </form>                    
                     <a onclick="deleteboq(<?= $boq['id'] ?>)" href="javascript:void(0)">Delete</a>   
