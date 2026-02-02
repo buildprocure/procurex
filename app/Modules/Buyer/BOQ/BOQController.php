@@ -87,13 +87,13 @@ class BOQController {
         return $newBoqId;
         
     }
-    //publish boq
-    public function publishBOQ($boqId, $username) {
+    //lock boq
+    public function lockBOQ($boqId, $username) {
         Auth::checkBuyer(); // Ensure user is logged in
         if (!$this->checkownership($boqId, $username)) {
-            throw new Exception("You do not have permission to publish this BOQ.");
+            throw new Exception("You do not have permission to lock this BOQ.");
         }
-        $this->boqmodel->publishBOQ($boqId, $username);
+        $this->boqmodel->lockBOQ($boqId, $username);
     }
     //delete boq
     public function deleteBOQ($boqId, $username) {      

@@ -15,9 +15,9 @@ $boqId = (int) $_POST['boq_id'];
 
 try {
     $controller = new BOQController();
-    $controller->publishBOQ($boqId, $_SESSION['username']);
+    $controller->lockBOQ($boqId, $_SESSION['username']);
 
-    header("Location: boq_list.php?display=published&boq_id=" . $boqId);
+    header("Location: boq_list.php?display=locked&boq_id=" . $boqId);
     exit;
 
 } catch (Exception $e) {

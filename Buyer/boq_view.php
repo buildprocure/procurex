@@ -45,20 +45,25 @@ if (empty($items)) {
 
 <div class="main-content container">
     <h2>BOQ Items</h2>
+<!-- Add background color blue -->
+    <div class="boq-info card mb-3 border-dark bg-primary text-white">
+        <div class="card-body ">
+            <p><strong>BOQ ID:</strong> BOQ-<?= $boq['id'] ?></p>
+            <p><strong>Status:</strong> <?= $boq['status'] ?></p>
+        </div>
+    </div>
     <?php if ($boq['status'] === 'DRAFT'): ?>
-    <form method="POST" action="boq_publish.php" onsubmit="return confirm('Publish BOQ? This action cannot be undone.')">
+    <form method="POST" action="boq_lock.php" onsubmit="return confirm('Are you sure you want to Lock this BOQ- <?= $boq['id'] ?>? This action cannot be undone.')">
         <input type="hidden" name="boq_id" value="<?= $boqId ?>">
         <button class="btn btn-success">
-            🚀 Publish BOQ
+            🚀 Lock BOQ
         </button>
         <br><br>
     </form>
-    <?php else: ?>
-    <span class="badge badge-success">Published</span>
     <?php endif; ?>
 
 
-    <table id="boqTable" class="display">
+    <table id="boqTable" class="display table table-striped table-hover border border-2 border-dark">
         <thead>
             <tr>
                 <th>Item Code</th>
