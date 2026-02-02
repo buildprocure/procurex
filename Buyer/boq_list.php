@@ -25,8 +25,8 @@ if (isset($_GET['display'])) {
         case 'edited':
             $message = "BOQ edited successfully. New BOQ ID: " . (int)($_GET['boq_id'] ?? 0);
             break;
-        case 'published':
-            $message = "BOQ with ID " . (int)($_GET['boq_id'] ?? 0) . " has been published successfully!!";
+        case 'locked':
+            $message = "BOQ with ID " . (int)($_GET['boq_id'] ?? 0) . " has been locked successfully!!";
             break;
         default:
             $message = "";
@@ -48,7 +48,8 @@ if (isset($_GET['display'])) {
     <?php if (!empty($message)): ?>
         <p style="color:green"><?= $message ?></p>
     <?php endif; ?>
-    <table border="1" width="100%">
+    <!--Add thick outer border lines not inner lines  --->
+    <table border="1" width="100%" class="table table-striped table-hover border border-2 border-dark">
         <tr>
             <th>BOQ ID</th>
             <th>Project</th>
@@ -60,7 +61,7 @@ if (isset($_GET['display'])) {
 
         <?php foreach ($boqs as $boq): ?>
             <tr>
-                <td>#<?= $boq['id'] ?></td>
+                <td>BOQ-<?= $boq['id'] ?></td>
                 <td><?= htmlspecialchars($boq['project_name']) ?></td>
                 <td><?= $boq['total_items'] ?></td>
                 <td><?= $boq['status'] ?></td>

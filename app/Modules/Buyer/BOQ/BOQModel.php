@@ -192,10 +192,10 @@ class BOQModel {
 
         return $newBoqId;
     }
-    // Publish BOQ
-    public function publishBOQ($boqId, $username) {
+    // Lock BOQ
+    public function lockBOQ($boqId, $username) {
         $stmt = mysqli_prepare($this->db, "
-            UPDATE boqs SET status = 'PUBLISHED', published_by = ?, published_at = NOW() WHERE id = ?
+            UPDATE boqs SET status = 'LOCKED', locked_by = ?, locked_at = NOW() WHERE id = ?
         ");
         mysqli_stmt_bind_param($stmt, "si", $username, $boqId);
         mysqli_stmt_execute($stmt);
