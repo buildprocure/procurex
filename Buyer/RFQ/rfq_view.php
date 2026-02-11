@@ -40,6 +40,123 @@ if ($rfq['created_user_id'] !== $userId) {
     die("Unauthorized access");
 }
 
+//status badge logic
+switch ($rfq['process_stage']) {
+    case 'CREATED':
+        $rfqCreatedBadge = 'Done';
+        $rfqCreatedBadgeClass = 'bg-success';
+        
+        $itemGroupingBadge = 'Pending';
+        $itemGroupingBadgeClass = 'badge bg-warning text-dark';
+
+        $supplierAssignmentBadge = 'Not Started';
+        $supplierAssignmentBadgeClass = 'badge bg-secondary';
+
+        $rfqSentBadge = 'Not Sent';
+        $rfqSentBadgeClass = 'badge bg-secondary';
+
+        $quotesReceivedBadge = 'Not Started';
+        $quotesReceivedBadgeClass = 'badge bg-secondary';
+
+        $generalMessage = "RFQ is created successfully. Next step is item grouping and supplier assignment.";
+        break;
+    
+    case 'ITEM_GROUPED':
+        $rfqCreatedBadge = 'Done';
+        $rfqCreatedBadgeClass = 'bg-success';
+
+        $itemGroupingBadge = 'Done';
+        $itemGroupingBadgeClass = 'bg-success';
+
+        $supplierAssignmentBadge = 'Pending';
+        $supplierAssignmentBadgeClass = 'bg-warning text-dark';
+
+        $rfqSentBadge = 'Not Sent';
+        $rfqSentBadgeClass = 'bg-secondary';
+
+        $quotesReceivedBadge = 'Not Started';
+        $quotesReceivedBadgeClass = 'bg-secondary';
+
+        $generalMessage = "Items are grouped. Next step is supplier assignment and RFQ sending.";
+        break;
+
+    case 'SUPPLIERS_ASSIGNED':
+        $rfqCreatedBadge = 'Done';
+        $rfqCreatedBadgeClass = 'bg-success';
+
+        $itemGroupingBadge = 'Done';
+        $itemGroupingBadgeClass = 'bg-success';
+
+        $supplierAssignmentBadge = 'Done';
+        $supplierAssignmentBadgeClass = 'bg-success';
+
+        $rfqSentBadge = 'Pending';
+        $rfqSentBadgeClass = 'bg-warning text-dark';
+
+        $quotesReceivedBadge = 'Not Started';
+        $quotesReceivedBadgeClass = 'bg-secondary';
+
+        $generalMessage = "Suppliers are assigned. Next step is sending RFQ to suppliers.";
+        break;
+
+    case 'RFQ_SENT':
+        $rfqCreatedBadge = 'Done';
+        $rfqCreatedBadgeClass = 'bg-success';
+        
+        $itemGroupingBadge = 'Done';
+        $itemGroupingBadgeClass = 'bg-success';
+
+        $supplierAssignmentBadge = 'Done';
+        $supplierAssignmentBadgeClass = 'bg-success';
+
+        $rfqSentBadge = 'Done';
+        $rfqSentBadgeClass = 'bg-success';
+
+        $quotesReceivedBadge = 'Pending';
+        $quotesReceivedBadgeClass = 'bg-warning text-dark';
+
+        $generalMessage = "RFQ is sent to suppliers. Waiting for quotes to be received.";
+        break;
+    
+    case 'QUOTES_RECEIVED':
+        $rfqCreatedBadge = 'Done';
+        $rfqCreatedBadgeClass = 'bg-success';
+
+        $itemGroupingBadge = 'Done';
+        $itemGroupingBadgeClass = 'bg-success';
+
+        $supplierAssignmentBadge = 'Done';
+        $supplierAssignmentBadgeClass = 'bg-success';
+
+        $rfqSentBadge = 'Done';
+        $rfqSentBadgeClass = 'bg-success';
+
+        $quotesReceivedBadge = 'Done';
+        $quotesReceivedBadgeClass = 'bg-success';
+
+        $generalMessage = "Quotes are received from suppliers. You can review and compare quotes.";
+        break;
+
+    default:
+        $rfqCreatedBadge = 'Done';
+        $rfqCreatedBadgeClass = 'bg-success';
+
+        $itemGroupingBadge = 'Pending';
+        $itemGroupingBadgeClass = 'bg-warning text-dark';
+
+        $supplierAssignmentBadge = 'Not Started';
+        $supplierAssignmentBadgeClass = 'bg-secondary';
+
+        $rfqSentBadge = 'Not Sent';
+        $rfqSentBadgeClass = 'bg-secondary';
+
+        $quotesReceivedBadge = 'Not Started';
+        $quotesReceivedBadgeClass = 'bg-secondary';
+
+        $generalMessage = "RFQ is created successfully. Next step is item grouping and supplier assignment.";
+        break;
+}
+
 // Fetch RFQ items from BOQ
 $stmt = $conn->prepare("
     SELECT id, material_name as material, specification, unit, quantity
@@ -218,32 +335,29 @@ $items = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
                     <li class="list-group-item d-flex justify-content-between">
                         <span>Item Grouping</span>
-                        <?php if ($rfq['process_stage'] === 'CREATED'): ?>
-                            <span class="badge bg-warning text-dark">Pending</span>
-                        <?php else: ?>
-                            <span class="badge bg-success">Done</span>
-                        <?php endif; ?>
+                        <span class="<?php echo $itemGroupingBadgeClass; ?>"><?php echo $itemGroupingBadge; ?></span>
+                       
                     </li>
 
                     <li class="list-group-item d-flex justify-content-between">
                         <span>Suppliers Assigned</span>
-                        <span class="badge bg-secondary">Not Started</span>
+                        <span class="<?php echo $supplierAssignmentBadgeClass; ?>"><?php echo $supplierAssignmentBadge; ?></span>
                     </li>
 
                     <li class="list-group-item d-flex justify-content-between">
                         <span>RFQ Sent to Suppliers</span>
-                        <span class="badge bg-secondary">Not Sent</span>
+                        <span class="<?php echo $rfqSentBadgeClass; ?>"><?php echo $rfqSentBadge; ?></span>
                     </li>
 
                     <li class="list-group-item d-flex justify-content-between">
                         <span>Quotes Received</span>
-                        <span class="badge bg-secondary">Waiting</span>
+                        <span class="<?php echo $quotesReceivedBadgeClass; ?>"><?php echo $quotesReceivedBadge; ?></span>
                     </li>
                 </ul>
 
                 <div class="alert alert-info mt-3 mb-0 small">
                     <i class="fas fa-info-circle"></i>
-                    RFQ is created successfully. Next step is item grouping and supplier assignment.
+                    <?= $generalMessage ?>
                 </div>
 
             </div>
