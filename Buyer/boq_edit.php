@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } catch (Throwable $e) {
             die("Error saving BOQ: " . $e->getMessage()." in ".$e->getFile()." at line ".$e->getLine());
         }
-    header("Location: boq_list.php?display=edited &boq_id=" . $newBoqId);
+    header("Location: boq_list.php?display=edited&boq_id=" . $newBoqId);
     exit;
     // mysqli_begin_transaction($conn);
 
