@@ -9,7 +9,7 @@ $isImpersonating = $vpab->isImpersonating();
 ?>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="//cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
-<link rel="stylesheet" href="../global_bp.css">
+<link rel="stylesheet" href="<?= SITE_URL ?>global_bp.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
 <!-- Top Navbar using custom.css-->
@@ -52,19 +52,25 @@ $isImpersonating = $vpab->isImpersonating();
     <div class="accordion-item">
       <button class="accordion-toggle" aria-expanded="false" aria-controls="poMenu">Purchase Order</button>
       <div class="accordion-content" id="poMenu" hidden>
-        <a href="../<?php echo htmlspecialchars($role) ?>/createPO.php" class="nav-link sub-link">Create PO</a>
-        <a href="../<?php echo htmlspecialchars($role) ?>/submittedPO.php" class="nav-link sub-link">Submitted PO</a>
+        <a href="<?php echo BASE_URL; ?><?php echo htmlspecialchars($role) ?>/createPO.php" class="nav-link sub-link">Create PO</a>
+        <a href="<?php echo BASE_URL; ?><?php echo htmlspecialchars($role) ?>/submittedPO.php" class="nav-link sub-link">Submitted PO</a>
       </div>
     </div>
-    <a href="../<?php echo htmlspecialchars($role) ?>/timeSheet.php" class="nav-link">Timesheet</a>
-    <a href="../<?php echo htmlspecialchars($role) ?>/receivedInvoice.php" class="nav-link">Invoice</a>
-    <a href="../<?php echo htmlspecialchars($role) ?>/invoicePayment.php" class="nav-link">Invoice Payment</a>
-    <a href="/modules/duplicate_payment/index.php" class="nav-link">Duplicate Payment</a>
+    <a href="<?php echo BASE_URL; ?><?php echo htmlspecialchars($role) ?>/timeSheet.php" class="nav-link">Timesheet</a>
+    <a href="<?php echo BASE_URL; ?><?php echo htmlspecialchars($role) ?>/receivedInvoice.php" class="nav-link">Invoice</a>
+    <a href="<?php echo BASE_URL; ?><?php echo htmlspecialchars($role) ?>/invoicePayment.php" class="nav-link">Invoice Payment</a>
+    <a href="<?php echo BASE_URL; ?>modules/duplicate_payment/index.php" class="nav-link">Duplicate Payment</a>
     <div class="accordion-item">
-      <button class="accordion-toggle" aria-expanded="false" aria-controls="tsMenu">BOQ</button>
-      <div class="accordion-content" id="tsMenu" hidden>
-        <a href="../<?php echo htmlspecialchars($role) ?>/boq_upload.php" class="nav-link sub-link">BOQ Upload</a>
-        <a href="../<?php echo htmlspecialchars($role) ?>/boq_list.php" class="nav-link sub-link">BOQ List</a>
+      <button class="accordion-toggle" aria-expanded="false" aria-controls="boqMenu">BOQ</button>
+      <div class="accordion-content" id="boqMenu" hidden>
+        <a href="<?php echo BASE_URL; ?><?php echo htmlspecialchars($role) ?>/boq_upload.php" class="nav-link sub-link">BOQ Upload</a>
+        <a href="<?php echo BASE_URL; ?><?php echo htmlspecialchars($role) ?>/boq_list.php" class="nav-link sub-link">BOQ List</a>
+      </div>
+    </div>
+    <div class="accordion-item">
+      <button class="accordion-toggle" aria-expanded="false" aria-controls="rfqMenu">RFQ</button>
+      <div class="accordion-content" id="rfqMenu" hidden>        
+        <a href="<?php echo BASE_URL; ?><?php echo htmlspecialchars($role) ?>/RFQ/rfq_list.php" class="nav-link sub-link">RFQ List</a>
       </div>
     </div>
   <?php endif; ?>
@@ -73,35 +79,35 @@ $isImpersonating = $vpab->isImpersonating();
     <div class="accordion-item">
       <button class="accordion-toggle" aria-expanded="false" aria-controls="tsMenu">Timesheet</button>
       <div class="accordion-content" id="tsMenu" hidden>
-        <a href="../<?php echo htmlspecialchars($role) ?>/createTS.php" class="nav-link sub-link">Create Timesheet</a>
-        <a href="../<?php echo htmlspecialchars($role) ?>/submittedTS.php" class="nav-link sub-link">Submitted TS</a>
+        <a href="<?php echo BASE_URL; ?><?php echo htmlspecialchars($role) ?>/createTS.php" class="nav-link sub-link">Create Timesheet</a>
+        <a href="<?php echo BASE_URL; ?><?php echo htmlspecialchars($role) ?>/submittedTS.php" class="nav-link sub-link">Submitted TS</a>
       </div>
     </div>
-    <a href="../<?php echo htmlspecialchars($role) ?>/PO.php" class="nav-link">Received PO</a>
+    <a href="<?php echo BASE_URL; ?><?php echo htmlspecialchars($role) ?>/PO.php" class="nav-link">Received PO</a>
     <div class="accordion-item">
       <button class="accordion-toggle" aria-expanded="false" aria-controls="invoiceMenu">Invoice</button>
       <div class="accordion-content" id="invoiceMenu" hidden>
-        <a href="../<?php echo htmlspecialchars($role) ?>/createInvoice.php" class="nav-link sub-link">Create Invoice</a>
-        <a href="../<?php echo htmlspecialchars($role) ?>/submittedInvoice.php" class="nav-link sub-link">Submitted Invoice</a>
+        <a href="<?php echo BASE_URL; ?><?php echo htmlspecialchars($role) ?>/createInvoice.php" class="nav-link sub-link">Create Invoice</a>
+        <a href="<?php echo BASE_URL; ?><?php echo htmlspecialchars($role) ?>/submittedInvoice.php" class="nav-link sub-link">Submitted Invoice</a>
       </div>
     </div>
-    <a href="../<?php echo htmlspecialchars($role) ?>/invoicePayment.php" class="nav-link">Invoice Payment</a>
-    <a href="/modules/duplicate_payment/index.php" class="nav-link">Duplicate Payment</a>
+    <a href="<?php echo BASE_URL; ?><?php echo htmlspecialchars($role) ?>/invoicePayment.php" class="nav-link">Invoice Payment</a>
+    <a href="<?php echo BASE_URL; ?>modules/duplicate_payment/index.php" class="nav-link">Duplicate Payment</a>
   <?php endif; ?>
 
   <?php if ($role == 'Admin'): ?>
     <div class="accordion-item">
       <button class="accordion-toggle" aria-expanded="false" aria-controls="adminTSMenu">Timesheet</button>
       <div class="accordion-content" id="adminTSMenu" hidden>
-        <a href="../<?php echo htmlspecialchars($role) ?>/submittedTS.php" class="nav-link sub-link">Submitted TS</a>
+        <a href="<?php echo BASE_URL; ?><?php echo htmlspecialchars($role) ?>/submittedTS.php" class="nav-link sub-link">Submitted TS</a>
       </div>
     </div>
-    <a href="../<?php echo htmlspecialchars($role) ?>/PO.php" class="nav-link">Received PO</a>
+    <a href="<?php echo BASE_URL; ?><?php echo htmlspecialchars($role) ?>/PO.php" class="nav-link">Received PO</a>
     <a href="#invoice.php" class="nav-link">Invoice</a>
-    <a href="../<?php echo htmlspecialchars($role) ?>/invoicePayment.php" class="nav-link">Invoice Payment</a>
-    <a href="/modules/duplicate_payment/index.php" class="nav-link">Duplicate Payment</a>
+    <a href="<?php echo BASE_URL; ?><?php echo htmlspecialchars($role) ?>/invoicePayment.php" class="nav-link">Invoice Payment</a>
+    <a href="<?php echo BASE_URL; ?>modules/duplicate_payment/index.php" class="nav-link">Duplicate Payment</a>
     <a href="<?php echo BASE_URL; ?>sftp/Onboarding.php" class="nav-link">SFTP Onboarding</a>
-    <a href="/public/items-frontend/" target="_blank" class="nav-link">
+    <a href="<?php echo BASE_URL; ?>public/items-frontend/" target="_blank" class="nav-link">
       <i class="fas fa-boxes"></i> Items
     </a>
   <?php endif; ?>

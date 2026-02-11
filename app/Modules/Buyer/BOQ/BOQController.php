@@ -103,4 +103,8 @@ class BOQController {
         }
         $this->boqmodel->deleteBOQ($boqId, $username);
     }
+    public function getProjectNameByBOQId($boqId) {
+        Auth::checkBuyer(); // Ensure user is logged in
+        return $this->boqmodel->getProjectNameByBOQId($boqId);
+    }
 }

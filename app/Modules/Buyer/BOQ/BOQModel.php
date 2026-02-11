@@ -209,4 +209,17 @@ class BOQModel {
         mysqli_stmt_bind_param($stmt, "si", $username, $boqId);
         mysqli_stmt_execute($stmt);
     }
+    public function getProjectNameByBOQId($boqId) {
+        $stmt = mysqli_prepare($this->db, "
+            SELECT p.project_name
+            FROM boqs b
+            JOIN projects p ON b.project_id = p.id
+            WHERE b.id = ?
+        ");
+        mysqli_stmt_bind_param($stmt, "i", $boqId);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+        $row = mysqli_fetch_assoc($result);
+        return $row ? $row['project_name'] : null;
+    }
 }

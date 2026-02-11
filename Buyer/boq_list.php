@@ -20,7 +20,6 @@ $boqs = $boqController->getBOQListByUser($_SESSION['username']);
 
 // Display messages
 if (isset($_GET['display'])) {
-
     switch ($_GET['display']) {
         case 'edited':
             $message = "BOQ edited successfully. New BOQ ID: " . (int)($_GET['boq_id'] ?? 0);
@@ -75,7 +74,10 @@ if (isset($_GET['display'])) {
                         <input type="hidden" name="boq_id" value="<?= $boq['id'] ?>"> 
                     </form>                    
                     <a onclick="deleteboq(<?= $boq['id'] ?>)" href="javascript:void(0)">Delete</a>   
-                    <?php }  ?>                   
+                    <?php }  ?>  
+                    <?php if ($boq['status'] === 'LOCKED') { ?>
+                    | <a onclick="confirmRFQcreate(<?= $boq['id'] ?>)" href="javascript:void(0)">Create RFQ</a>
+                    <?php }  ?>       
                 </td>
             </tr>
         <?php endforeach; ?>
@@ -88,6 +90,11 @@ if (isset($_GET['display'])) {
     function deleteboq(boqId) {
         if (confirm('Are you sure you want to delete BOQ #' + boqId + '? This action cannot be undone.')) {
             window.location.href = 'boq_delete.php?boq_id=' + boqId;
+        }
+    }
+    function confirmRFQcreate(boqId) {
+        if (confirm('Are you sure you want to create an RFQ from BOQ #' + boqId + '?')) {
+            window.location.href = 'RFQ/rfq_create.php?boq_id=' + boqId;
         }
     }
 </script>

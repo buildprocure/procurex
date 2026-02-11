@@ -47,6 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['username'] = $username;
             $_SESSION['role'] = $role;
             $_SESSION['has_duplicate_payment_access'] = $row['as_duplicate_payment_access'];
+            $_SESSION['user_id'] = $userId;
 
             // Log success
             $logSql = "INSERT INTO login_history (user_id, username, role, ip_address, user_agent, status) 

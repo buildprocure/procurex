@@ -1,61 +1,89 @@
 <?php
 namespace App\Modules\Buyer\RFQ;
+
 use App\Core\DB;
+
 class RFQModel {
-    private $db;
+
+    private \mysqli $conn;
+
     public function __construct() {
-        $this->db = DB::getConnection();
+        $this->conn = DB::getConnection();
     }
 
-    public function createRFQFromBOQ(int $boqId, int $projectId, string $title, string $username): int
-    {
-        $stmt = mysqli_prepare($this->db, "
-            INSERT INTO rfqs (boq_id, project_id, title, created_by, created_at)
-            VALUES (?, ?, ?, ?, NOW())
+    public function isBOQLocked(int $boqId): bool {
+        $stmt = $this->conn->prepare("
+            SELECT id FROM boqs WHERE id = ? AND status = 'LOCKED'
         ");
-        mysqli_stmt_bind_param($stmt, "iiss", $boqId, $projectId, $title, $username);
-        mysqli_stmt_execute($stmt);
-
-        return mysqli_insert_id($this->db);
+        $stmt->bind_param("i", $boqId);
+        $stmt->execute();
+        return (bool)$stmt->get_result()->fetch_row();
     }
-    public function copyBOQItemsToRFQ(int $boqId, int $rfqId)
-    {
-        $stmt = mysqli_prepare($this->db, "
-            INSERT INTO rfq_items (rfq_id, item_code, material_name, specification, unit, quantity, created_at)
-            SELECT ?, item_code, material_name, specification, unit, quantity, NOW()
+
+    public function createRFQ(
+        int $boqId,
+        string $deliveryLocation,
+        string $instructions,
+        string $requiredDeliveryDate,
+        string $quoteDeadline,
+        int $createdBy
+    ): int {
+
+        $projectId = $this->getProjectIdFromBOQ($boqId);
+        $rfqTitle = 'RFQ of BOQ ' . $boqId;
+        $status = 'CREATED';
+
+        $stmt = $this->conn->prepare("
+            INSERT INTO rfqs
+            (project_id, boq_id, rfq_title, instructions, delivery_location, required_delivery_date, quote_deadline, process_stage, created_user_id, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+        ");
+        $stmt->bind_param(
+            "iissssssi",
+            $projectId,
+            $boqId,
+            $rfqTitle,
+            $instructions,
+            $deliveryLocation,
+            $requiredDeliveryDate,
+            $quoteDeadline,
+            $status,
+            $createdBy
+        );
+        $stmt->execute();
+
+        return $stmt->insert_id;
+    }
+
+    private function getProjectIdFromBOQ(int $boqId): int {
+        $stmt = $this->conn->prepare("SELECT project_id FROM boqs WHERE id = ?");
+        $stmt->bind_param("i", $boqId);
+        $stmt->execute();
+        return (int)$stmt->get_result()->fetch_row()[0];
+    }
+
+    public function copyBOQItemsToRFQ(int $boqId, int $rfqId): void {
+
+        $stmt = $this->conn->prepare("
+            INSERT INTO rfq_items
+            (rfq_id, boq_item_id, material_name, specification, unit, quantity)
+            SELECT ?, id, material_name, specification, unit, quantity
             FROM boq_items
             WHERE boq_id = ?
         ");
-        mysqli_stmt_bind_param($stmt, "ii", $rfqId, $boqId);
-        mysqli_stmt_execute($stmt);
+        $stmt->bind_param("ii", $rfqId, $boqId);
+        $stmt->execute();
     }
-    // Check if BOQ is published
-    public function isBOQPublished(int $boqId): bool
-    {
-        $stmt = mysqli_prepare($this->db, "
-            SELECT status FROM boqs WHERE id = ?
-        ");
-        mysqli_stmt_bind_param($stmt, "i", $boqId);
-        mysqli_stmt_execute($stmt);
-        mysqli_stmt_bind_result($stmt, $status);
-        mysqli_stmt_fetch($stmt);
-        mysqli_stmt_close($stmt);
-
-        return $status === 'PUBLISHED';
+    public function updateBOQStatus(int $boqId, string $status): void {
+        $stmt = $this->conn->prepare("UPDATE boqs SET status = ? WHERE id = ?");
+        $stmt->bind_param("si", $status, $boqId);
+        $stmt->execute();
     }
-    // Get project ID from BOQ ID
-    public function getProjectIdFromBOQ(int $boqId): int
-    {
-        $stmt = mysqli_prepare($this->db, "
-            SELECT project_id FROM boqs WHERE id = ?
-        ");
-        mysqli_stmt_bind_param($stmt, "i", $boqId);
-        mysqli_stmt_execute($stmt);
-        mysqli_stmt_bind_result($stmt, $projectId);
-        mysqli_stmt_fetch($stmt);
-        mysqli_stmt_close($stmt);
-
-        return $projectId;
+    public function getRFQsByBuyer(int $buyerId): array {
+        $stmt = $this->conn->prepare("SELECT * FROM rfqs WHERE created_user_id = ? ORDER BY created_at ASC");
+        $stmt->bind_param('i', $buyerId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->fetch_all(MYSQLI_ASSOC);
     }
-
 }
