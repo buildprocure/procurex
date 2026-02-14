@@ -20,7 +20,7 @@ $conn = DB::getConnection();
 // Fetch RFQ details
 $stmt = $conn->prepare("
     SELECT r.id, r.boq_id, r.delivery_location, r.required_delivery_date, 
-           r.quote_deadline, r.instructions, r.process_stage, r.created_user_id, r.created_at,
+           r.quote_deadline, r.instructions, r.status, r.created_user_id, r.created_at,
            b.version_no, p.project_name, p.location as project_location
     FROM rfqs r
     JOIN boqs b ON b.id = r.boq_id
@@ -41,7 +41,7 @@ if ($rfq['created_user_id'] !== $userId) {
 }
 
 //status badge logic
-switch ($rfq['process_stage']) {
+switch ($rfq['status']) {
     case 'CREATED':
         $rfqCreatedBadge = 'Done';
         $rfqCreatedBadgeClass = 'bg-success';
@@ -61,7 +61,7 @@ switch ($rfq['process_stage']) {
         $generalMessage = "RFQ is created successfully. Next step is item grouping and supplier assignment.";
         break;
     
-    case 'ITEM_GROUPED':
+    case 'GROUPED':
         $rfqCreatedBadge = 'Done';
         $rfqCreatedBadgeClass = 'bg-success';
 
@@ -167,8 +167,6 @@ $stmt = $conn->prepare("
 $stmt->bind_param("i", $rfqId);
 $stmt->execute();
 $items = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-
-
 ?>
 <!DOCTYPE html>
 <html>

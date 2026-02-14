@@ -11,6 +11,71 @@ $isImpersonating = $vpab->isImpersonating();
 <link rel="stylesheet" href="//cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
 <link rel="stylesheet" href="<?= SITE_URL ?>global_bp.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<!-- Bootstrap Selectpicker CSS - Latest version with Bootstrap 5 support -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/css/bootstrap-select.min.css">
+<style>
+    /* Ensure selectpicker is visible */
+    #buyerSelect,
+    .selectpicker,
+    .bootstrap-select .btn {
+        color: #333 !important;
+        background-color: #fff !important;
+    }
+    
+    .bootstrap-select > .dropdown-toggle::after {
+        color: #333;
+    }
+    
+    .bootstrap-select .dropdown-menu {
+        color: #333;
+    }
+    
+    .bootstrap-select .dropdown-menu li a {
+        color: #333 !important;
+        background-color: #fff !important;
+        padding: 8px 16px !important;
+    }
+    
+    .bootstrap-select .dropdown-menu li a:hover {
+        background-color: #e9ecef !important;
+    }
+    
+    /* Make sure selectpicker button is clickable */
+    .bootstrap-select .btn {
+        pointer-events: auto !important;
+        cursor: pointer !important;
+        min-width: 150px;
+        text-align: left;
+    }
+    
+    /* Ensure dropdown opens above other elements */
+    .bootstrap-select .dropdown-menu {
+        z-index: 9999 !important;
+    }
+    
+    /* Make sure selectpicker container doesn't clip children */
+    .bootstrap-select {
+        overflow: visible !important;
+    }
+    
+    /* Scoped fixes for bootstrap-select dropdown menu to avoid global dropdown CSS conflicts */
+    .bootstrap-select .dropdown-menu {
+      right: auto !important;
+      left: auto !important;
+      position: absolute !important;
+      display: none !important;
+      min-width: 160px !important;
+    }
+    .bootstrap-select.open .dropdown-menu,
+    .bootstrap-select .dropdown-menu.show {
+      display: block !important;
+    }
+
+    /* Hide the original select element (plugin creates the visible control) */
+    #buyerSelect {
+      display: none;
+    }
+</style>
 
 <!-- Top Navbar using custom.css-->
 <nav class="navbar-horizontal">
@@ -148,4 +213,11 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
 </script>
+
+<!-- jQuery (required for Selectpicker) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Bootstrap Selectpicker JS - Latest version with Bootstrap 5 support -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/js/bootstrap-select.min.js"></script>
 

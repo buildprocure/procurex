@@ -49,8 +49,11 @@ class RFQController {
         );
 
         $this->model->copyBOQItemsToRFQ($boqId, $rfqId);
-        $this->model->updateBOQStatus($boqId, 'RFQ_CREATED'); // Update BOQ status to indicate RFQ has been created
+        $this->model->updateStatus('boqs', $boqId, 'RFQ_CREATED'); // Update BOQ status to indicate RFQ has been created
 
+        $this->model->updateStatus('rfqs', $rfqId, 'GROUPING_IN_PROGRESS');
+        $this->model->autoCreateGroups($rfqId);
+        $this->model->updateStatus('rfqs', $rfqId, 'GROUPED');
         header("Location: /Buyer/RFQ/rfq_view.php?rfq_id=" . $rfqId);
         exit;
     }

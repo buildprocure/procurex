@@ -46,6 +46,7 @@ $rfqs = $rfqController->getRFQsByBuyer($_SESSION['user_id']);
                     <thead class="table-dark">
                         <tr>
                             <th>RFQ ID</th>
+                            <th>BOQ ID</th>
                             <th>Project ID</th>
                             <th>Status</th>
                             <th>Created Date</th>
@@ -57,10 +58,11 @@ $rfqs = $rfqController->getRFQsByBuyer($_SESSION['user_id']);
                         <?php foreach ($rfqs as $rfq): ?>
                             <tr>
                                 <td><strong><?php echo htmlspecialchars($rfq['id']); ?></strong></td>
+                                <td><?php echo htmlspecialchars($rfq['boq_id']); ?></td>
                                 <td><?php echo htmlspecialchars($rfq['project_id']); ?></td>
                                 <td>
-                                    <span class="badge bg-<?php echo $rfq['process_stage'] == 'active' ? 'success' : 'secondary'; ?>">
-                                        <?php echo ucfirst(htmlspecialchars($rfq['process_stage'])); ?>
+                                    <span class="badge bg-<?php echo $rfq['status'] == 'active' ? 'success' : 'secondary'; ?>">
+                                        <?php echo ucfirst(htmlspecialchars($rfq['status'])); ?>
                                     </span>
                                 </td>
                                 <td><?php echo date('M d, Y', strtotime($rfq['created_at'])); ?></td>
