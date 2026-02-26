@@ -174,20 +174,64 @@ class RFQModel {
 
         foreach ($civilMaterials as $keyword) {
             if (strpos($material, $keyword) !== false) {
-                return 1; // Civil
+                return 2; // Civil
             }
 
         }
         foreach ($electricalMaterials as $keyword) {
             if (strpos($material, $keyword) !== false) {
-                return 2; // Electrical
+                return 3; // Electrical
             }
         }
         foreach ($plumbingMaterials as $keyword) {
             if (strpos($material, $keyword) !== false) {
-                return 3; // Plumbing
+                return 4; // Plumbing
             }
         }
-        return 4; // General
+        return 1; // General
     }
+    public function autoAssignSuppliers(int $rfqId): void
+{
+    $conn = DB::getConnection();
+
+    // Get all RFQ groups
+    $stmt = $conn->prepare("
+        SELECT id, item_group_id 
+        FROM rfq_item_groups 
+        WHERE rfq_id = ?
+    ");
+    $stmt->bind_param("i", $rfqId);
+    $stmt->execute();
+    $groups = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+    foreach ($groups as $group) {
+
+        // Get suppliers matching this category
+        $supStmt = $conn->prepare("
+            SELECT supplier_company_id
+            FROM supplier_item_groups
+            WHERE item_group_id = ?
+        ");
+        $supStmt->bind_param("i", $group['item_group_id']);
+        $supStmt->execute();
+        $suppliers = $supStmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+        foreach ($suppliers as $supplier) {
+
+            // Insert supplier invitation
+            $insert = $conn->prepare("
+                INSERT INTO rfq_group_suppliers 
+                (rfq_item_group_id, supplier_company_id)
+                VALUES (?, ?)
+            ");
+            $insert->bind_param(
+                "ii",
+                $group['id'],
+                $supplier['supplier_company_id']
+            );
+            $insert->execute();
+        }
+    }
+}
+
 }

@@ -115,8 +115,8 @@ $isImpersonating = $vpab->isImpersonating();
 
   <?php if ($role == 'Buyer' || $isImpersonating): ?>
     <div class="accordion-item">
-      <button class="accordion-toggle" aria-expanded="false" aria-controls="poMenu">Purchase Order</button>
-      <div class="accordion-content" id="poMenu" hidden>
+      <button class="accordion-toggle" aria-expanded="false" aria-controls="po_Menu">Purchase Order</button>
+      <div class="accordion-content" id="po_Menu" hidden>
         <a href="<?php echo BASE_URL; ?><?php echo htmlspecialchars($role) ?>/createPO.php" class="nav-link sub-link">Create PO</a>
         <a href="<?php echo BASE_URL; ?><?php echo htmlspecialchars($role) ?>/submittedPO.php" class="nav-link sub-link">Submitted PO</a>
       </div>
@@ -136,6 +136,12 @@ $isImpersonating = $vpab->isImpersonating();
       <button class="accordion-toggle" aria-expanded="false" aria-controls="rfqMenu">RFQ</button>
       <div class="accordion-content" id="rfqMenu" hidden>        
         <a href="<?php echo BASE_URL; ?><?php echo htmlspecialchars($role) ?>/RFQ/rfq_list.php" class="nav-link sub-link">RFQ List</a>
+      </div>
+    </div>
+    <div class="accordion-item">
+      <button class="accordion-toggle" aria-expanded="false" aria-controls="poMenu">PO</button>
+      <div class="accordion-content" id="poMenu" hidden>        
+        <a href="<?php echo BASE_URL; ?><?php echo htmlspecialchars($role) ?>/PO/po_list.php" class="nav-link sub-link">PO List</a>
       </div>
     </div>
   <?php endif; ?>
