@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username']);
     $password = $_POST['password'];
 
-    $sql = "SELECT id, username, password, Role, user_enrollment, as_duplicate_payment_access 
+    $sql = "SELECT id, username, password, Role, user_enrollment, as_duplicate_payment_access, company_id
             FROM user WHERE username = ?";
     $stmt = mysqli_prepare($conn, $sql);
     mysqli_stmt_bind_param($stmt, "s", $username);
@@ -48,6 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['role'] = $role;
             $_SESSION['has_duplicate_payment_access'] = $row['as_duplicate_payment_access'];
             $_SESSION['user_id'] = $userId;
+            $_SESSION['company_id'] = $row['company_id'];
 
             // Log success
             $logSql = "INSERT INTO login_history (user_id, username, role, ip_address, user_agent, status) 

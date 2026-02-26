@@ -11,6 +11,71 @@ $isImpersonating = $vpab->isImpersonating();
 <link rel="stylesheet" href="//cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
 <link rel="stylesheet" href="<?= SITE_URL ?>global_bp.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<!-- Bootstrap Selectpicker CSS - Latest version with Bootstrap 5 support -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/css/bootstrap-select.min.css">
+<style>
+    /* Ensure selectpicker is visible */
+    #buyerSelect,
+    .selectpicker,
+    .bootstrap-select .btn {
+        color: #333 !important;
+        background-color: #fff !important;
+    }
+    
+    .bootstrap-select > .dropdown-toggle::after {
+        color: #333;
+    }
+    
+    .bootstrap-select .dropdown-menu {
+        color: #333;
+    }
+    
+    .bootstrap-select .dropdown-menu li a {
+        color: #333 !important;
+        background-color: #fff !important;
+        padding: 8px 16px !important;
+    }
+    
+    .bootstrap-select .dropdown-menu li a:hover {
+        background-color: #e9ecef !important;
+    }
+    
+    /* Make sure selectpicker button is clickable */
+    .bootstrap-select .btn {
+        pointer-events: auto !important;
+        cursor: pointer !important;
+        min-width: 150px;
+        text-align: left;
+    }
+    
+    /* Ensure dropdown opens above other elements */
+    .bootstrap-select .dropdown-menu {
+        z-index: 9999 !important;
+    }
+    
+    /* Make sure selectpicker container doesn't clip children */
+    .bootstrap-select {
+        overflow: visible !important;
+    }
+    
+    /* Scoped fixes for bootstrap-select dropdown menu to avoid global dropdown CSS conflicts */
+    .bootstrap-select .dropdown-menu {
+      right: auto !important;
+      left: auto !important;
+      position: absolute !important;
+      display: none !important;
+      min-width: 160px !important;
+    }
+    .bootstrap-select.open .dropdown-menu,
+    .bootstrap-select .dropdown-menu.show {
+      display: block !important;
+    }
+
+    /* Hide the original select element (plugin creates the visible control) */
+    #buyerSelect {
+      display: none;
+    }
+</style>
 
 <!-- Top Navbar using custom.css-->
 <nav class="navbar-horizontal">
@@ -50,8 +115,8 @@ $isImpersonating = $vpab->isImpersonating();
 
   <?php if ($role == 'Buyer' || $isImpersonating): ?>
     <div class="accordion-item">
-      <button class="accordion-toggle" aria-expanded="false" aria-controls="poMenu">Purchase Order</button>
-      <div class="accordion-content" id="poMenu" hidden>
+      <button class="accordion-toggle" aria-expanded="false" aria-controls="po_Menu">Purchase Order</button>
+      <div class="accordion-content" id="po_Menu" hidden>
         <a href="<?php echo BASE_URL; ?><?php echo htmlspecialchars($role) ?>/createPO.php" class="nav-link sub-link">Create PO</a>
         <a href="<?php echo BASE_URL; ?><?php echo htmlspecialchars($role) ?>/submittedPO.php" class="nav-link sub-link">Submitted PO</a>
       </div>
@@ -71,6 +136,12 @@ $isImpersonating = $vpab->isImpersonating();
       <button class="accordion-toggle" aria-expanded="false" aria-controls="rfqMenu">RFQ</button>
       <div class="accordion-content" id="rfqMenu" hidden>        
         <a href="<?php echo BASE_URL; ?><?php echo htmlspecialchars($role) ?>/RFQ/rfq_list.php" class="nav-link sub-link">RFQ List</a>
+      </div>
+    </div>
+    <div class="accordion-item">
+      <button class="accordion-toggle" aria-expanded="false" aria-controls="poMenu">PO</button>
+      <div class="accordion-content" id="poMenu" hidden>        
+        <a href="<?php echo BASE_URL; ?><?php echo htmlspecialchars($role) ?>/PO/po_list.php" class="nav-link sub-link">PO List</a>
       </div>
     </div>
   <?php endif; ?>
@@ -148,4 +219,11 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
 </script>
+
+<!-- jQuery (required for Selectpicker) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Bootstrap Selectpicker JS - Latest version with Bootstrap 5 support -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/js/bootstrap-select.min.js"></script>
 
