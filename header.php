@@ -94,6 +94,7 @@ $isImpersonating = $vpab->isImpersonating();
           <div class="user-dropdown">
               <i id="userDropdownToggle" class="fas fa-user-circle user-icon"></i>
               <ul id="userDropdownMenu" class="dropdown-menu">
+                  <li class="dropdown-header"><?php echo htmlspecialchars($username); ?></li>
                   <li><a href="#">Profile</a></li>
                   <li><a href="#">Settings</a></li>
                   <li><a href="/logout.php">Logout</a></li>
