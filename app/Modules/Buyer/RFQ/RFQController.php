@@ -59,7 +59,34 @@ class RFQController {
         header("Location: /Buyer/RFQ/rfq_view.php?rfq_id=" . $rfqId);
         exit;
     }
+    /**
+     * Proxy to model.  The underlying query now returns every RFQ created
+     * by users in the same company as $buyerId (not just RFQs directly
+     * created by $buyerId).  This allows buyers to see company-wide
+     * RFQs rather than only their own.
+     */
     public function getRFQsByBuyer(int $buyerId): array {
         return $this->model->getRFQsByBuyer($buyerId);
+    }
+
+    /**
+     * Award supplier wrapper - delegates to model and returns result array
+     */
+    public function awardSupplier(int $rfqId, int $groupId, int $quoteId, int $userId): array
+    {
+        Auth::checkBuyer();
+        return $this->model->awardSupplier($rfqId, $groupId, $quoteId, $userId);
+    }
+
+    /**
+     * After any change to a group, make sure the RFQ status is adjusted if
+     * every group is finished (decision made or closed with no award).
+     *
+     * This is a thin wrapper around the corresponding model helper.
+     */
+    public function evaluateRFQ(int $rfqId): void
+    {
+        Auth::checkBuyer();
+        $this->model->updateRFQStatusIfAllGroupsDecided($rfqId);
     }
 }

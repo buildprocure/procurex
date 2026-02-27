@@ -19,6 +19,7 @@ $stmt = $conn->prepare("
 $stmt->bind_param("i", $supplierId);
 $stmt->execute();
 $pos = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
 ?>
 
 <!DOCTYPE html>

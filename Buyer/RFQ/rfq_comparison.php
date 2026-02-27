@@ -149,7 +149,8 @@ $groups = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         $stmt->execute();
         $groupStatus = $stmt->get_result()->fetch_assoc()['status'];
         $enableActions = '';
-        if ($groupStatus == 'DECISION_MADE') {
+        
+        if ($groupStatus == 'DECISION_MADE' || $groupStatus == 'CLOSED_NO_AWARD') {
             $enableActions = "disabled";
         }
 
@@ -157,7 +158,7 @@ $groups = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
     <div class="card mb-5">
         <div class="card-header bg-primary text-white">
-        <strong>Group: <?= htmlspecialchars($group['group_name']) ?></strong>
+        <strong>Group: <?= htmlspecialchars($group['group_name']) ?> - <div class="badge bg-light text-dark"><?= htmlspecialchars($groupStatus) ?></div></strong>
         </div>
 
         <div class="card-body p-0">
@@ -271,13 +272,16 @@ $groups = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                                 🏆 Award
                             </button>
 
-                            <a href="postpone_rfq.php?rfq_id=<?= $rfqId ?>" 
-                            class="btn btn-outline-primary fw-bold px-3 py-2" <?= $enableActions ?>>
+                            <a href="postpone_rfq.php?rfq_id=<?= $rfqId ?>&group_id=<?= $groupId ?>" 
+                            class="btn btn-outline-primary fw-bold px-3 py-2 <?= $enableActions ?>"
+                            <?php echo $enableActions ? 'tabindex="-1" aria-disabled="true"' : ""; ?>
+                            >
                                 ⏳ Later
                             </a>
 
-                            <a href="close_rfq.php?rfq_id=<?= $rfqId ?>" 
-                            class="btn btn-outline-danger fw-bold px-3 py-2"
+                            <a href="close_rfq.php?rfq_id=<?= $rfqId ?>&group_id=<?= $groupId ?>" 
+                            class="btn btn-outline-danger fw-bold px-3 py-2 <?= $enableActions ?>"
+                            <?php echo $enableActions ? 'tabindex="-1" aria-disabled="true"' : ""; ?>
                             onclick="return confirm('Close without award?')" <?= $enableActions ?>>
                                 ❌ Close
                             </a>
