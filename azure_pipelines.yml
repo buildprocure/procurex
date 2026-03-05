@@ -31,12 +31,6 @@ resources:
       ref: $(branchRef)
       endpoint: github.com_rabinkhadkaa
 
-    - repository: buildprocure-simplesamlphp
-      type: github
-      name: buildprocure/bp-simplesamlphp
-      ref: refs/heads/main
-      endpoint: github.com_rabinkhadkaa
-
 
 variables:
   - group: FeatureToggles
