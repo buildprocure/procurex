@@ -28,7 +28,6 @@ services:
       - app-uploads:/var/www/html/storage/uploads
     depends_on:
       - db
-      - simplesamlphp
     networks:
       - app-network
 
