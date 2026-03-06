@@ -38,8 +38,7 @@ $stmt = $conn->prepare("
 $stmt->bind_param("i", $poId);
 $stmt->execute();
 $items = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-echo "<pre>"; print_r($po); echo "</pre>";
-exit;
+
 ?>
 
 <!DOCTYPE html>
@@ -58,39 +57,67 @@ exit;
 
 <?php require '../header.php'; ?>
 <div class="main-content">
-<h2>Purchase Order #<?= $poId ?></h2>
-
-<p>
-<strong>Buyer:</strong> <?= ($po['buyer_name']) ?><br>
-<strong>Status:</strong> <?= ($po['status']) ?><br>
-<strong>Total Amount:</strong> $<?= number_format($po['total_amount'],2) ?><br>
-<strong>Created At:</strong> <?= $po['created_at'] ?>
-</p>
-
-<table>
-    <thead>
-        <tr>
-            <th>Material</th>
-            <th>Specification</th>
-            <th>Unit</th>
-            <th>Qty</th>
-            <th>Rate</th>
-            <th>Line Total</th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php foreach($items as $item): ?>
-        <tr>
-            <td><?= ($item['material_name']) ?></td>
-            <td><?= ($item['specification']) ?></td>
-            <td><?= ($item['unit']) ?></td>
-            <td><?= $item['quantity'] ?></td>
-            <td>$<?= number_format($item['unit_price'],2) ?></td>
-            <td>$<?= number_format($item['line_total'],2) ?></td>
-        </tr>
-        <?php endforeach; ?>
-    </tbody>
-</table>
+    <h2>Purchase Order #<?= $poId ?></h2>
+    <p>
+        <strong>Buyer:</strong> <?= ($po['buyer_name']) ?><br>
+        <strong>Status:</strong> <?= ($po['status']) ?><br>
+        <strong>Total Amount:</strong> $<?= number_format($po['total_amount'],2) ?><br>
+        <strong>Created At:</strong> <?= $po['created_at'] ?>
+    </p>
+    <table>
+        <thead>
+            <tr>
+                <th>Material</th>
+                <th>Specification</th>
+                <th>Unit</th>
+                <th>Qty</th>
+                <th>Rate</th>
+                <th>Line Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach($items as $item): ?>
+            <tr>
+                <td><?= ($item['material_name']) ?></td>
+                <td><?= ($item['specification']) ?></td>
+                <td><?= ($item['unit']) ?></td>
+                <td><?= $item['quantity'] ?></td>
+                <td>$<?= number_format($item['unit_price'],2) ?></td>
+                <td>$<?= number_format($item['line_total'],2) ?></td>
+            </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+    <hr>
+    <div>
+        <h5>Supplier Response</h5>
+        <p>
+            Current Status:
+            <span class="badge bg-warning">
+            <?= $po['supplier_response'] ?>
+            </span>
+        </p>
+        <?php if ($po['supplier_response'] === 'PENDING'): ?>
+            <form method="POST" action="po_response.php">
+                <input type="hidden" name="po_id" value="<?= $poId ?>">
+                <div class="mb-3">
+                    <label class="form-label">Message (optional)</label>
+                    <textarea name="note" class="form-control"></textarea>
+                </div>
+                <button name="response" value="ACCEPTED" class="btn btn-success">
+                    Accept PO
+                </button>
+                <button name="response" value="REJECTED" class="btn btn-danger">
+                    Reject PO
+                </button>
+            </form>
+        <?php else: ?>
+            <p>
+                Supplier responded on:
+                <?= $po['supplier_response_at'] ?>
+            </p>
+        <?php endif; ?>
+    </div>
 </div>
 </body>
 </html>
