@@ -19,11 +19,11 @@ jobs:
     steps:
       # --- Checkout main repo ---
       - name: Checkout main repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # --- Checkout frontend repo ---
       - name: Checkout frontend
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: buildprocure/buildhub
           path: ilife-items-frontend
@@ -31,7 +31,7 @@ jobs:
 
       # --- Checkout CSS repo ---
       - name: Checkout CSS
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: buildprocure/bp-style-css
           path: ilifes-style-css
