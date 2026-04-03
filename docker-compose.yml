@@ -15,7 +15,7 @@ services:
     networks:
       - app-network
   web:
-    image: ilifesregistry.azurecr.io/ilifes-store:latest
+    image: ghcr.io/buildprocure/procurex:latest
     container_name: buildprocure
     env_file:
       - php-env-prod.env

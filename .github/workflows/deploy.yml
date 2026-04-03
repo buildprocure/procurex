@@ -1,0 +1,112 @@
+name: Build and Deploy to GHCR
+
+on:
+  push:
+    branches: [ "main" ]
+
+env:
+  IMAGE_NAME: ${{ github.event.repository.name }}   # 👈 dynamic (procurex)
+  REGISTRY: ghcr.io
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      # --- Checkout main repo ---
+      - name: Checkout main repo
+        uses: actions/checkout@v3
+
+      # --- Checkout frontend repo ---
+      - name: Checkout frontend
+        uses: actions/checkout@v3
+        with:
+          repository: buildprocure/buildhub
+          path: ilife-items-frontend
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # --- Checkout CSS repo ---
+      - name: Checkout CSS
+        uses: actions/checkout@v3
+        with:
+          repository: buildprocure/bp-style-css
+          path: ilifes-style-css
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # --- Generate commit tags ---
+      - name: Generate commit tags
+        id: vars
+        run: |
+          APP_COMMIT_SHORT=$(echo "${GITHUB_SHA}" | cut -c1-9)
+
+          cd ilife-items-frontend
+          ITEMS_COMMIT_SHORT=$(git rev-parse --short=9 HEAD)
+
+          cd ../ilifes-style-css
+          STYLE_COMMIT_SHORT=$(git rev-parse --short=9 HEAD)
+
+          TAG="${APP_COMMIT_SHORT}-${ITEMS_COMMIT_SHORT}-${STYLE_COMMIT_SHORT}"
+
+          IMAGE_BASE="${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}"
+
+          echo "TAG=$TAG" >> $GITHUB_OUTPUT
+          echo "IMAGE_BASE=$IMAGE_BASE" >> $GITHUB_OUTPUT
+
+      # --- Login to GHCR ---
+      - name: Login to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      # --- Copy CSS ---
+      - name: Copy CSS
+        run: |
+          cp ilifes-style-css/global_bp.css buildprocure/
+
+      # --- Build Docker Image ---
+      - name: Build Docker Image
+        run: |
+          docker build \
+            --no-cache \
+            -t ${{ steps.vars.outputs.IMAGE_BASE }}:${{ steps.vars.outputs.TAG }} \
+            -t ${{ steps.vars.outputs.IMAGE_BASE }}:latest \
+            -f buildprocure/dockerfile \
+            buildprocure
+
+      # --- Push Docker Image ---
+      - name: Push Docker Images
+        run: |
+          docker push ${{ steps.vars.outputs.IMAGE_BASE }}:${{ steps.vars.outputs.TAG }}
+          docker push ${{ steps.vars.outputs.IMAGE_BASE }}:latest
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+
+          script: |
+            cd /var/www/html
+
+            echo "Logging into GHCR..."
+            echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
+
+            echo "Pulling latest images..."
+            docker-compose pull
+
+            echo "Restarting containers..."
+            docker-compose down
+            docker-compose up -d
+
+            echo "Cleaning old images..."
+            docker image prune -f
+
+            docker ps -a
