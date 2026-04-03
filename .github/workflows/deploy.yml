@@ -27,7 +27,7 @@ jobs:
         with:
           repository: buildprocure/buildhub
           path: ilife-items-frontend
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GH_PAT }}
 
       # --- Checkout CSS repo ---
       - name: Checkout CSS
@@ -35,7 +35,7 @@ jobs:
         with:
           repository: buildprocure/bp-style-css
           path: ilifes-style-css
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GH_PAT }}
 
       # --- Generate commit tags ---
       - name: Generate commit tags
