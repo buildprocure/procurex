@@ -7,7 +7,6 @@ parameters:
       - local
       - AB123
 
-
 resources:
   repositories:
     - repository: ilife-items-frontend

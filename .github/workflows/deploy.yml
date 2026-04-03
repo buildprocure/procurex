@@ -97,9 +97,14 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
+          env:
+            GH_PAT: ${{ secrets.GH_PAT }}
 
           script: |
             cd /var/www/html
+
+            echo "Downloading latest docker-compose.yml..."
+            curl -H "Authorization: token $GH_PAT" https://raw.githubusercontent.com/buildprocure/procurex/main/docker-compose.yml -o docker-compose.yml
 
             echo "Setting correct ownership for docker-compose.yml..."
             chown root:root docker-compose.yml
