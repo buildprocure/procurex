@@ -91,19 +91,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout main repo
-        uses: actions/checkout@v4
-
-      - name: Copy docker-compose.yml to server
-        uses: appleboy/scp-action@v0.1.4
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          port: 22
-          source: "docker-compose.yml"
-          target: "/var/www/html/"
-
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
