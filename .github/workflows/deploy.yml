@@ -68,7 +68,7 @@ jobs:
       # --- Copy CSS ---
       - name: Copy CSS
         run: |
-          cp ilifes-style-css/global_bp.css buildprocure/
+          cp ilifes-style-css/global_bp.css .
 
       # --- Build Docker Image ---
       - name: Build Docker Image
@@ -77,8 +77,8 @@ jobs:
             --no-cache \
             -t ${{ steps.vars.outputs.IMAGE_BASE }}:${{ steps.vars.outputs.TAG }} \
             -t ${{ steps.vars.outputs.IMAGE_BASE }}:latest \
-            -f buildprocure/dockerfile \
-            buildprocure
+            -f dockerfile \
+            .
 
       # --- Push Docker Image ---
       - name: Push Docker Images
