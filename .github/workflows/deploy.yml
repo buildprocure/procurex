@@ -102,6 +102,13 @@ jobs:
 
           script: |
             cd /var/www/html
+            #copy the new docker-compose.yml from the main repo to /var/www/html on the server
+            cp ../procurex/docker-compose.yml .
+            cp ../procurex/php-env-prod.env .
+
+            #list files in /var/www/html to verify the copy
+            echo "Listing files in /var/www/html after copying docker-compose.yml and php-env-prod.env..."
+            ls -la
 
             echo "Downloading latest docker-compose.yml..."
             curl -H "Authorization: token $GH_PAT" https://raw.githubusercontent.com/buildprocure/procurex/main/docker-compose.yml -o docker-compose.yml
