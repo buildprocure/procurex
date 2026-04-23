@@ -102,19 +102,23 @@ jobs:
 
           script: |
             cd /var/www/html
-            #copy the new docker-compose.yml from the main repo to /var/www/html on the server
-            cp ../procurex/docker-compose.yml .
-            cp ../procurex/php-env-prod.env .
-
-            #list files in /var/www/html to verify the copy
-            echo "Listing files in /var/www/html after copying docker-compose.yml and php-env-prod.env..."
-            ls -la
 
             echo "Downloading latest docker-compose.yml..."
-            curl -H "Authorization: token $GH_PAT" https://raw.githubusercontent.com/buildprocure/procurex/main/docker-compose.yml -o docker-compose.yml
+            curl -fsSL \
+              -H "Authorization: Bearer $GH_PAT" \
+              -H "Accept: application/vnd.github.raw+json" \
+              https://api.github.com/repos/buildprocure/procurex/contents/docker-compose.yml?ref=main \
+              -o docker-compose.yml
 
-            echo "Setting correct ownership for docker-compose.yml..."
-            chown root:root docker-compose.yml
+            echo "Downloading latest php-env-prod.env..."
+            curl -fsSL \
+              -H "Authorization: Bearer $GH_PAT" \
+              -H "Accept: application/vnd.github.raw+json" \
+              https://api.github.com/repos/buildprocure/procurex/contents/php-env-prod.env?ref=main \
+              -o php-env-prod.env
+
+            echo "Downloaded docker-compose.yml:"
+            cat docker-compose.yml
 
             echo "Logging into GHCR..."
             echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
