@@ -2,10 +2,10 @@ name: Build and Deploy to GHCR
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
 
 env:
-  IMAGE_NAME: ${{ github.event.repository.name }}   # 👈 dynamic (procurex)
+  IMAGE_NAME: ${{ github.event.repository.name }}
   REGISTRY: ghcr.io
 
 jobs:
@@ -17,11 +17,9 @@ jobs:
       packages: write
 
     steps:
-      # --- Checkout main repo ---
       - name: Checkout main repo
         uses: actions/checkout@v4
 
-      # --- Checkout frontend repo ---
       - name: Checkout frontend
         uses: actions/checkout@v4
         with:
@@ -29,7 +27,6 @@ jobs:
           path: ilife-items-frontend
           token: ${{ secrets.GH_PAT }}
 
-      # --- Checkout CSS repo ---
       - name: Checkout CSS
         uses: actions/checkout@v4
         with:
@@ -37,7 +34,6 @@ jobs:
           path: ilifes-style-css
           token: ${{ secrets.GH_PAT }}
 
-      # --- Generate commit tags ---
       - name: Generate commit tags
         id: vars
         run: |
@@ -50,27 +46,23 @@ jobs:
           STYLE_COMMIT_SHORT=$(git rev-parse --short=9 HEAD)
 
           TAG="${APP_COMMIT_SHORT}-${ITEMS_COMMIT_SHORT}-${STYLE_COMMIT_SHORT}"
-
           IMAGE_BASE="${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}"
 
           echo "TAG=$TAG" >> $GITHUB_OUTPUT
           echo "IMAGE_BASE=$IMAGE_BASE" >> $GITHUB_OUTPUT
 
-      # --- Login to GHCR ---
       - name: Login to GHCR
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-      
-      # --Debug structure---
+
       - name: Debug structure
         run: |
           pwd
           ls -la
-      # --- Copy CSS ---
+
       - name: Copy CSS
         run: |
           cp ilifes-style-css/global_bp.css .
 
-      # --- Build Docker Image ---
       - name: Build Docker Image
         run: |
           docker build \
@@ -80,65 +72,63 @@ jobs:
             -f dockerfile \
             .
 
-      # --- Push Docker Image ---
       - name: Push Docker Images
         run: |
           docker push ${{ steps.vars.outputs.IMAGE_BASE }}:${{ steps.vars.outputs.TAG }}
           docker push ${{ steps.vars.outputs.IMAGE_BASE }}:latest
 
   deploy:
-  needs: build
-  runs-on: ubuntu-latest
+    needs: build
+    runs-on: ubuntu-latest
 
-  steps:
-    - name: Deploy via SSH
-      uses: appleboy/ssh-action@v1.0.3
-      env:
-        GH_PAT: ${{ secrets.GH_PAT }}
-      with:
-        host: ${{ secrets.SSH_HOST }}
-        username: ${{ secrets.SSH_USER }}
-        key: ${{ secrets.SSH_KEY }}
-        envs: GH_PAT
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          envs: GH_PAT
+          script: |
+            set -e
 
-        script: |
-          set -e
+            cd /var/www/html
 
-          cd /var/www/html
+            if [ -z "$GH_PAT" ]; then
+              echo "GH_PAT is missing on remote shell"
+              exit 1
+            fi
 
-          if [ -z "$GH_PAT" ]; then
-            echo "GH_PAT is missing on remote shell"
-            exit 1
-          fi
+            echo "Downloading latest docker-compose.yml..."
+            curl -fsSL \
+              -H "Authorization: Bearer $GH_PAT" \
+              -H "Accept: application/vnd.github.raw" \
+              "https://api.github.com/repos/buildprocure/procurex/contents/docker-compose.yml?ref=main" \
+              -o docker-compose.yml
 
-          echo "Downloading latest docker-compose.yml..."
-          curl -fsSL \
-            -H "Authorization: Bearer $GH_PAT" \
-            -H "Accept: application/vnd.github.raw" \
-            "https://api.github.com/repos/buildprocure/procurex/contents/docker-compose.yml?ref=main" \
-            -o docker-compose.yml
+            echo "Downloading latest php-env-prod.env..."
+            curl -fsSL \
+              -H "Authorization: Bearer $GH_PAT" \
+              -H "Accept: application/vnd.github.raw" \
+              "https://api.github.com/repos/buildprocure/procurex/contents/php-env-prod.env?ref=main" \
+              -o php-env-prod.env
 
-          echo "Downloading latest php-env-prod.env..."
-          curl -fsSL \
-            -H "Authorization: Bearer $GH_PAT" \
-            -H "Accept: application/vnd.github.raw" \
-            "https://api.github.com/repos/buildprocure/procurex/contents/php-env-prod.env?ref=main" \
-            -o php-env-prod.env
+            echo "Downloaded docker-compose.yml:"
+            cat docker-compose.yml
 
-          echo "Downloaded docker-compose.yml:"
-          cat docker-compose.yml
+            echo "Logging into GHCR..."
+            echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
 
-          echo "Logging into GHCR..."
-          echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
+            echo "Pulling latest images..."
+            docker-compose pull
 
-          echo "Pulling latest images..."
-          docker-compose pull
+            echo "Restarting containers..."
+            docker-compose down --remove-orphans
+            docker-compose up -d
 
-          echo "Restarting containers..."
-          docker-compose down --remove-orphans
-          docker-compose up -d
+            echo "Cleaning old images..."
+            docker image prune -f
 
-          echo "Cleaning old images..."
-          docker image prune -f
-
-          docker ps -a
+            docker ps -a
