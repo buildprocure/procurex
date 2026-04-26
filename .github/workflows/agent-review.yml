@@ -3,6 +3,7 @@ name: Agent PR Review
 on:
   issue_comment:
     types: [created, edited]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -10,33 +11,18 @@ permissions:
   issues: write
 
 jobs:
-  agent-review:
-    if: >
-      github.event.issue.pull_request != null &&
-      startsWith(github.event.comment.body, '/agent-review')
+  debug-comment:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.issue.pull_request != null }}
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Parse PR info
-        id: pr
+      - name: Debug event
         run: |
-          echo "number=${{ github.event.issue.number }}" >> $GITHUB_OUTPUT
-          echo "repo=${{ github.event.repository.name }}" >> $GITHUB_OUTPUT
-          echo "owner=${{ github.repository_owner }}" >> $GITHUB_OUTPUT
+          echo "event_name=${{ github.event_name }}"
+          echo "comment_body=${{ github.event.comment.body }}"
+          echo "issue_number=${{ github.event.issue.number }}"
+          echo "is_pr=${{ github.event.issue.pull_request != null }}"
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install requests
-
-      - name: Run agent review
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_OWNER: ${{ steps.pr.outputs.owner }}
-          GITHUB_REPO: ${{ steps.pr.outputs.repo }}
-          PR_NUMBER: ${{ steps.pr.outputs.number }}
-        run: |
-          python .github/scripts/agent_review.py
+      - name: Command detected
+        if: ${{ github.event_name == 'issue_comment' && startsWith(github.event.comment.body, '/agent-review') }}
+        run: echo "Agent review command detected"
