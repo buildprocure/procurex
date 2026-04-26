@@ -1,7 +1,5 @@
 <?php
 include '_loggedindatabase.php';
-//include 'iuploads.php'; 
-// session_start();
 
 if(!isset($_SESSION['loggedin'])|| $_SESSION['loggedin'] != true){
     header("location: index.php");
@@ -35,7 +33,7 @@ $row = mysqli_fetch_assoc($result);
     </head>
   <body>
     <h2>Note Details Form <h2>
-    <p>This is test line </p>
+    <p>This line is edited for MCP testing </p>
     <div class="container text-center">
         <div class="row">
             <div class="col">
