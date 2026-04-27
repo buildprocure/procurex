@@ -1,11 +1,15 @@
-create docker image- docker build . -t ilifeimage
-create and run docker container- docker run --name=php -p=3000:3000 ilifeimage
+Procurex
 
+Procurex is a lightweight procurement and inventory management platform designed to streamline item browsing, tracking, and purchasing workflows.
 
-
-<?php
-    $noteid = $_COOKIE['note_id']; 
-    $sql = "SELECT Title FROM notes WHERE username= '$myusername' AND NoteID = $noteid";
-    $result = mysqli_query($conn, $sql);
-    echo $result;
-?>
+🚀 Features
+📦 Item listing and detailed views
+🔍 Search and filter functionality
+🔐 Authentication & session handling
+⚡ Fast React-based frontend
+🔧 Backend API powered by PHP (Slim)
+🐳 Dockerized for easy setup and deployment
+🏗️ Tech Stack
+Application Language: PHP
+Database: MySQL
+DevOps: Docker, GitHub Actions
