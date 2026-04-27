@@ -40,5 +40,6 @@ jobs:
           GITHUB_OWNER: ${{ github.repository_owner }}
           GITHUB_REPO: ${{ github.event.repository.name }}
           PR_NUMBER: ${{ github.event.issue.number }}
+          MCP_AGENT_REVIEW_URL: http://143.198.64.132:3011/agent-review
         run: |
           python .github/scripts/agent_review.py
