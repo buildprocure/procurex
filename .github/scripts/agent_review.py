@@ -33,6 +33,15 @@ def gh_post(path, payload):
         json=payload,
         timeout=30,
     )
+
+    if response.status_code >= 400:
+        print("GitHub API error")
+        print("Status:", response.status_code)
+        print("URL:", f"{API}{path}")
+        print("Response:", response.text)
+        print("Accepted permissions:", response.headers.get("X-Accepted-GitHub-Permissions"))
+        print("OAuth scopes:", response.headers.get("X-OAuth-Scopes"))
+
     response.raise_for_status()
     return response.json()
 

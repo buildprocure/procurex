@@ -29,7 +29,11 @@ jobs:
           echo "Repository: ${{ github.repository }}"
           echo "Actor: ${{ github.actor }}"
           echo "Event: ${{ github.event_name }}"
-
+      
+      - name: Check PAT presence
+        run: |
+          [ -n "${{ secrets.AGENT_REVIEW_PAT }}" ] && echo "AGENT_REVIEW_PAT present" || echo "AGENT_REVIEW_PAT missing"
+          
       - name: Run agent review
         env:
           GITHUB_TOKEN: ${{ secrets.AGENT_REVIEW_PAT }}
