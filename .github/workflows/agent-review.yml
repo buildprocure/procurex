@@ -3,6 +3,13 @@ name: Agent PR Review
 on:
   issue_comment:
     types: [created, edited]
+
+  pull_request_review:
+    types: [submitted, edited]
+
+  pull_request_review_comment:
+    types: [created, edited]
+
   workflow_dispatch:
 
 permissions:
@@ -12,17 +19,25 @@ permissions:
 
 jobs:
   debug-comment:
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.issue.pull_request != null }}
     runs-on: ubuntu-latest
 
     steps:
       - name: Debug event
         run: |
           echo "event_name=${{ github.event_name }}"
-          echo "comment_body=${{ github.event.comment.body }}"
+          echo "issue_comment_body=${{ github.event.comment.body }}"
+          echo "review_body=${{ github.event.review.body }}"
           echo "issue_number=${{ github.event.issue.number }}"
-          echo "is_pr=${{ github.event.issue.pull_request != null }}"
+          echo "pr_number=${{ github.event.pull_request.number }}"
 
-      - name: Command detected
-        if: ${{ github.event_name == 'issue_comment' && startsWith(github.event.comment.body, '/agent-review') }}
-        run: echo "Agent review command detected"
+      - name: Detect issue comment command
+        if: ${{ github.event_name == 'issue_comment' && github.event.issue.pull_request != null && startsWith(github.event.comment.body, '/agent-review') }}
+        run: echo "Detected /agent-review from issue_comment"
+
+      - name: Detect PR review body command
+        if: ${{ github.event_name == 'pull_request_review' && startsWith(github.event.review.body, '/agent-review') }}
+        run: echo "Detected /agent-review from pull_request_review"
+
+      - name: Detect PR review comment command
+        if: ${{ github.event_name == 'pull_request_review_comment' && startsWith(github.event.comment.body, '/agent-review') }}
+        run: echo "Detected /agent-review from pull_request_review_comment"
