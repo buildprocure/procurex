@@ -32,11 +32,11 @@ jobs:
       
       - name: Check PAT presence
         run: |
-          [ -n "${{ secrets.AGENT_REVIEW_PAT }}" ] && echo "AGENT_REVIEW_PAT present" || echo "AGENT_REVIEW_PAT missing"
+          [ -n "${{ secrets.AGENT_REVIEW_CLASSIC_PAT }}" ] && echo "AGENT_REVIEW_CLASSIC_PAT present" || echo "AGENT_REVIEW_CLASSIC_PAT missing"
           
       - name: Run agent review
         env:
-          GITHUB_TOKEN: ${{ secrets.AGENT_REVIEW_PAT }}
+          GITHUB_TOKEN: ${{ secrets.AGENT_REVIEW_CLASSIC_PAT }}
           GITHUB_OWNER: ${{ github.repository_owner }}
           GITHUB_REPO: ${{ github.event.repository.name }}
           PR_NUMBER: ${{ github.event.issue.number }}
