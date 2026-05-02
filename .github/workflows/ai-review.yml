@@ -1,0 +1,59 @@
+name: AI Review
+
+on:
+  issue_comment:
+    types: [created, edited]
+
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "PR number to review"
+        required: true
+        type: string
+      repo_name:
+        description: "Repository name"
+        required: false
+        default: "procurex"
+        type: string
+
+permissions:
+  contents: read
+  pull-requests: read
+  issues: write
+
+jobs:
+  agent-review:
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (
+        github.event.issue.pull_request != null &&
+        startsWith(github.event.comment.body, '/agent-review')
+      )
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set PR context
+        id: ctx
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "pr_number=${{ inputs.pr_number }}" >> $GITHUB_OUTPUT
+            echo "repo_name=${{ inputs.repo_name }}" >> $GITHUB_OUTPUT
+          else
+            echo "pr_number=${{ github.event.issue.number }}" >> $GITHUB_OUTPUT
+            echo "repo_name=${{ github.event.repository.name }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check secrets
+        run: |
+          [ -n "${{ secrets.AGENT_REVIEW_CLASSIC_PAT }}" ] && echo "AGENT_REVIEW_CLASSIC_PAT present" || echo "AGENT_REVIEW_CLASSIC_PAT missing"
+
+      - name: Run agent review
+        env:
+          GITHUB_TOKEN: ${{ secrets.AGENT_REVIEW_CLASSIC_PAT }}
+          GITHUB_OWNER: ${{ github.repository_owner }}
+          GITHUB_REPO: ${{ steps.ctx.outputs.repo_name }}
+          PR_NUMBER: ${{ steps.ctx.outputs.pr_number }}
+          MCP_AGENT_REVIEW_URL: http://143.198.64.132:3011/agent-review
+        run: |
+          python .github/scripts/agent_review.py
