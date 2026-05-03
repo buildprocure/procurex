@@ -1,21 +1,21 @@
 name: Build and Deploy to GHCR
 
 on:
-workflow_dispatch:
-    inputs:
-      environment:
-        description: 'Environment to deploy to'
-        type: choice
-        required: true
-        default: 'production'
-        options:
-          - production
-          - staging
-          - development
-      deploy_branch:
-        description: 'Confirm branch to deploy (Manual note)'
-        required: false
-        default: 'main'
+  workflow_dispatch:
+      inputs:
+        environment:
+          description: 'Environment to deploy to'
+          type: choice
+          required: true
+          default: 'production'
+          options:
+            - production
+            - staging
+            - development
+        deploy_branch:
+          description: 'Confirm branch to deploy (Manual note)'
+          required: false
+          default: 'main'
 
 env:
   IMAGE_NAME: ${{ github.event.repository.name }}
