@@ -98,7 +98,6 @@ if(!isset($_SESSION['loggedin'])|| $_SESSION['loggedin'] != true){
             url: 'ajax/Received_PO.php',
             data: formData,
             success: function(response){
-              console.log('AJAX Response: ', response); // Debugging the response
               //show the server response in the "result" div
               $('#result').html(response);
             },
