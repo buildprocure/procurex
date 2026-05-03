@@ -1,0 +1,66 @@
+name: AI Review
+
+on:
+  issue_comment:
+    types: [created, edited]
+
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Branch/ref to run script from"
+        required: true
+        default: "develop"
+        type: string
+      pr_number:
+        description: "PR number to review"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  pull-requests: read
+  issues: write
+
+jobs:
+  ai-review:
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (
+        github.event.issue.pull_request != null &&
+        startsWith(github.event.comment.body, '/ai-review')
+      )
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set context
+        id: ctx
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "ref=${{ inputs.ref }}" >> $GITHUB_OUTPUT
+            echo "pr_number=${{ inputs.pr_number }}" >> $GITHUB_OUTPUT
+          else
+            echo "ref=${{ github.event.repository.default_branch }}" >> $GITHUB_OUTPUT
+            echo "pr_number=${{ github.event.issue.number }}" >> $GITHUB_OUTPUT
+          fi
+
+          echo "repo_name=${{ github.event.repository.name }}" >> $GITHUB_OUTPUT
+
+      - name: Checkout selected branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.ctx.outputs.ref }}
+
+      - name: Check secrets
+        run: |
+          [ -n "${{ secrets.AGENT_REVIEW_CLASSIC_PAT }}" ] && echo "AGENT_REVIEW_CLASSIC_PAT present" || echo "AGENT_REVIEW_CLASSIC_PAT missing"
+
+      - name: Run AI review
+        env:
+          GITHUB_TOKEN: ${{ secrets.AGENT_REVIEW_CLASSIC_PAT }}
+          GITHUB_OWNER: ${{ github.repository_owner }}
+          GITHUB_REPO: ${{ steps.ctx.outputs.repo_name }}
+          PR_NUMBER: ${{ steps.ctx.outputs.pr_number }}
+          MCP_AGENT_REVIEW_URL: http://143.198.64.132:3011/agent-review
+        run: |
+          python .github/scripts/agent_review.py
