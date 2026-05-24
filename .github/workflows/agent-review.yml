@@ -31,7 +31,10 @@ jobs:
       github.event_name == 'workflow_dispatch' ||
       (
         github.event.issue.pull_request != null &&
-        startsWith(github.event.comment.body, '/agent-review')
+        (
+          startsWith(github.event.comment.body, '/agent-review') ||
+          startsWith(github.event.comment.body, 'agent-review')
+        )
       )
     runs-on: ubuntu-latest
 
