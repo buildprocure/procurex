@@ -4,6 +4,21 @@ on:
   issue_comment:
     types: [created, edited]
   workflow_dispatch:
+    inputs:
+      pr_number:
+        description: Pull request number to review
+        required: true
+        type: number
+      include_database_schema:
+        description: Include database schema context
+        required: false
+        default: true
+        type: boolean
+      mcp_agent_review_url:
+        description: MCP agent review endpoint
+        required: false
+        default: http://143.198.64.132:3011/agent-review
+        type: string
 
 permissions:
   contents: read
@@ -24,22 +39,23 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Check token permissions
+      - name: Check run context
         run: |
           echo "Repository: ${{ github.repository }}"
           echo "Actor: ${{ github.actor }}"
           echo "Event: ${{ github.event_name }}"
-      
+
       - name: Check PAT presence
         run: |
-          [ -n "${{ secrets.AGENT_REVIEW_CLASSIC_PAT }}" ] && echo "AGENT_REVIEW_CLASSIC_PAT present" || echo "AGENT_REVIEW_CLASSIC_PAT missing"
-          
+          [ -n "${{ secrets.AGENT_REVIEW_CLASSIC_PAT }}" ] && echo "AGENT_REVIEW_CLASSIC_PAT present" || echo "AGENT_REVIEW_CLASSIC_PAT missing; using GITHUB_TOKEN"
+
       - name: Run agent review
         env:
-          GITHUB_TOKEN: ${{ secrets.AGENT_REVIEW_CLASSIC_PAT }}
+          GITHUB_TOKEN: ${{ secrets.AGENT_REVIEW_CLASSIC_PAT || github.token }}
           GITHUB_OWNER: ${{ github.repository_owner }}
           GITHUB_REPO: ${{ github.event.repository.name }}
-          PR_NUMBER: ${{ github.event.issue.number }}
-          MCP_AGENT_REVIEW_URL: http://143.198.64.132:3011/agent-review
+          PR_NUMBER: ${{ github.event_name == 'workflow_dispatch' && inputs.pr_number || github.event.issue.number }}
+          INCLUDE_DATABASE_SCHEMA: ${{ github.event_name == 'workflow_dispatch' && inputs.include_database_schema || true }}
+          MCP_AGENT_REVIEW_URL: ${{ github.event_name == 'workflow_dispatch' && inputs.mcp_agent_review_url || 'http://143.198.64.132:3011/agent-review' }}
         run: |
           python .github/scripts/agent_review.py
