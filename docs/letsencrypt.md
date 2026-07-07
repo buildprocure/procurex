@@ -13,35 +13,24 @@ The web container also mounts `/var/www/certbot` and serves HTTP-01 challenge fi
 /.well-known/acme-challenge/
 ```
 
-## Initial certificate
+## Automated deployment
 
-On the server, stop the web container so Certbot can bind to port 80 and issue the free certificate:
+`.github/workflows/deploy.yml` handles certificate setup during deployment:
 
-```bash
-sudo mkdir -p /var/www/certbot
-
-docker compose stop web
-
-sudo certbot certonly --standalone \
-  -d buildprocure.com \
-  -d www.buildprocure.com \
-  -d hub.buildprocure.com \
-  -d hirenow.buildprocure.com \
-  -d ncees.buildprocure.com
-```
-
-Then start the web container with the issued certificate mounted:
-
-```bash
-docker compose up -d web
-```
+- It stops the current containers before certificate maintenance.
+- It creates `/etc/letsencrypt`, `/var/lib/letsencrypt`, and `/var/www/certbot` if they do not exist.
+- It issues the initial certificate with the Certbot Docker image when `fullchain.pem` or `privkey.pem` is missing.
+- It runs a Certbot renewal check when the certificate and renewal config already exist.
+- It starts the containers after the certificate files are present.
 
 ## Renewal
 
-Let Certbot renew automatically and restart the web container after renewal:
+Renewal runs automatically during deployment when this file exists:
 
-```bash
-sudo certbot renew --webroot -w /var/www/certbot --deploy-hook "docker compose -f /path/to/docker-compose.yml restart web"
+```text
+/etc/letsencrypt/renewal/buildprocure.com.conf
 ```
 
-Replace `/path/to/docker-compose.yml` with the live compose file path on the server.
+The deploy workflow uses standalone validation while the web container is stopped, so port 80 must point to the deployment server.
+
+Optionally set the GitHub Actions secret `LETSENCRYPT_EMAIL` to register the certificate with an email address. If the secret is not set, Certbot runs with `--register-unsafely-without-email`.
