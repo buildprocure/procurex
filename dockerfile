@@ -21,9 +21,6 @@ RUN composer update --no-dev --optimize-autoloader
 # Configure Apache for PHP-FPM socket
 COPY apache-config.conf /etc/apache2/sites-available/000-default.conf
 
-# Copy SSL certificates
-COPY certs/ /usr/local/apache2/conf/ssl/
-
 # Copy application code
 COPY . /var/www/html
 

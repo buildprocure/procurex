@@ -26,6 +26,8 @@ services:
       - /mnt/ilifes_store/files:/var/www/html/files
       - sftp-data:/var/www/html/userUploads
       - app-uploads:/var/www/html/storage/uploads
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /var/www/certbot:/var/www/certbot
     depends_on:
       - db
     networks:
