@@ -99,11 +99,12 @@ jobs:
         uses: appleboy/ssh-action@v1.0.3
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
+          LETSENCRYPT_EMAIL: ${{ secrets.LETSENCRYPT_EMAIL }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          envs: GH_PAT
+          envs: GH_PAT,LETSENCRYPT_EMAIL
           script: |
             set -e
 
@@ -137,8 +138,51 @@ jobs:
             echo "Pulling latest images..."
             docker-compose pull
 
-            echo "Restarting containers..."
+            echo "Stopping containers for certificate maintenance..."
             docker-compose down --remove-orphans
+
+            echo "Ensuring Let's Encrypt directories exist..."
+            sudo mkdir -p /etc/letsencrypt /var/lib/letsencrypt /var/www/certbot
+
+            CERT_NAME="buildprocure.com"
+            CERT_DIR="/etc/letsencrypt/live/${CERT_NAME}"
+            CERT_FULLCHAIN="${CERT_DIR}/fullchain.pem"
+            CERT_PRIVKEY="${CERT_DIR}/privkey.pem"
+            CERTBOT_IMAGE="certbot/certbot:latest"
+
+            EMAIL_ARGS="--register-unsafely-without-email"
+            if [ -n "${LETSENCRYPT_EMAIL:-}" ]; then
+              EMAIL_ARGS="--email ${LETSENCRYPT_EMAIL}"
+            fi
+
+            CERTBOT_BASE_ARGS="--rm \
+              -v /etc/letsencrypt:/etc/letsencrypt \
+              -v /var/lib/letsencrypt:/var/lib/letsencrypt \
+              -v /var/www/certbot:/var/www/certbot"
+
+            if [ ! -f "$CERT_FULLCHAIN" ] || [ ! -f "$CERT_PRIVKEY" ]; then
+              echo "Let's Encrypt certificate not found. Issuing initial certificate..."
+              docker run $CERTBOT_BASE_ARGS -p 80:80 "$CERTBOT_IMAGE" certonly \
+                --standalone \
+                --non-interactive \
+                --agree-tos \
+                $EMAIL_ARGS \
+                --cert-name "$CERT_NAME" \
+                -d buildprocure.com \
+                -d www.buildprocure.com \
+                -d hub.buildprocure.com \
+                -d hirenow.buildprocure.com \
+                -d ncees.buildprocure.com
+            elif [ -f "/etc/letsencrypt/renewal/${CERT_NAME}.conf" ]; then
+              echo "Let's Encrypt certificate found. Running renewal check..."
+              docker run $CERTBOT_BASE_ARGS -p 80:80 "$CERTBOT_IMAGE" renew \
+                --standalone \
+                --non-interactive
+            else
+              echo "Certificate files already exist, but no Certbot renewal config was found. Skipping issuance."
+            fi
+
+            echo "Restarting containers..."
             docker-compose up -d
 
             echo "Cleaning old images..."

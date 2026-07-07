@@ -2,3 +2,6 @@ global_bp.css
 vendor/
 vendor/*/
 composer.lock
+certs/
+*.key
+*.pem
