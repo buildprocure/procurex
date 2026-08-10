@@ -1,1 +1,5 @@
-{}
+{
+  "agent/free-letsencrypt-cert": {
+    "first_detected": "2026-08-10T10:53:55"
+  }
+}
