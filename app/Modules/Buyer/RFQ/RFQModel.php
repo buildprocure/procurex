@@ -2,6 +2,8 @@
 namespace App\Modules\Buyer\RFQ;
 
 use App\Core\DB;
+use App\Core\InviteToken;
+use App\Modules\Notifications\RFQNotifier;
 
 class RFQModel {
 
@@ -259,49 +261,133 @@ class RFQModel {
         }
         return 1; // General
     }
-    public function autoAssignSuppliers(int $rfqId): void
-{
-    $conn = DB::getConnection();
+    /**
+     * Match suppliers to each RFQ group, create invitations, and email them.
+     *
+     * Behaviour notes:
+     *  - Each invitation gets its own single-purpose token so the supplier can
+     *    quote without an account. Only the hash is persisted.
+     *  - Persistence and delivery are separated. Rows are committed first;
+     *    email is attempted afterwards. An SMTP outage therefore leaves
+     *    invitations in notify_status='PENDING' for the retry cron rather
+     *    than losing them.
+     *  - Suppliers already invited to a group are skipped, so re-running is
+     *    safe and nobody gets the same RFQ twice.
+     *
+     * @return array{invited:int, sent:int, failed:int, skipped:int}
+     */
+    public function autoAssignSuppliers(int $rfqId): array
+    {
+        $conn = DB::getConnection();
 
-    // Get all RFQ groups
-    $stmt = $conn->prepare("
-        SELECT id, item_group_id 
-        FROM rfq_item_groups 
-        WHERE rfq_id = ?
-    ");
-    $stmt->bind_param("i", $rfqId);
-    $stmt->execute();
-    $groups = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $stats = ['invited' => 0, 'sent' => 0, 'failed' => 0, 'skipped' => 0];
 
-    foreach ($groups as $group) {
+        // Deadline drives token expiry.
+        $dlStmt = $conn->prepare("SELECT quote_deadline FROM rfqs WHERE id = ?");
+        $dlStmt->bind_param("i", $rfqId);
+        $dlStmt->execute();
+        $rfqRow = $dlStmt->get_result()->fetch_assoc();
+        $quoteDeadline = $rfqRow['quote_deadline'] ?? null;
+        $expiresAt = InviteToken::expiryFor($quoteDeadline);
 
-        // Get suppliers matching this category
-        $supStmt = $conn->prepare("
-            SELECT supplier_company_id
-            FROM supplier_item_groups
-            WHERE item_group_id = ?
+        // All groups on this RFQ.
+        $stmt = $conn->prepare("
+            SELECT id, item_group_id
+            FROM rfq_item_groups
+            WHERE rfq_id = ?
         ");
-        $supStmt->bind_param("i", $group['item_group_id']);
-        $supStmt->execute();
-        $suppliers = $supStmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $stmt->bind_param("i", $rfqId);
+        $stmt->execute();
+        $groups = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
-        foreach ($suppliers as $supplier) {
+        // Collect (invitationId => plaintext token) to email after commit.
+        $pending = [];
 
-            // Insert supplier invitation
-            $insert = $conn->prepare("
-                INSERT INTO rfq_group_suppliers 
-                (rfq_item_group_id, supplier_company_id)
-                VALUES (?, ?)
+        foreach ($groups as $group) {
+
+            // Suppliers serving this category.
+            $supStmt = $conn->prepare("
+                SELECT sig.supplier_company_id
+                FROM supplier_item_groups sig
+                JOIN companies sc ON sc.id = sig.supplier_company_id
+                WHERE sig.item_group_id = ?
+                  AND sc.type = 'Supplier'
             ");
-            $insert->bind_param(
-                "ii",
-                $group['id'],
-                $supplier['supplier_company_id']
-            );
-            $insert->execute();
+            $supStmt->bind_param("i", $group['item_group_id']);
+            $supStmt->execute();
+            $suppliers = $supStmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+            foreach ($suppliers as $supplier) {
+
+                $supplierId = (int) $supplier['supplier_company_id'];
+                $groupId    = (int) $group['id'];
+
+                // Skip if already invited to this group.
+                $dupe = $conn->prepare("
+                    SELECT id FROM rfq_group_suppliers
+                    WHERE rfq_item_group_id = ? AND supplier_company_id = ?
+                    LIMIT 1
+                ");
+                $dupe->bind_param("ii", $groupId, $supplierId);
+                $dupe->execute();
+
+                if ($dupe->get_result()->fetch_assoc()) {
+                    $stats['skipped']++;
+                    continue;
+                }
+
+                $token     = InviteToken::generate();
+                $tokenHash = InviteToken::hash($token);
+
+                $insert = $conn->prepare("
+                    INSERT INTO rfq_group_suppliers
+                        (rfq_item_group_id, supplier_company_id,
+                         invite_token_hash, invite_expires_at, notify_status)
+                    VALUES (?, ?, ?, ?, 'PENDING')
+                ");
+                $insert->bind_param(
+                    "iiss",
+                    $groupId,
+                    $supplierId,
+                    $tokenHash,
+                    $expiresAt
+                );
+
+                if (!$insert->execute()) {
+                    error_log(
+                        "[autoAssignSuppliers] Insert failed for group {$groupId}, "
+                        . "supplier {$supplierId}: {$conn->error}"
+                    );
+                    $stats['failed']++;
+                    continue;
+                }
+
+                $pending[(int) $conn->insert_id] = $token;
+                $stats['invited']++;
+            }
         }
+
+        // Delivery happens after all rows are safely written.
+        $notifier = new RFQNotifier();
+
+        foreach ($pending as $invitationId => $token) {
+            try {
+                if ($notifier->notifyInvitation($invitationId, $token)) {
+                    $stats['sent']++;
+                } else {
+                    $stats['failed']++;
+                }
+            } catch (\Throwable $e) {
+                error_log(
+                    "[autoAssignSuppliers] Notify failed for invitation "
+                    . "{$invitationId}: " . $e->getMessage()
+                );
+                $stats['failed']++;
+            }
+        }
+
+        return $stats;
     }
-}
 
     /**
      * Award a supplier for a group quote and create the purchase order.
