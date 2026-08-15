@@ -1,14 +1,7 @@
 <?php
 ob_start();
 include_once '_config.php';
-/* $update = false;
-$delete = false; */
-  // Connect to the database
-// $host = '143.198.64.132';
-// $db   = 'ilife';
-// $user = 'root';
-// $pass = '@Shova595Bhandari';
-// $port = '3306';
+
 
 // Use mysqli to connect to MySQL
 
