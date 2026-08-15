@@ -100,12 +100,12 @@ class InviteToken
                    r.id                  AS rfq_id,
                    r.quote_deadline,
                    ig.group_name,
-                   sc.company_name       AS supplier_name
+                   sc.name               AS supplier_name
             FROM rfq_group_suppliers rgs
             JOIN rfq_item_groups rig ON rig.id = rgs.rfq_item_group_id
             JOIN rfqs r              ON r.id  = rig.rfq_id
             JOIN item_groups ig      ON ig.id = rig.item_group_id
-            JOIN supplier_companies sc ON sc.id = rgs.supplier_company_id
+            JOIN companies sc ON sc.id = rgs.supplier_company_id AND sc.type = 'Supplier'
             WHERE rgs.invite_token_hash = ?
             LIMIT 1
         ");

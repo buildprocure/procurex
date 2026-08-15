@@ -31,20 +31,21 @@ class RFQNotifier
             SELECT rgs.id,
                    rgs.rfq_item_group_id,
                    rgs.supplier_company_id,
-                   sc.company_name,
+                   sc.name                 AS company_name,
                    sc.email                AS company_email,
                    sc.quote_contact_name,
                    sc.quote_contact_email,
                    r.id                    AS rfq_id,
-                   r.title                 AS rfq_title,
+                   r.rfq_title             AS rfq_title,
                    r.quote_deadline,
                    ig.group_name,
-                   bc.company_name         AS buyer_name
+                   bc.name                 AS buyer_name
             FROM rfq_group_suppliers rgs
-            JOIN supplier_companies sc ON sc.id = rgs.supplier_company_id
+            JOIN companies sc ON sc.id = rgs.supplier_company_id AND sc.type = 'Supplier'
             JOIN rfq_item_groups rig   ON rig.id = rgs.rfq_item_group_id
             JOIN rfqs r                ON r.id  = rig.rfq_id
-            LEFT JOIN buyer_companies bc ON bc.id = r.buyer_company_id
+            LEFT JOIN projects p       ON p.id  = r.project_id
+            LEFT JOIN companies bc     ON bc.id = p.buyer_company_id
             JOIN item_groups ig        ON ig.id = rig.item_group_id
             WHERE rgs.id = ?
         ");

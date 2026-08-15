@@ -305,13 +305,13 @@ class RFQModel {
 
         foreach ($groups as $group) {
 
-            // Suppliers serving this category who are active.
+            // Suppliers serving this category.
             $supStmt = $conn->prepare("
                 SELECT sig.supplier_company_id
                 FROM supplier_item_groups sig
-                JOIN supplier_companies sc ON sc.id = sig.supplier_company_id
+                JOIN companies sc ON sc.id = sig.supplier_company_id
                 WHERE sig.item_group_id = ?
-                  AND (sc.status IS NULL OR sc.status = 'ACTIVE')
+                  AND sc.type = 'Supplier'
             ");
             $supStmt->bind_param("i", $group['item_group_id']);
             $supStmt->execute();
