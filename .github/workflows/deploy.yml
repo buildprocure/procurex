@@ -135,6 +135,7 @@ jobs:
               "https://api.github.com/repos/buildprocure/procurex/contents/php-env-prod.env?ref=main" \
               -o php-env-prod.env
 
+            echo "" >> php-env-prod.env
             echo "Appending secrets to php-env-prod.env..."
             cat >> php-env-prod.env <<EOF
             MYSQL_USER=${MYSQL_USER}
