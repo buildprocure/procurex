@@ -15,13 +15,13 @@ function sendmail($email, $subject, $message, $attachmentPath = null, $attachmen
         $mail->SMTPAuth = true;
 
         $mail->Host = "smtp.gmail.com";
-        $mail->Username = "connect2ilife@gmail.com";
-        $mail->Password = "dvqkxotbwdcezxxy";
+        $mail->Username = MAIL_USERNAME;
+        $mail->Password = MAIL_PASSWORD;
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port = 587;
 
         // Sender and recipient
-        $mail->setFrom("connect2ilife@gmail.com");
+        $mail->setFrom(MAIL_FROM_ADDRESS, MAIL_FROM_NAME);
         $mail->addAddress($email);
 
         // Email content

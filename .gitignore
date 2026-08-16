@@ -1,11 +1,9 @@
 
 !.env.example
 # --- added by feature/supplier-rfq-notifications ---
-*.env
 *.key
 *.log
 *.pem
-.env
 .phpunit.cache/
 /vendor/
 certs/

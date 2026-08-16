@@ -183,7 +183,8 @@ jobs:
                 -d www.buildprocure.com \
                 -d hub.buildprocure.com \
                 -d hirenow.buildprocure.com \
-                -d ncees.buildprocure.com
+                -d ncees.buildprocure.com \
+                -d app.buildprocure.com \
             elif [ -f "/etc/letsencrypt/renewal/${CERT_NAME}.conf" ]; then
               echo "Let's Encrypt certificate found. Running renewal check..."
               docker run $CERTBOT_BASE_ARGS -p 80:80 "$CERTBOT_IMAGE" renew \
