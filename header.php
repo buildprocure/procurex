@@ -116,17 +116,6 @@ $isImpersonating = $vpab->isImpersonating();
 
   <?php if ($role == 'Buyer' || $isImpersonating): ?>
     <div class="accordion-item">
-      <button class="accordion-toggle" aria-expanded="false" aria-controls="po_Menu">Purchase Order</button>
-      <div class="accordion-content" id="po_Menu" hidden>
-        <a href="<?php echo BASE_URL; ?><?php echo htmlspecialchars($role) ?>/createPO.php" class="nav-link sub-link">Create PO</a>
-        <a href="<?php echo BASE_URL; ?><?php echo htmlspecialchars($role) ?>/submittedPO.php" class="nav-link sub-link">Submitted PO</a>
-      </div>
-    </div>
-    <a href="<?php echo BASE_URL; ?><?php echo htmlspecialchars($role) ?>/timeSheet.php" class="nav-link">Timesheet</a>
-    <a href="<?php echo BASE_URL; ?><?php echo htmlspecialchars($role) ?>/receivedInvoice.php" class="nav-link">Invoice</a>
-    <a href="<?php echo BASE_URL; ?><?php echo htmlspecialchars($role) ?>/invoicePayment.php" class="nav-link">Invoice Payment</a>
-    <a href="<?php echo BASE_URL; ?>modules/duplicate_payment/index.php" class="nav-link">Duplicate Payment</a>
-    <div class="accordion-item">
       <button class="accordion-toggle" aria-expanded="false" aria-controls="boqMenu">BOQ</button>
       <div class="accordion-content" id="boqMenu" hidden>
         <a href="<?php echo BASE_URL; ?><?php echo htmlspecialchars($role) ?>/boq_upload.php" class="nav-link sub-link">BOQ Upload</a>
@@ -148,36 +137,11 @@ $isImpersonating = $vpab->isImpersonating();
   <?php endif; ?>
 
   <?php if ($role == 'Supplier'): ?>
-    <div class="accordion-item">
-      <button class="accordion-toggle" aria-expanded="false" aria-controls="tsMenu">Timesheet</button>
-      <div class="accordion-content" id="tsMenu" hidden>
-        <a href="<?php echo BASE_URL; ?><?php echo htmlspecialchars($role) ?>/createTS.php" class="nav-link sub-link">Create Timesheet</a>
-        <a href="<?php echo BASE_URL; ?><?php echo htmlspecialchars($role) ?>/submittedTS.php" class="nav-link sub-link">Submitted TS</a>
-      </div>
-    </div>
-    <a href="<?php echo BASE_URL; ?><?php echo htmlspecialchars($role) ?>/PO.php" class="nav-link">Received PO</a>
-    <div class="accordion-item">
-      <button class="accordion-toggle" aria-expanded="false" aria-controls="invoiceMenu">Invoice</button>
-      <div class="accordion-content" id="invoiceMenu" hidden>
-        <a href="<?php echo BASE_URL; ?><?php echo htmlspecialchars($role) ?>/createInvoice.php" class="nav-link sub-link">Create Invoice</a>
-        <a href="<?php echo BASE_URL; ?><?php echo htmlspecialchars($role) ?>/submittedInvoice.php" class="nav-link sub-link">Submitted Invoice</a>
-      </div>
-    </div>
-    <a href="<?php echo BASE_URL; ?><?php echo htmlspecialchars($role) ?>/invoicePayment.php" class="nav-link">Invoice Payment</a>
-    <a href="<?php echo BASE_URL; ?>modules/duplicate_payment/index.php" class="nav-link">Duplicate Payment</a>
+    <a href="<?php echo BASE_URL; ?><?php echo htmlspecialchars($role) ?>/rfq_list.php" class="nav-link">Quote Requests</a>
+    <a href="<?php echo BASE_URL; ?><?php echo htmlspecialchars($role) ?>/po_list.php" class="nav-link">Purchase Orders</a>
   <?php endif; ?>
 
   <?php if ($role == 'Admin'): ?>
-    <div class="accordion-item">
-      <button class="accordion-toggle" aria-expanded="false" aria-controls="adminTSMenu">Timesheet</button>
-      <div class="accordion-content" id="adminTSMenu" hidden>
-        <a href="<?php echo BASE_URL; ?><?php echo htmlspecialchars($role) ?>/submittedTS.php" class="nav-link sub-link">Submitted TS</a>
-      </div>
-    </div>
-    <a href="<?php echo BASE_URL; ?><?php echo htmlspecialchars($role) ?>/PO.php" class="nav-link">Received PO</a>
-    <a href="#invoice.php" class="nav-link">Invoice</a>
-    <a href="<?php echo BASE_URL; ?><?php echo htmlspecialchars($role) ?>/invoicePayment.php" class="nav-link">Invoice Payment</a>
-    <a href="<?php echo BASE_URL; ?>modules/duplicate_payment/index.php" class="nav-link">Duplicate Payment</a>
     <a href="<?php echo BASE_URL; ?>sftp/Onboarding.php" class="nav-link">SFTP Onboarding</a>
     <a href="<?php echo BASE_URL; ?>public/items-frontend/" target="_blank" class="nav-link">
       <i class="fas fa-boxes"></i> Items
