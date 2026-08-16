@@ -1,11 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         bootstrap="vendor/autoload.php"
+         bootstrap="tests/bootstrap.php"
          colors="true"
          cacheDirectory=".phpunit.cache">
     <testsuites>
-        <testsuite name="ProcureX">
-            <directory>tests</directory>
+        <testsuite name="unit">
+            <file>tests/InviteTokenTest.php</file>
+        </testsuite>
+        <testsuite name="integration">
+            <directory>tests/Buyer</directory>
         </testsuite>
     </testsuites>
+    <source>
+        <include>
+            <directory>app</directory>
+        </include>
+    </source>
 </phpunit>

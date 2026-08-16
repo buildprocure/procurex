@@ -3,11 +3,16 @@
         "phpmailer/phpmailer": "^6.9",
         "phpoffice/phpspreadsheet": "^2.0",
         "setasign/fpdi": "^2.3",
-        "tecnickcom/tcpdf":"^6.10"
+        "tecnickcom/tcpdf": "^6.10"
     },
     "autoload": {
         "psr-4": {
             "App\\": "app/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
         }
     }
 }
