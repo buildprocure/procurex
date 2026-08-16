@@ -82,6 +82,12 @@ class Mailer
             if ($replyTo !== null && $replyTo !== '') {
                 $mail->addReplyTo($replyTo);
             }
+            
+            if (!Config::bool('SEND_EMAILS_TO_RECEIPENT', true)) {
+                $defaultEmail = Config::require('DEFAULT_EMAIL_ADDRESS');
+                error_log("[Mailer] SEND_EMAILS_TO_RECEIPENT=false, redirecting mail to {$defaultEmail}");
+                $to = $defaultEmail;
+            }
 
             $mail->addAddress($to);
             $mail->isHTML(true);
