@@ -100,6 +100,12 @@ jobs:
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
           LETSENCRYPT_EMAIL: ${{ secrets.LETSENCRYPT_EMAIL }}
+          MYSQL_USER: ${{ secrets.MYSQL_USER }}
+          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+          INFOPAGE_USER: ${{ secrets.INFOPAGE_USER }}
+          INFOPAGE_PASS: ${{ secrets.INFOPAGE_PASS }}
+          MAIL_USERNAME : ${{ secrets.MAIL_USERNAME }}
+          MAIL_PASSWORD : ${{ secrets.MAIL_PASSWORD }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
@@ -135,6 +141,8 @@ jobs:
             MYSQL_PASSWORD=${MYSQL_PASSWORD}
             INFOPAGE_USER=${INFOPAGE_USER}
             INFOPAGE_PASS=${INFOPAGE_PASS}
+            MAIL_USERNAME=${MAIL_USERNAME}
+            MAIL_PASSWORD=${MAIL_PASSWORD}
             EOF
             chmod 600 php-env-prod.env
             
@@ -184,7 +192,7 @@ jobs:
                 -d hub.buildprocure.com \
                 -d hirenow.buildprocure.com \
                 -d ncees.buildprocure.com \
-                -d app.buildprocure.com
+                -d app.buildprocure.com 
             elif [ -f "/etc/letsencrypt/renewal/${CERT_NAME}.conf" ]; then
               echo "Let's Encrypt certificate found. Running renewal check..."
               docker run $CERTBOT_BASE_ARGS -p 80:80 "$CERTBOT_IMAGE" renew \
