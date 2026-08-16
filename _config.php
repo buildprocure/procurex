@@ -15,4 +15,8 @@
     define ('INFOPAGE_PASS', getenv('INFOPAGE_PASS')); 
     define ('MARKETPLACE_URL', getenv('MARKETPLACE_URL') ?: 'http://buildprocure.com:3000'); 
     define ('BOQUPLOAD_PATH', getenv('BOQUPLOAD_PATH') ?: BASE_PATH . 'storage/uploads/boq/');
+    define ('MAIL_USERNAME', getenv('MAIL_USERNAME'));
+    define ('MAIL_PASSWORD', getenv('MAIL_PASSWORD'));
+    define ('MAIL_FROM_ADDRESS', getenv('MAIL_FROM_ADDRESS'));
+    define ('MAIL_FROM_NAME', getenv('MAIL_FROM_NAME'));
 ?>
