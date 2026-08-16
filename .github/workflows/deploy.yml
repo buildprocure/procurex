@@ -129,8 +129,19 @@ jobs:
               "https://api.github.com/repos/buildprocure/procurex/contents/php-env-prod.env?ref=main" \
               -o php-env-prod.env
 
+            echo "Appending secrets to php-env-prod.env..."
+            cat >> php-env-prod.env <<EOF
+            MYSQL_USER=${MYSQL_USER}
+            MYSQL_PASSWORD=${MYSQL_PASSWORD}
+            INFOPAGE_USER=${INFOPAGE_USER}
+            INFOPAGE_PASS=${INFOPAGE_PASS}
+            EOF
+            chmod 600 php-env-prod.env
+            
             echo "Downloaded docker-compose.yml:"
             cat docker-compose.yml
+
+
 
             echo "Logging into GHCR..."
             echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
