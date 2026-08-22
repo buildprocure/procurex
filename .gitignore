@@ -1,5 +1,6 @@
 
 !.env.example
+!.env.local
 # --- added by feature/supplier-rfq-notifications ---
 *.key
 *.log

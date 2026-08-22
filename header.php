@@ -130,8 +130,14 @@ $isImpersonating = $vpab->isImpersonating();
     </div>
     <div class="accordion-item">
       <button class="accordion-toggle" aria-expanded="false" aria-controls="poMenu">PO</button>
-      <div class="accordion-content" id="poMenu" hidden>        
+      <div class="accordion-content" id="poMenu" hidden>
         <a href="<?php echo BASE_URL; ?><?php echo htmlspecialchars($role) ?>/PO/po_list.php" class="nav-link sub-link">PO List</a>
+      </div>
+    </div>
+    <div class="accordion-item">
+      <button class="accordion-toggle" aria-expanded="false" aria-controls="invoiceMenu">Invoices</button>
+      <div class="accordion-content" id="invoiceMenu" hidden>
+        <a href="<?php echo BASE_URL; ?><?php echo htmlspecialchars($role) ?>/Invoice/invoice_list.php" class="nav-link sub-link">Invoice List</a>
       </div>
     </div>
   <?php endif; ?>
