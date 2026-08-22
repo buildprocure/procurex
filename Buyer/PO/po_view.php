@@ -1,9 +1,18 @@
 <?php
 require_once __DIR__ . '/../../vendor/autoload.php';
+
+use App\Core\DB;
+use App\Core\Auth;
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+Auth::checkBuyer();
+
 if (!isset($_GET['po_id'])) {
     die("PO ID missing");
 }
-use App\Core\DB;
 $conn = DB::getConnection();
 $poId = (int)$_GET['po_id'];
 /* -------------------------------------------------
@@ -21,6 +30,14 @@ $po = $stmt->get_result()->fetch_assoc();
 if (!$po) {
     die("PO not found");
 }
+
+/* -------------------------------------------------
+   Invoice, if one has been generated for this PO
+--------------------------------------------------*/
+$stmt = $conn->prepare("SELECT id, status FROM po_invoices WHERE purchase_order_id = ?");
+$stmt->bind_param("i", $poId);
+$stmt->execute();
+$invoice = $stmt->get_result()->fetch_assoc();
 
 ?>
 
@@ -51,6 +68,13 @@ if (!$po) {
                 <p><strong>Total Amount:</strong> $<?= number_format($po['total_amount'], 2) ?></p>
                 <p><strong>Status:</strong> <?= htmlspecialchars($po['status']) ?></p>
                 <p><strong>Created Date:</strong> <?= date('d M Y', strtotime($po['created_at'])) ?></p>
+
+                <?php if ($invoice && $invoice['status'] === 'SENT'): ?>
+                    <a href="../Invoice/invoice_view.php?invoice_id=<?= (int) $invoice['id'] ?>"
+                       class="btn btn-outline-primary btn-sm">View Invoice</a>
+                <?php elseif ($invoice): ?>
+                    <span class="badge bg-secondary">Invoice generated, not yet sent</span>
+                <?php endif; ?>
             </div>
         </div>
 

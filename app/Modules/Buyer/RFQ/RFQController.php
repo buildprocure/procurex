@@ -70,12 +70,16 @@ class RFQController {
     }
 
     /**
-     * Award supplier wrapper - delegates to model and returns result array
+     * Award one or more line-item quantities to suppliers. Delegates to
+     * the model and returns po_ids + logs. See RFQModel::awardItems()
+     * for the validation this enforces.
+     *
+     * @param array<int,array{rfq_item_id:int,quote_id:int,quantity:float}> $awards
      */
-    public function awardSupplier(int $rfqId, int $groupId, int $quoteId, int $userId): array
+    public function awardItems(int $rfqId, array $awards, int $userId): array
     {
         Auth::checkBuyer();
-        return $this->model->awardSupplier($rfqId, $groupId, $quoteId, $userId);
+        return $this->model->awardItems($rfqId, $awards, $userId);
     }
 
     /**
@@ -83,10 +87,44 @@ class RFQController {
      * every group is finished (decision made or closed with no award).
      *
      * This is a thin wrapper around the corresponding model helper.
+     *
+     * @deprecated Groups carry no award decision - use evaluateRFQByItems()
+     * for new code.
      */
     public function evaluateRFQ(int $rfqId): void
     {
         Auth::checkBuyer();
         $this->model->updateRFQStatusIfAllGroupsDecided($rfqId);
+    }
+
+    /**
+     * Set aside a single line item for a later decision, without touching
+     * any other item on the RFQ.
+     */
+    public function postponeItem(int $rfqId, int $itemId): void
+    {
+        Auth::checkBuyer();
+        $this->model->postponeItem($rfqId, $itemId);
+    }
+
+    /**
+     * Close a single line item with no award.
+     */
+    public function closeItem(int $rfqId, int $itemId): void
+    {
+        Auth::checkBuyer();
+        $this->model->closeItem($rfqId, $itemId);
+        $this->evaluateRFQByItems($rfqId);
+    }
+
+    /**
+     * After any change to a line item, make sure the RFQ status is
+     * adjusted if every item is finished (fully awarded or closed with no
+     * award). Thin wrapper around the corresponding model helper.
+     */
+    public function evaluateRFQByItems(int $rfqId): void
+    {
+        Auth::checkBuyer();
+        $this->model->updateRFQStatusIfAllItemsDecided($rfqId);
     }
 }
