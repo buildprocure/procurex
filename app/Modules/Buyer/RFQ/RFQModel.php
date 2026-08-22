@@ -121,6 +121,11 @@ class RFQModel {
      *
      * NOTE: the rfqs.status enum must include "DRAFT", "ACTIVELY_AWARDING",
      * and "DECIDED" for this method to succeed.
+     *
+     * @deprecated Kept only in case older callers still depend on
+     * group-level rollup. New code should use
+     * updateRFQStatusIfAllItemsDecided() instead, since item groups carry
+     * no award decision - see awardItems().
      */
     public function updateRFQStatusIfAllGroupsDecided(int $rfqId): void
     {
@@ -155,6 +160,81 @@ class RFQModel {
             $this->updateStatus('rfqs', $rfqId, 'DECIDED');
         } else {
             // some (but not all) groups are awarded/closed - mark as ACTIVELY_AWARDING
+            $this->updateStatus('rfqs', $rfqId, 'ACTIVELY_AWARDING');
+        }
+    }
+
+    /**
+     * Set a single line item aside for a later decision. Does not affect
+     * any other item on the RFQ, and does not change award_status - the
+     * item can still be awarded later, this only clears it from an
+     * "items still needing a decision now" view if the UI chooses to
+     * filter on it.
+     */
+    public function postponeItem(int $rfqId, int $itemId): void
+    {
+        $stmt = $this->conn->prepare("
+            UPDATE rfq_items
+            SET line_status = 'POSTPONED'
+            WHERE id = ? AND rfq_id = ?
+        ");
+        $stmt->bind_param("ii", $itemId, $rfqId);
+        $stmt->execute();
+    }
+
+    /**
+     * Close a single line item with no award. Terminal: the item will no
+     * longer be offered an award panel once closed.
+     */
+    public function closeItem(int $rfqId, int $itemId): void
+    {
+        $stmt = $this->conn->prepare("
+            UPDATE rfq_items
+            SET line_status = 'CLOSED_NO_AWARD'
+            WHERE id = ? AND rfq_id = ?
+        ");
+        $stmt->bind_param("ii", $itemId, $rfqId);
+        $stmt->execute();
+    }
+
+    /**
+     * Re-evaluate the rfq status based on the current state of its line
+     * items, mirroring updateRFQStatusIfAllGroupsDecided() but scoped to
+     * items instead of groups - items are the real unit of decision now
+     * (see awardItems()); groups only ever existed to route the RFQ to
+     * suppliers.
+     *
+     * An item counts as "decided" once it is FULLY_AWARDED or its
+     * line_status is CLOSED_NO_AWARD. POSTPONED items are not terminal -
+     * they still need a decision eventually.
+     */
+    public function updateRFQStatusIfAllItemsDecided(int $rfqId): void
+    {
+        $stmt = $this->conn->prepare("
+            SELECT award_status, line_status FROM rfq_items WHERE rfq_id = ?
+        ");
+        $stmt->bind_param("i", $rfqId);
+        $stmt->execute();
+        $rows = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+        if (empty($rows)) {
+            return;
+        }
+
+        $terminalCount = 0;
+        $totalCount = count($rows);
+
+        foreach ($rows as $row) {
+            if ($row['award_status'] === 'FULLY_AWARDED' || $row['line_status'] === 'CLOSED_NO_AWARD') {
+                $terminalCount++;
+            }
+        }
+
+        if ($terminalCount === 0) {
+            return;
+        } elseif ($terminalCount === $totalCount) {
+            $this->updateStatus('rfqs', $rfqId, 'DECIDED');
+        } else {
             $this->updateStatus('rfqs', $rfqId, 'ACTIVELY_AWARDING');
         }
     }
@@ -390,109 +470,244 @@ class RFQModel {
     }
 
     /**
-     * Award a supplier for a group quote and create the purchase order.
-     * Returns array with keys: po_id and logs
+     * Award part or all of one or more RFQ line items to suppliers.
+     *
+     * Replaces the old group-level awardSupplier(). An item's quantity
+     * can be split across multiple suppliers across separate calls, or
+     * in one call:
+     *
+     *   awardItems($rfqId, [
+     *       ['rfq_item_id' => 5, 'quote_id' => 12, 'quantity' => 600],
+     *       ['rfq_item_id' => 5, 'quote_id' => 15, 'quantity' => 400],
+     *   ], $userId);
+     *
+     * Item groups are not read or written here. They exist only to route
+     * the RFQ to suppliers; they carry no award decision.
+     *
+     * For each award line, in one transaction:
+     *   1. Lock the rfq_items row (SELECT ... FOR UPDATE) - this is what
+     *      makes concurrent awards on the same item serialise instead of
+     *      racing past each other's remaining-quantity check.
+     *   2. Verify the quote actually priced this item, belongs to this
+     *      RFQ, and was submitted (not a draft).
+     *   3. Verify the requested quantity is positive and does not exceed
+     *      what's left unawarded on the item.
+     *   4. Record the award, bump the item's running total, and copy a
+     *      frozen snapshot (name/spec/unit/qty/price) onto that
+     *      supplier's purchase order - creating it on first award,
+     *      reusing it on every award after.
+     *
+     * @param array<int,array{rfq_item_id:int,quote_id:int,quantity:float}> $awards
+     * @return array{po_ids:int[], logs:string[]}
      */
-    public function awardSupplier(int $rfqId, int $groupId, int $quoteId, int $createdBy): array
+    public function awardItems(int $rfqId, array $awards, int $createdBy): array
     {
+        if (empty($awards)) {
+            throw new \InvalidArgumentException('No awards supplied.');
+        }
+
         $conn = $this->conn;
         $logs = [];
         $conn->begin_transaction();
 
         try {
-            // 1. Get awarded quote info
-            $stmt = $conn->prepare("SELECT supplier_company_id, total_amount FROM rfq_group_quotes WHERE id = ?");
-            $stmt->bind_param("i", $quoteId);
-            $stmt->execute();
-            $quote = $stmt->get_result()->fetch_assoc();
-            if (!$quote) {
-                throw new \Exception("Quote not found for ID: $quoteId");
-            }
-            $supplierId = (int)$quote['supplier_company_id'];
-            $totalAmount = (float)$quote['total_amount'];
-            $logs[] = "[Step 1] Retrieved quote: ID=$quoteId, Supplier=$supplierId, Amount=$totalAmount";
+            // supplier_company_id => accumulated PO line data for this call
+            $poLines = [];
 
-            // 2. Mark this quote AWARDED
-            $stmt = $conn->prepare("UPDATE rfq_group_quotes SET decision_status = 'AWARDED' WHERE id = ?");
-            $stmt->bind_param("i", $quoteId);
-            $stmt->execute();
-            $logs[] = "[Step 2] Marked quote as AWARDED: Affected rows=" . $stmt->affected_rows;
+            foreach ($awards as $i => $award) {
+                $itemId  = (int) ($award['rfq_item_id'] ?? 0);
+                $quoteId = (int) ($award['quote_id'] ?? 0);
+                $qty     = (float) ($award['quantity'] ?? 0);
 
-            // 3. Mark others as LOST
-            $stmt = $conn->prepare("UPDATE rfq_group_quotes SET decision_status = 'LOST' WHERE rfq_item_group_id = ? AND id != ?");
-            $stmt->bind_param("ii", $groupId, $quoteId);
-            $stmt->execute();
-            $logs[] = "[Step 3] Marked competing quotes as LOST: Affected rows=" . $stmt->affected_rows;
+                if ($itemId <= 0 || $quoteId <= 0) {
+                    throw new \Exception("Award #{$i}: rfq_item_id and quote_id are required.");
+                }
+                if ($qty <= 0) {
+                    throw new \Exception("Award #{$i}: quantity must be greater than zero.");
+                }
 
-            // Update rfq item group status
-            $stmt = $conn->prepare("UPDATE rfq_item_groups SET status = 'DECISION_MADE' WHERE id = ?");
-            $stmt->bind_param("i", $groupId);
-            $stmt->execute();
-            $logs[] = "[Step 3.5] Updated item group status: Affected rows=" . $stmt->affected_rows;
+                // Lock the item row for the rest of this transaction.
+                $stmt = $conn->prepare("
+                    SELECT id, material_name, specification, unit,
+                           quantity, awarded_quantity
+                    FROM rfq_items
+                    WHERE id = ? AND rfq_id = ?
+                    FOR UPDATE
+                ");
+                $stmt->bind_param('ii', $itemId, $rfqId);
+                $stmt->execute();
+                $item = $stmt->get_result()->fetch_assoc();
 
-            // 4. Create PO header
-            $stmt = $conn->prepare("INSERT INTO purchase_orders (rfq_id, supplier_company_id, total_amount, status, created_by) VALUES (?, ?, ?, 'CREATED', ?)");
-            $stmt->bind_param("iidi", $rfqId, $supplierId, $totalAmount, $createdBy);
-            $stmt->execute();
-            $poId = $conn->insert_id;
-            $logs[] = "[Step 4] Created purchase order: ID=$poId";
+                if (!$item) {
+                    throw new \Exception(
+                        "Award #{$i}: item {$itemId} does not belong to RFQ {$rfqId}."
+                    );
+                }
 
-            // 5. Insert PO items (FULL SNAPSHOT COPY)
-            $stmt = $conn->prepare("
-                SELECT 
-                    rqi.id,
-                    rqi.material_name,
-                    rqi.specification,
-                    rqi.unit,
-                    rqi.quantity,
-                    rgqi.unit_price,
-                    rgqi.total_price
-                FROM rfq_group_quote_items rgqi
-                JOIN rfq_items rqi ON rqi.id = rgqi.rfq_item_id
-                WHERE rgqi.rfq_group_quote_id = ?
-            ");
-            $stmt->bind_param("i", $quoteId);
-            $stmt->execute();
-            $items = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+                $remaining = (float) $item['quantity'] - (float) $item['awarded_quantity'];
 
-            $insertItem = $conn->prepare("
-                INSERT INTO purchase_order_items 
-                (purchase_order_id, rfq_item_id, material_name, specification, unit, quantity, unit_price, line_total)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            ");
+                if ($qty > $remaining + 0.0001) {
+                    throw new \Exception(
+                        "Award #{$i}: requested {$qty} {$item['unit']} for " .
+                        "\"{$item['material_name']}\" but only {$remaining} remains unawarded."
+                    );
+                }
 
-            foreach ($items as $item) {
-                $insertItem->bind_param(
-                    "iisssidd",
-                    $poId,
-                    $item['id'],
-                    $item['material_name'],
-                    $item['specification'],
-                    $item['unit'],
-                    $item['quantity'],
-                    $item['unit_price'],
-                    $item['total_price']
+                // The quote must have priced THIS item, on THIS rfq, and
+                // must have been actually submitted - not a draft.
+                $stmt = $conn->prepare("
+                    SELECT rgq.supplier_company_id, rgqi.unit_price
+                    FROM rfq_group_quotes rgq
+                    JOIN rfq_group_quote_items rgqi
+                        ON rgqi.rfq_group_quote_id = rgq.id
+                       AND rgqi.rfq_item_id = ?
+                    JOIN rfq_item_groups rig ON rig.id = rgq.rfq_item_group_id
+                    WHERE rgq.id = ?
+                      AND rig.rfq_id = ?
+                      AND rgq.status = 'SUBMITTED'
+                ");
+                $stmt->bind_param('iii', $itemId, $quoteId, $rfqId);
+                $stmt->execute();
+                $quote = $stmt->get_result()->fetch_assoc();
+
+                if (!$quote) {
+                    throw new \Exception(
+                        "Award #{$i}: quote {$quoteId} has no submitted price for item {$itemId} on RFQ {$rfqId}."
+                    );
+                }
+
+                $supplierId = (int) $quote['supplier_company_id'];
+                $unitPrice  = (float) $quote['unit_price'];
+                $lineTotal  = round($qty * $unitPrice, 2);
+
+                // Record the award.
+                $stmt = $conn->prepare("
+                    INSERT INTO rfq_item_awards
+                        (rfq_item_id, rfq_group_quote_id, supplier_company_id,
+                         awarded_quantity, unit_price, line_total, created_by)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                ");
+                $stmt->bind_param(
+                    'iiidddi', $itemId, $quoteId, $supplierId,
+                    $qty, $unitPrice, $lineTotal, $createdBy
                 );
-                $insertItem->execute();
+                $stmt->execute();
+                $awardId = (int) $conn->insert_id;
+
+                // Advance the item's running total and status.
+                $newAwarded = (float) $item['awarded_quantity'] + $qty;
+                $newStatus  = ($newAwarded + 0.0001 >= (float) $item['quantity'])
+                    ? 'FULLY_AWARDED'
+                    : 'PARTIALLY_AWARDED';
+
+                $stmt = $conn->prepare("
+                    UPDATE rfq_items
+                    SET awarded_quantity = ?, award_status = ?
+                    WHERE id = ?
+                ");
+                $stmt->bind_param('dsi', $newAwarded, $newStatus, $itemId);
+                $stmt->execute();
+
+                $logs[] = "[Award #{$i}] Item {$itemId} ({$item['material_name']}): " .
+                    "{$qty} {$item['unit']} @ {$unitPrice} = {$lineTotal} -> supplier {$supplierId}";
+
+                $poLines[$supplierId][] = [
+                    'award_id'      => $awardId,
+                    'rfq_item_id'   => $itemId,
+                    'material_name' => $item['material_name'],
+                    'specification' => $item['specification'],
+                    'unit'          => $item['unit'],
+                    'quantity'      => $qty,
+                    'unit_price'    => $unitPrice,
+                    'line_total'    => $lineTotal,
+                ];
             }
 
-            $logs[] = "[Step 5] Inserted " . count($items) . " PO snapshot items";
-            // 6. Check and update RFQ status
-            // after awarding the current group, verify whether every item group
-            // for this RFQ has been handled. the helper method considers both
-            // `DECISION_MADE` and `CLOSED_NO_AWARD` as terminal states.
-            $this->updateRFQStatusIfAllGroupsDecided($rfqId);
-            $logs[] = "[Step 6] Checked all group statuses; RFQ may have been marked DECIDED.";
+            // One PO per supplier touched in this call, reusing an
+            // existing PO for (rfq, supplier) if one already exists from
+            // an earlier award action.
+            $poIds = [];
+
+            foreach ($poLines as $supplierId => $lines) {
+                $stmt = $conn->prepare("
+                    SELECT id FROM purchase_orders
+                    WHERE rfq_id = ? AND supplier_company_id = ?
+                ");
+                $stmt->bind_param('ii', $rfqId, $supplierId);
+                $stmt->execute();
+                $existing = $stmt->get_result()->fetch_assoc();
+
+                if ($existing) {
+                    $poId = (int) $existing['id'];
+                } else {
+                    $stmt = $conn->prepare("
+                        INSERT INTO purchase_orders
+                            (rfq_id, supplier_company_id, total_amount, status, created_by)
+                        VALUES (?, ?, 0, 'CREATED', ?)
+                    ");
+                    $stmt->bind_param('iii', $rfqId, $supplierId, $createdBy);
+                    $stmt->execute();
+                    $poId = (int) $conn->insert_id;
+                    $logs[] = "[PO] Created purchase order {$poId} for supplier {$supplierId}";
+                }
+
+                $insertItem = $conn->prepare("
+                    INSERT INTO purchase_order_items
+                        (purchase_order_id, rfq_item_id, material_name, specification,
+                         unit, quantity, unit_price, line_total, rfq_item_award_id)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ");
+
+                $updateAward = $conn->prepare("
+                    UPDATE rfq_item_awards SET purchase_order_id = ? WHERE id = ?
+                ");
+
+                foreach ($lines as $line) {
+                    $insertItem->bind_param(
+                        'iisssdddi',
+                        $poId,
+                        $line['rfq_item_id'],
+                        $line['material_name'],
+                        $line['specification'],
+                        $line['unit'],
+                        $line['quantity'],
+                        $line['unit_price'],
+                        $line['line_total'],
+                        $line['award_id']
+                    );
+                    $insertItem->execute();
+
+                    $updateAward->bind_param('ii', $poId, $line['award_id']);
+                    $updateAward->execute();
+                }
+
+                // Recompute from the PO's actual lines rather than
+                // accumulating deltas, so total_amount can never drift
+                // from what purchase_order_items actually sums to.
+                $stmt = $conn->prepare("
+                    UPDATE purchase_orders po
+                    SET total_amount = (
+                        SELECT COALESCE(SUM(line_total), 0)
+                        FROM purchase_order_items
+                        WHERE purchase_order_id = po.id
+                    )
+                    WHERE po.id = ?
+                ");
+                $stmt->bind_param('i', $poId);
+                $stmt->execute();
+
+                $poIds[] = $poId;
+                $logs[] = "[PO] Applied " . count($lines) . " line(s) to PO {$poId}";
+            }
 
             $conn->commit();
-            $logs[] = "[Final] Transaction committed successfully";
+            $logs[] = '[Final] Transaction committed successfully';
 
-            return ['po_id' => $poId, 'logs' => $logs];
+            return ['po_ids' => $poIds, 'logs' => $logs];
 
         } catch (\Throwable $e) {
             $conn->rollback();
-            $logs[] = "[ERROR] Transaction rolled back: " . $e->getMessage(). "\n" . $e->getTraceAsString(). "on line " . $e->getLine() . " in file " . $e->getFile() .
-            "\n" . "Input params: RFQ ID=$rfqId, Group ID=$groupId, Quote ID=$quoteId, User ID=$createdBy";
+            $logs[] = '[ERROR] Transaction rolled back: ' . $e->getMessage();
             throw new \Exception(implode("\n", $logs));
         }
     }

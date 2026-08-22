@@ -22,6 +22,7 @@ abstract class DatabaseTestCase extends TestCase
 
     /** Tables cleared before each test, children first. */
     private const TABLES = [
+        'rfq_item_awards',
         'purchase_order_items',
         'purchase_orders',
         'rfq_group_quote_items',
@@ -252,5 +253,32 @@ abstract class DatabaseTestCase extends TestCase
         );
 
         return $row['decision_status'] ?? null;
+    }
+
+    /** @return array{quantity:float,awarded_quantity:float,award_status:string}|null */
+    protected function itemAwardState(int $rfqItemId): ?array
+    {
+        $row = $this->fetchRow(
+            "SELECT quantity, awarded_quantity, award_status FROM rfq_items WHERE id = ?",
+            [$rfqItemId]
+        );
+
+        if (!$row) {
+            return null;
+        }
+
+        return [
+            'quantity'         => (float) $row['quantity'],
+            'awarded_quantity' => (float) $row['awarded_quantity'],
+            'award_status'     => $row['award_status'],
+        ];
+    }
+
+    protected function poForSupplier(int $rfqId, int $supplierId): ?array
+    {
+        return $this->fetchRow(
+            "SELECT * FROM purchase_orders WHERE rfq_id = ? AND supplier_company_id = ?",
+            [$rfqId, $supplierId]
+        );
     }
 }

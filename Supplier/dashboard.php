@@ -66,6 +66,17 @@ $stmt = $conn->prepare("
 $stmt->bind_param("i", $supplierId);
 $stmt->execute();
 $poCount = $stmt->get_result()->fetch_assoc()['total'] ?? 0;
+
+// Count invoices raised against this supplier's POs
+$stmt = $conn->prepare("
+    SELECT COUNT(*) as total
+    FROM po_invoices pi
+    JOIN purchase_orders po ON po.id = pi.purchase_order_id
+    WHERE po.supplier_company_id = ?
+");
+$stmt->bind_param("i", $supplierId);
+$stmt->execute();
+$invoiceCount = $stmt->get_result()->fetch_assoc()['total'] ?? 0;
 ?>
 
 <!DOCTYPE html>
@@ -126,8 +137,8 @@ $poCount = $stmt->get_result()->fetch_assoc()['total'] ?? 0;
                 <div class="tile bg-warning"
                     onclick="window.location='invoice_list.php'">
                     <h4>Invoices</h4>
-                    <h2>0</h2>
-                    <p>Coming Soon</p>
+                    <h2><?= $invoiceCount ?></h2>
+                    <p>Generated Invoices</p>
                 </div>
             </div>
 

@@ -1,4 +1,16 @@
-# awardSupplier() ??? findings
+# awardSupplier() - findings
+
+> **Superseded.** `awardSupplier()` and the group-level award flow this
+> document describes were removed and replaced by `awardItems()`, which
+> awards individual line-item quantities to suppliers and allows a single
+> item's quantity to be split across more than one supplier. See
+> `docs/awardItems-design.md`.
+>
+> Kept here as a historical record: every defect below was real, and the
+> design of `awardItems()` was shaped directly by them - each one maps to
+> a guard the new function enforces. If similar bugs turn up in
+> `awardItems()` later, this is useful context for why certain checks
+> exist.
 
 Notes from adding test coverage to `RFQModel::awardSupplier()`.
 
@@ -57,7 +69,7 @@ Covered by `testCannotAwardUsingAGroupFromADifferentRfq`.
 ### 3. No idempotency guard
 
 Nothing prevents a second award. Calling it twice writes a second PO for
-the same materials ??? the buyer is committed to pay twice. A double-clicked
+the same materials - the buyer is committed to pay twice. A double-clicked
 button is enough.
 
 Covered by `testAwardingTwiceDoesNotCreateASecondPurchaseOrder`.
@@ -143,5 +155,5 @@ The suite truncates tables between tests and refuses to run if
 **These tests have not been executed.** They are written against a verified
 export of the live schema and pass `php -l`, but no run has confirmed them.
 Expect fixture adjustments on the first run, and expect the five guard-rail
-tests to fail until the fix above is applied ??? those failures are the
+tests to fail until the fix above is applied - those failures are the
 point.

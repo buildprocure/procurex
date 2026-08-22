@@ -139,6 +139,7 @@ $isImpersonating = $vpab->isImpersonating();
   <?php if ($role == 'Supplier'): ?>
     <a href="<?php echo BASE_URL; ?><?php echo htmlspecialchars($role) ?>/rfq_list.php" class="nav-link">Quote Requests</a>
     <a href="<?php echo BASE_URL; ?><?php echo htmlspecialchars($role) ?>/po_list.php" class="nav-link">Purchase Orders</a>
+    <a href="<?php echo BASE_URL; ?><?php echo htmlspecialchars($role) ?>/invoice_list.php" class="nav-link">Invoices</a>
   <?php endif; ?>
 
   <?php if ($role == 'Admin'): ?>

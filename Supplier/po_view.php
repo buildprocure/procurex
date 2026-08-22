@@ -39,6 +39,18 @@ $stmt->bind_param("i", $poId);
 $stmt->execute();
 $items = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
+// Has an invoice already been generated for this PO?
+$stmt = $conn->prepare("SELECT id FROM po_invoices WHERE purchase_order_id = ?");
+$stmt->bind_param("i", $poId);
+$stmt->execute();
+$existingInvoice = $stmt->get_result()->fetch_assoc();
+
+// Only shipped/delivered, accepted POs can be invoiced - shipment details
+// must exist first (save_shipment.php is what actually flips status to
+// SHIPPED, so this is really "has a shipment been added").
+$canInvoice = $po['supplier_response'] === 'ACCEPTED'
+    && in_array($po['status'], ['SHIPPED', 'DELIVERED'], true);
+
 ?>
 
 <!DOCTYPE html>
@@ -64,6 +76,18 @@ $items = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         <strong>Total Amount:</strong> $<?= number_format($po['total_amount'],2) ?><br>
         <strong>Created At:</strong> <?= $po['created_at'] ?>
     </p>
+
+    <?php if ($existingInvoice): ?>
+        <a href="invoice_view.php?invoice_id=<?= (int) $existingInvoice['id'] ?>" class="btn btn-outline-primary btn-sm">
+            View Invoice
+        </a>
+    <?php elseif ($canInvoice): ?>
+        <form method="POST" action="invoice_view.php" style="display:inline;">
+            <input type="hidden" name="action" value="generate">
+            <input type="hidden" name="po_id" value="<?= $poId ?>">
+            <button type="submit" class="btn btn-primary btn-sm">Generate Invoice</button>
+        </form>
+    <?php endif; ?>
     <table>
         <thead>
             <tr>
