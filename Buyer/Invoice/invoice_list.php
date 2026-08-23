@@ -16,7 +16,7 @@ $buyerCompanyId = $_SESSION['company_id'];
 // Only invoices that have actually been sent - a DRAFT invoice is an
 // internal supplier-side draft the buyer was never notified about.
 $stmt = $conn->prepare("
-    SELECT pi.id, pi.invoice_number, pi.status, pi.total_amount, pi.created_at, pi.sent_at,
+    SELECT pi.id, pi.invoice_number, pi.status, pi.payment_status, pi.total_amount, pi.created_at, pi.sent_at,
            po.id as po_id, s.name as supplier_name
     FROM po_invoices pi
     JOIN purchase_orders po ON po.id = pi.purchase_order_id
@@ -58,6 +58,7 @@ $invoices = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                     <th>Supplier</th>
                     <th>Total Amount</th>
                     <th>Status</th>
+                    <th>Payment</th>
                     <th>Sent At</th>
                     <th>Actions</th>
                 </tr>
@@ -70,6 +71,13 @@ $invoices = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                     <td><?= htmlspecialchars($inv['supplier_name']) ?></td>
                     <td>$<?= number_format($inv['total_amount'], 2) ?></td>
                     <td><span class="badge bg-success"><?= htmlspecialchars($inv['status']) ?></span></td>
+                    <td>
+                        <?php
+                            $payStatus = $inv['payment_status'] ?? 'UNPAID';
+                            $payBadge  = $payStatus === 'PAID' ? 'bg-success' : ($payStatus === 'PARTIALLY_PAID' ? 'bg-warning text-dark' : 'bg-secondary');
+                        ?>
+                        <span class="badge <?= $payBadge ?>"><?= htmlspecialchars(str_replace('_', ' ', $payStatus)) ?></span>
+                    </td>
                     <td><?= $inv['sent_at'] ? date('d M Y', strtotime($inv['sent_at'])) : '-' ?></td>
                     <td>
                         <a href="invoice_view.php?invoice_id=<?= (int) $inv['id'] ?>"
