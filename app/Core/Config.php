@@ -15,6 +15,9 @@ namespace App\Core;
  *
  * Required for links:
  *   APP_URL   e.g. https://app.buildprocure.com
+ *
+ * Required for payments (Stripe):
+ *   STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY, STRIPE_WEBHOOK_SECRET
  */
 class Config
 {

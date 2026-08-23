@@ -106,11 +106,14 @@ jobs:
           INFOPAGE_PASS: ${{ secrets.INFOPAGE_PASS }}
           MAIL_USERNAME : ${{ secrets.MAIL_USERNAME }}
           MAIL_PASSWORD : ${{ secrets.MAIL_PASSWORD }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_PUBLISHABLE_KEY: ${{ secrets.STRIPE_PUBLISHABLE_KEY }}
+          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          envs: GH_PAT,LETSENCRYPT_EMAIL,MYSQL_USER,MYSQL_PASSWORD,INFOPAGE_USER,INFOPAGE_PASS,MAIL_USERNAME,MAIL_PASSWORD
+          envs: GH_PAT,LETSENCRYPT_EMAIL,MYSQL_USER,MYSQL_PASSWORD,INFOPAGE_USER,INFOPAGE_PASS,MAIL_USERNAME,MAIL_PASSWORD,STRIPE_SECRET_KEY,STRIPE_PUBLISHABLE_KEY,STRIPE_WEBHOOK_SECRET
           script: |
             set -e
 
@@ -144,6 +147,9 @@ jobs:
             INFOPAGE_PASS=${INFOPAGE_PASS}
             MAIL_USERNAME=${MAIL_USERNAME}
             MAIL_PASSWORD=${MAIL_PASSWORD}
+            STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+            STRIPE_PUBLISHABLE_KEY=${STRIPE_PUBLISHABLE_KEY}
+            STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
             EOF
             chmod 600 php-env-prod.env
             
