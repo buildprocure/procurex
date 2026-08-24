@@ -27,19 +27,25 @@ if ($result->num_rows > 0) {
 
         if (!file_exists($folder)) {
             if (mkdir($folder, 0755, true)) {
-                // Set ownership to root
-                chown($folder, 'root');
-                // Set permissions to 755
-                chmod($folder, 0755);
-                $status = '✅ Folder created and configured';
+                // Ensure permissions are 755 (mkdir's mode can be affected by umask)
+                if (chmod($folder, 0755)) {
+                    $status = '✅ Folder created and configured';
+                } else {
+                    $status = '⚠️ Folder created, but permissions could not be updated';
+                }
             } else {
                 $status = '❌ Failed to create folder';
             }
         } else {
-            // Ensure correct permissions and ownership even if it exists
-            chown($folder, 'root');
-            chmod($folder, 0755);
-            $status = '✔️ Folder already exists (ownership and permissions updated)';
+            // Ensure correct permissions even if it already exists.
+            // Note: we no longer attempt chown() here — the web server process
+            // does not run as root, so chown() to another owner always fails
+            // with "Operation not permitted" and can never succeed in this setup.
+            if (chmod($folder, 0755)) {
+                $status = '✔️ Folder already exists (permissions verified)';
+            } else {
+                $status = '⚠️ Folder exists, but permissions could not be updated';
+            }
         }
 
         $users[] = [
