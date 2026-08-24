@@ -28,4 +28,12 @@ class Auth {
             exit;
         }
     }
+
+    public static function checkAdmin() {
+        self::requireLogin();
+        if (strtolower($_SESSION['role']) !== 'admin') {
+            header("Location: ../unauthorized.php");
+            exit;
+        }
+    }
 }

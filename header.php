@@ -11,69 +11,82 @@ $isImpersonating = $vpab->isImpersonating();
 <link rel="stylesheet" href="//cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
 <link rel="stylesheet" href="<?= SITE_URL ?>global_bp.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-<!-- Bootstrap Selectpicker CSS - Latest version with Bootstrap 5 support -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/css/bootstrap-select.min.css">
 <style>
-    /* Ensure selectpicker is visible */
-    #buyerSelect,
-    .selectpicker,
-    .bootstrap-select .btn {
-        color: #333 !important;
-        background-color: #fff !important;
+    /* --- View as Buyer (admin impersonation) --- */
+    .view-as-buyer-form { display: inline-block; }
+    .view-as-buyer-select {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-color: #fff;
+        color: #0d6efd;
+        border: 1.5px solid #0d6efd;
+        border-radius: 8px;
+        padding: 7px 30px 7px 12px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        line-height: 1.2;
+        cursor: pointer;
+        max-width: 180px;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%230d6efd'%3E%3Cpath d='M4.5 6l3.5 4 3.5-4z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        background-size: 12px;
     }
-    
-    .bootstrap-select > .dropdown-toggle::after {
-        color: #333;
-    }
-    
-    .bootstrap-select .dropdown-menu {
-        color: #333;
-    }
-    
-    .bootstrap-select .dropdown-menu li a {
-        color: #333 !important;
-        background-color: #fff !important;
-        padding: 8px 16px !important;
-    }
-    
-    .bootstrap-select .dropdown-menu li a:hover {
-        background-color: #e9ecef !important;
-    }
-    
-    /* Make sure selectpicker button is clickable */
-    .bootstrap-select .btn {
-        pointer-events: auto !important;
-        cursor: pointer !important;
-        min-width: 150px;
-        text-align: left;
-    }
-    
-    /* Ensure dropdown opens above other elements */
-    .bootstrap-select .dropdown-menu {
-        z-index: 9999 !important;
-    }
-    
-    /* Make sure selectpicker container doesn't clip children */
-    .bootstrap-select {
-        overflow: visible !important;
-    }
-    
-    /* Scoped fixes for bootstrap-select dropdown menu to avoid global dropdown CSS conflicts */
-    .bootstrap-select .dropdown-menu {
-      right: auto !important;
-      left: auto !important;
-      position: absolute !important;
-      display: none !important;
-      min-width: 160px !important;
-    }
-    .bootstrap-select.open .dropdown-menu,
-    .bootstrap-select .dropdown-menu.show {
-      display: block !important;
-    }
+    .view-as-buyer-select:hover { background-color: #eaf2ff; }
+    .view-as-buyer-select:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.28); }
 
-    /* Hide the original select element (plugin creates the visible control) */
-    #buyerSelect {
-      display: none;
+    .viewing-as-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: #eaf2ff;
+        border: 1px solid #cfe2ff;
+        border-radius: 20px;
+        padding: 5px 6px 5px 12px;
+        font-size: 0.8rem;
+        color: #0a4fb5;
+        white-space: nowrap;
+    }
+    .viewing-as-label strong { color: #08306b; }
+    .viewing-as-exit {
+        background: #0d6efd;
+        color: #fff;
+        border: none;
+        border-radius: 14px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        padding: 4px 10px;
+        cursor: pointer;
+    }
+    .viewing-as-exit:hover { background: #0b5ed7; }
+
+    /* --- Mobile sidebar (hamburger toggle) --- */
+    .nav-backdrop {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.45);
+        z-index: 1040;
+    }
+    .nav-backdrop.show { display: block; }
+
+    @media (max-width: 991.98px) {
+        .navbar-vertical {
+            position: fixed !important;
+            top: 0 !important;
+            left: -280px !important;
+            width: 260px !important;
+            height: 100vh !important;
+            background: #fff;
+            z-index: 1045;
+            overflow-y: auto;
+            box-shadow: 2px 0 16px rgba(0, 0, 0, 0.15);
+            transition: left 0.25s ease;
+        }
+        .navbar-vertical.mobile-open {
+            left: 0 !important;
+        }
     }
 </style>
 
@@ -81,14 +94,14 @@ $isImpersonating = $vpab->isImpersonating();
 <nav class="navbar-horizontal">
     <div class="nav-container">
         <div class ="company-name">
-          <button class="bbtn btn-primary d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#sideMenu" aria-controls="sideMenu">
+          <button class="bbtn btn-primary d-lg-none" type="button" id="mobileNavToggle" aria-expanded="false" aria-controls="sideMenu">
             <i class="fas fa-bars"></i>
           </button>
           <a href="#">BuildProcure</a>
         </div>
         <div class="nav-actions">
           <?php if (isset($_SESSION['username'])): ?>
-          <div class="me-3 text-white">
+          <div class="me-3">
             <?php renderViewAsBuyerDropdown($vpab); ?>
           </div>
           <div class="user-dropdown">
@@ -110,8 +123,11 @@ $isImpersonating = $vpab->isImpersonating();
 
 
 
+<!-- Mobile sidebar backdrop -->
+<div class="nav-backdrop" id="navBackdrop"></div>
+
 <!-- Offcanvas Vertical Nav -->
-<div class="navbar-vertical">
+<div class="navbar-vertical" id="sideMenu">
   <a href="./dashboard.php" class="nav-link">Dashboard</a>
 
   <?php if ($role == 'Buyer' || $isImpersonating): ?>
@@ -191,12 +207,36 @@ document.addEventListener('DOMContentLoaded', function() {
                 menu.classList.remove('show');
             });
         });
+
+// Mobile sidebar: hamburger opens/closes the drawer, tapping the backdrop
+// or any nav link inside it closes it again (standard off-canvas UX).
+document.addEventListener('DOMContentLoaded', () => {
+  const menu = document.getElementById('sideMenu');
+  const toggleBtn = document.getElementById('mobileNavToggle');
+  const backdrop = document.getElementById('navBackdrop');
+  if (!menu || !toggleBtn || !backdrop) return;
+
+  const closeMenu = () => {
+    menu.classList.remove('mobile-open');
+    backdrop.classList.remove('show');
+    toggleBtn.setAttribute('aria-expanded', 'false');
+  };
+  const openMenu = () => {
+    menu.classList.add('mobile-open');
+    backdrop.classList.add('show');
+    toggleBtn.setAttribute('aria-expanded', 'true');
+  };
+
+  toggleBtn.addEventListener('click', () => {
+    menu.classList.contains('mobile-open') ? closeMenu() : openMenu();
+  });
+  backdrop.addEventListener('click', closeMenu);
+  menu.querySelectorAll('a.nav-link').forEach(link => link.addEventListener('click', closeMenu));
+});
 </script>
 
-<!-- jQuery (required for Selectpicker) -->
+<!-- jQuery (used by chat widget) -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<!-- Bootstrap Selectpicker JS - Latest version with Bootstrap 5 support -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/js/bootstrap-select.min.js"></script>
 
