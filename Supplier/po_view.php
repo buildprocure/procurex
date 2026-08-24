@@ -45,11 +45,11 @@ $stmt->bind_param("i", $poId);
 $stmt->execute();
 $existingInvoice = $stmt->get_result()->fetch_assoc();
 
-// Only shipped/delivered, accepted POs can be invoiced - shipment details
-// must exist first (save_shipment.php is what actually flips status to
-// SHIPPED, so this is really "has a shipment been added").
+// Only accepted POs that an admin/CSR has confirmed as DELIVERED can be
+// invoiced - being SHIPPED isn't enough on its own. Delivery is confirmed
+// by hand (no carrier-tracking API), via Admin/PO/po_shipment_tracking.php.
 $canInvoice = $po['supplier_response'] === 'ACCEPTED'
-    && in_array($po['status'], ['SHIPPED', 'DELIVERED'], true);
+    && $po['status'] === 'DELIVERED';
 
 ?>
 

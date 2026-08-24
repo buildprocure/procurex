@@ -149,6 +149,7 @@ $isImpersonating = $vpab->isImpersonating();
   <?php endif; ?>
 
   <?php if ($role == 'Admin'): ?>
+    <a href="<?php echo BASE_URL; ?>Admin/PO/po_shipment_tracking.php" class="nav-link">Shipment Tracking</a>
     <a href="<?php echo BASE_URL; ?>sftp/Onboarding.php" class="nav-link">SFTP Onboarding</a>
     <a href="<?php echo BASE_URL; ?>public/items-frontend/" target="_blank" class="nav-link">
       <i class="fas fa-boxes"></i> Items

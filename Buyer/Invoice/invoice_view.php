@@ -301,7 +301,7 @@ $paymentFlag = $_GET['payment'] ?? null;
                         ?>
                         <tr>
                             <td><?= e(date('d M Y', strtotime($p['created_at']))) ?></td>
-                            <td><?= e($paymentMethodLabels[$p['payment_method']] ?? ($p['payment_method'] ?? 'Pending selection')) ?></td>
+                            <td><?= e($p['payment_method'] ? ($paymentMethodLabels[$p['payment_method']] ?? $p['payment_method']) : 'Pending selection') ?></td>
                             <td><?= $paymentDetails ?></td>
                             <td>
                                 <span class="badge <?= $statusBadge ?>"><?= e($p['status']) ?></span>
