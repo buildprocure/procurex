@@ -16,17 +16,19 @@ class InvoiceController
     }
 
     /**
-     * A PO is only invoiceable once the supplier has accepted it and it's
-     * actually on its way (or arrived) - not before, so an invoice can
-     * never be generated for goods that were never confirmed as shipped.
+     * A PO is only invoiceable once the supplier has accepted it AND an
+     * admin/CSR has confirmed delivery (status = DELIVERED) - being merely
+     * SHIPPED isn't enough. There's no carrier-tracking API wired in here;
+     * DELIVERED is set by hand via Admin/PO/po_shipment_tracking.php
+     * (see App\Modules\Admin\Shipment\ShipmentModel::markDelivered()).
      */
     private function assertInvoiceable(array $po): void
     {
         if ($po['supplier_response'] !== 'ACCEPTED') {
             throw new Exception('This PO has not been accepted yet.');
         }
-        if (!in_array($po['status'], ['SHIPPED', 'DELIVERED'], true)) {
-            throw new Exception('This PO must be shipped before an invoice can be generated.');
+        if ($po['status'] !== 'DELIVERED') {
+            throw new Exception('An invoice can only be generated once delivery has been confirmed.');
         }
     }
 
