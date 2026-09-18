@@ -7,6 +7,7 @@ $username = $_SESSION['username'] ?? 'User';
 $role = $_SESSION['role'] ?? '';
 $isImpersonating = $vpab->isImpersonating();
 ?>
+<link rel="icon" type="image/svg+xml" href="<?= SITE_URL ?>img/buildprocure-icon.svg">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="//cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
 <link rel="stylesheet" href="<?= SITE_URL ?>global_bp.css">
@@ -19,8 +20,8 @@ $isImpersonating = $vpab->isImpersonating();
         -webkit-appearance: none;
         -moz-appearance: none;
         background-color: #fff;
-        color: #0d6efd;
-        border: 1.5px solid #0d6efd;
+        color: var(--color-primary);
+        border: 1.5px solid var(--color-primary);
         border-radius: 8px;
         padding: 7px 30px 7px 12px;
         font-size: 0.85rem;
@@ -28,7 +29,7 @@ $isImpersonating = $vpab->isImpersonating();
         line-height: 1.2;
         cursor: pointer;
         max-width: 180px;
-        background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%230d6efd'%3E%3Cpath d='M4.5 6l3.5 4 3.5-4z'/%3E%3C/svg%3E");
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%237C3AED'%3E%3Cpath d='M4.5 6l3.5 4 3.5-4z'/%3E%3C/svg%3E");
         background-repeat: no-repeat;
         background-position: right 10px center;
         background-size: 12px;
@@ -40,17 +41,17 @@ $isImpersonating = $vpab->isImpersonating();
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        background: #eaf2ff;
-        border: 1px solid #cfe2ff;
+        background: rgba(124, 58, 237, 0.08);
+        border: 1px solid rgba(124, 58, 237, 0.18);
         border-radius: 20px;
         padding: 5px 6px 5px 12px;
         font-size: 0.8rem;
-        color: #0a4fb5;
+        color: var(--color-primary-active);
         white-space: nowrap;
     }
-    .viewing-as-label strong { color: #08306b; }
+    .viewing-as-label strong { color: var(--color-tertiary); }
     .viewing-as-exit {
-        background: #0d6efd;
+        background: var(--color-primary);
         color: #fff;
         border: none;
         border-radius: 14px;
@@ -59,7 +60,7 @@ $isImpersonating = $vpab->isImpersonating();
         padding: 4px 10px;
         cursor: pointer;
     }
-    .viewing-as-exit:hover { background: #0b5ed7; }
+    .viewing-as-exit:hover { background: var(--color-primary-hover); }
 
     /* --- Mobile sidebar (hamburger toggle) --- */
     .nav-backdrop {
@@ -97,7 +98,9 @@ $isImpersonating = $vpab->isImpersonating();
           <button class="bbtn btn-primary d-lg-none" type="button" id="mobileNavToggle" aria-expanded="false" aria-controls="sideMenu">
             <i class="fas fa-bars"></i>
           </button>
-          <a href="#">BuildProcure</a>
+          <a href="#" aria-label="BuildProcure home">
+            <img src="<?= SITE_URL ?>img/buildprocure-logo.svg" alt="BuildProcure" style="height: 28px; width: auto; max-width: 220px; display: block;">
+          </a>
         </div>
         <div class="nav-actions">
           <?php if (isset($_SESSION['username'])): ?>

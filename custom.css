@@ -138,13 +138,13 @@ body {
     }
 
     .view-as-buyer button {
-        background-color: #007bff;
+        background-color: var(--color-primary);
         color: white;
         cursor: pointer;
     }
 
     .view-as-buyer button:hover {
-        background-color: #0056b3;
+        background-color: var(--color-primary-hover);
     }
 
     .user-dropdown {

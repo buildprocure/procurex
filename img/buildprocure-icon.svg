@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <linearGradient id="bpIconGrad" x1="0" y1="0" x2="120" y2="120" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#7C3AED"/>
+      <stop offset="1" stop-color="#3B82F6"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="120" height="120" rx="26" fill="url(#bpIconGrad)"/>
+  <!-- skyline: build -->
+  <rect x="26" y="58" width="16" height="28" rx="5" fill="#ffffff" fill-opacity="0.38"/>
+  <rect x="51" y="70" width="16" height="16" rx="5" fill="#ffffff" fill-opacity="0.38"/>
+  <rect x="76" y="34" width="16" height="52" rx="5" fill="#ffffff" fill-opacity="0.38"/>
+  <!-- checkmark: procure/approved -->
+  <path d="M30 54 L59 74 L92 28" fill="none" stroke="#ffffff" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
