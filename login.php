@@ -87,9 +87,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Login</title>
+    <link rel="icon" type="image/svg+xml" href="img/buildprocure-icon.svg">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
   </head>
-  <body style="background-image: linear-gradient(to bottom right, rgb(0, 238, 255), rgb(184, 22, 220)  );    height: min-content;" >
+  <body style="background: linear-gradient(135deg, #f5f3ff 0%, #eff6ff 100%); height: min-content;" >
     <?php 
     //require  './_nav.php'; 
    
@@ -154,6 +155,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <h2 class = "text-center">Login</h2>
         </br>
         <div class="text-center">
+        
         <a href="/simplesaml/sso_index.php" class="btn btn-primary">Single Sign-On</a>
 
         </div>
@@ -169,7 +171,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
             
             <div class="d-grid gap-2 col-12 mx-auto">
-              <button style="background-image: linear-gradient(to right, rgb(0, 238, 255), rgb(184, 22, 220)  ) ;" class="btn btn-primary" type="submit">Login</button>
+              <button style="background: linear-gradient(135deg, #7C3AED, #3B82F6); border: none;" class="btn btn-primary" type="submit">Login</button>
             </div>
         </form> <br><br>
         <p class="text-center">Or Sign Up Using?</p>

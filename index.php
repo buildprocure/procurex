@@ -9,7 +9,7 @@ include_once '_config.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BuildProcure - Home</title>
-    <link rel="icon" type="image/png" href="img/buildprocure.jpg">
+    <link rel="icon" type="image/svg+xml" href="img/buildprocure-icon.svg">
     <link rel="stylesheet" href="global_bp.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
@@ -27,19 +27,7 @@ include_once '_config.php';
         }
 
         .hero {
-            background: linear-gradient(135deg, #0d6efd, #0b5ed7);
-            color: white;
-            padding: 5rem 0;
-            text-align: center;
-        }
-
-        .hero h1 {
-            font-size: 3rem;
-            font-weight: bold;
-        }
-
-        .hero p {
-            font-size: 1.25rem;
+            background: linear-gradient(135deg, #7C3AED, #3B82F6);
             margin-top: 1rem;
         }
 
@@ -89,7 +77,9 @@ include_once '_config.php';
 
 <nav class="navbar-horizontal">
     <div class="nav-container">
-        <a class="company-name" href="#">BuildProcure</a>
+        <a class="company-name" href="#">
+            <img src="img/buildprocure-logo.svg" alt="BuildProcure" style="height: 32px; width: auto; max-width: 220px; display: block;">
+        </a>
         
         <div class="nav-actions">            
             <?php if (isset($_SESSION['username'])): ?>
@@ -112,15 +102,35 @@ include_once '_config.php';
 
 
 <section class="hero">
-    <div class="container">
+    <div class="container hero-inner">
+        <div class="hero-badges">
+            <span class="badge-chip badge-chip-violet">AI-powered sourcing</span>
+            <span class="badge-chip badge-chip-cyan">Live supplier insights</span>
+        </div>
         <h1>Revolutionizing Construction Procurement</h1>
         <p>Streamline your material sourcing, supplier management, and project procurement with confidence.</p>
-        <a href="Sign_up.php" class="btn btn-light btn-lg mt-4">Get Started</a>
-        <a href="<?php echo MARKETPLACE_URL; ?>"
-               target="_blank"
-               class="btn btn-outline-light btn-lg fw-semibold mt-4">
-                Visit Marketplace
-            </a>
+        <div class="hero-actions">
+            <a href="Sign_up.php" class="btn btn-light btn-lg mt-4">Get Started</a>
+            <a href="<?php echo MARKETPLACE_URL; ?>"
+                   target="_blank"
+                   class="btn btn-outline-light btn-lg fw-semibold mt-4">
+                    Visit Marketplace
+                </a>
+        </div>
+        <div class="hero-metrics">
+            <div class="metric-card">
+                <span class="metric-value">3.2x</span>
+                <span class="metric-label">Faster RFQ cycles</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-value">24/7</span>
+                <span class="metric-label">Supplier visibility</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-value">98%</span>
+                <span class="metric-label">Approval confidence</span>
+            </div>
+        </div>
     </div>
 </section>
 <section class="features">
