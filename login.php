@@ -89,6 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Login</title>
     <link rel="icon" type="image/svg+xml" href="img/buildprocure-icon.svg">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+        <link rel="stylesheet" href="global_bp.css">
   </head>
   <body style="background: linear-gradient(135deg, #f5f3ff 0%, #eff6ff 100%); height: min-content;" >
     <?php 
@@ -171,7 +172,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
             
             <div class="d-grid gap-2 col-12 mx-auto">
-              <button style="background: linear-gradient(135deg, #7C3AED, #3B82F6); border: none;" class="btn btn-primary" type="submit">Login</button>
+                            <button class="btn btn-primary" type="submit">Login</button>
             </div>
         </form> <br><br>
         <p class="text-center">Or Sign Up Using?</p>
