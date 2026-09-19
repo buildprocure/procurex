@@ -88,6 +88,9 @@ $isImpersonating = $vpab->isImpersonating();
         .navbar-vertical.mobile-open {
             left: 0 !important;
         }
+        .main-content {
+            margin-left: 0 !important;
+        }
     }
 </style>
 
