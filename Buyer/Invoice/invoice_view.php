@@ -82,38 +82,6 @@ $paymentFlag = $_GET['payment'] ?? null;
         }
         body { background-color: #f5f7fb; }
 
-        .primary_button, .secondary_button {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            font-family: inherit;
-            font-size: 0.875rem;
-            font-weight: 600;
-            line-height: 1.2;
-            padding: 9px 18px;
-            border-radius: 8px;
-            border: 1.5px solid transparent;
-            text-decoration: none;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: background-color .15s ease, border-color .15s ease, color .15s ease;
-        }
-        .primary_button:hover, .secondary_button:hover { text-decoration: none; }
-        .primary_button {
-            background-color: var(--bp-primary);
-            border-color: var(--bp-primary);
-            color: #fff;
-            box-shadow: 0 1px 2px rgba(13, 110, 253, 0.18);
-        }
-        .primary_button:hover { background-color: var(--bp-primary-dark); border-color: var(--bp-primary-dark); color: #fff; }
-        .primary_button:disabled { background-color: #a9cbfb; border-color: #a9cbfb; color: #fff; cursor: not-allowed; }
-        .secondary_button {
-            background-color: #fff;
-            border-color: var(--bp-primary);
-            color: var(--bp-primary-dark);
-        }
-        .secondary_button:hover { background-color: var(--bp-primary-light); border-color: var(--bp-primary-dark); color: var(--bp-primary-darker); }
 
         .rfq-page-header { position: relative; text-align: center; padding: 28px 16px 20px; }
         .rfq-page-header h3 { font-weight: 700; color: var(--bp-ink); margin-bottom: 6px; }
@@ -217,7 +185,7 @@ $paymentFlag = $_GET['payment'] ?? null;
 <?php else: ?>
 
     <div class="rfq-page-header no-print">
-        <button type="button" class="secondary_button page-print-btn" onclick="window.print()">Print / Save as PDF</button>
+        <button type="button" class="btn btn-secondary page-print-btn" onclick="window.print()">Print / Save as PDF</button>
         <h3>Invoice <?= e($detail['invoice']['invoice_number']) ?></h3>
         <p>From <?= e($detail['po']['supplier_name']) ?> for Purchase Order #<?= (int) $detail['po']['po_id'] ?></p>
     </div>
@@ -234,7 +202,7 @@ $paymentFlag = $_GET['payment'] ?? null;
 
     <?php if ($balance > 0): ?>
         <div class="d-flex justify-content-end no-print mb-4">
-            <button type="button" class="primary_button" id="payToggleBtn" onclick="togglePaymentForm()">Pay</button>
+            <button type="button" class="btn btn-primary" id="payToggleBtn" onclick="togglePaymentForm()">Pay</button>
         </div>
     <?php endif; ?>
 
@@ -337,16 +305,16 @@ $paymentFlag = $_GET['payment'] ?? null;
                         <textarea class="form-control" id="notes" rows="2"></textarea>
                     </div>
                     <div class="d-flex justify-content-end gap-2">
-                        <button type="button" class="secondary_button" onclick="togglePaymentForm()">Cancel</button>
-                        <button type="button" class="primary_button" id="startPaymentBtn" onclick="startStripePayment()">Continue to Payment</button>
+                        <button type="button" class="btn btn-secondary" onclick="togglePaymentForm()">Cancel</button>
+                        <button type="button" class="btn btn-primary" id="startPaymentBtn" onclick="startStripePayment()">Continue to Payment</button>
                     </div>
                 </div>
 
                 <div id="stripeStep" style="display:none;">
                     <div id="payment-element" class="mb-3"></div>
                     <div class="d-flex justify-content-end gap-2">
-                        <button type="button" class="secondary_button" onclick="togglePaymentForm()">Cancel</button>
-                        <button type="button" class="primary_button" id="confirmPayBtn" onclick="submitStripePayment()">Pay Now</button>
+                        <button type="button" class="btn btn-secondary" onclick="togglePaymentForm()">Cancel</button>
+                        <button type="button" class="btn btn-primary" id="confirmPayBtn" onclick="submitStripePayment()">Pay Now</button>
                     </div>
                 </div>
             </div>

@@ -234,80 +234,6 @@ function fmtQty($v): string
             background: #fdecee;
         }
 
-        /* ===================================================================
-           BuildProcure button system
-           Two building blocks for every action in the app: primary_button
-           for the one action a screen wants you to take, secondary_button
-           for everything supporting/alternative to it. A .is-danger
-           modifier layers a destructive tone onto secondary_button rather
-           than introducing a third base class - Close is still a
-           secondary-weight action, just a risky one.
-           An .is-sm modifier shrinks either for dense contexts like table
-           rows; omit it for standalone/full-size CTAs elsewhere in the app.
-        =================================================================== */
-        .primary_button, .secondary_button {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            font-family: inherit;
-            font-size: 0.875rem;
-            font-weight: 600;
-            line-height: 1.2;
-            padding: 9px 18px;
-            border-radius: 8px;
-            border: 1.5px solid transparent;
-            text-decoration: none;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: background-color .15s ease, border-color .15s ease,
-                        color .15s ease, box-shadow .15s ease, transform .05s ease;
-        }
-        .primary_button:hover, .secondary_button:hover { text-decoration: none; }
-        .primary_button:focus-visible, .secondary_button:focus-visible {
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.28);
-        }
-        .primary_button:active, .secondary_button:active { transform: translateY(1px); }
-
-        .primary_button {
-            background-color: var(--bp-primary);
-            border-color: var(--bp-primary);
-            color: #fff;
-            box-shadow: 0 1px 2px rgba(13, 110, 253, 0.18);
-        }
-        .primary_button:hover  { background-color: var(--bp-primary-dark); border-color: var(--bp-primary-dark); color: #fff; }
-        .primary_button:active { background-color: var(--bp-primary-darker); border-color: var(--bp-primary-darker); box-shadow: none; }
-        .primary_button:disabled, .primary_button.is-disabled {
-            background-color: #a9cbfb; border-color: #a9cbfb; color: #fff;
-            cursor: not-allowed; box-shadow: none; transform: none;
-        }
-
-        .secondary_button {
-            background-color: #fff;
-            border-color: var(--bp-primary);
-            color: var(--bp-primary-dark);
-        }
-        .secondary_button:hover  { background-color: var(--bp-primary-light); border-color: var(--bp-primary-dark); color: var(--bp-primary-darker); }
-        .secondary_button:active { background-color: #dbe9ff; }
-        .secondary_button:disabled, .secondary_button.is-disabled {
-            background-color: #fff; border-color: #d1d5db; color: #9ca3af;
-            cursor: not-allowed; transform: none;
-        }
-
-        .secondary_button.is-danger { border-color: var(--bp-danger); color: var(--bp-danger); }
-        .secondary_button.is-danger:hover {
-            background-color: #fdecee; border-color: #b3202f; color: #b3202f;
-        }
-        .secondary_button.is-danger:active { background-color: #fbdadd; }
-        .secondary_button.is-danger:focus-visible { box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.28); }
-
-        .primary_button.is-sm, .secondary_button.is-sm {
-            padding: 6px 13px;
-            font-size: 0.78rem;
-            border-radius: 7px;
-        }
-
         .item-action-buttons { display: flex; gap: 8px; margin-left: auto; }
 
         .supplier-rate-label {
@@ -556,14 +482,14 @@ function fmtQty($v): string
                                         <div class="award-remaining-label">
                                             Remaining: <span class="award-remaining-value"><?= fmtQty($remaining) ?></span> <?= e($item['unit']) ?>
                                         </div>
-                                        <button type="submit" class="primary_button is-sm">Award</button>
+                                        <button type="submit" class="btn btn-primary btn-sm">Award</button>
                                     </div>
 
                                     <div class="item-action-buttons">
                                         <a href="postpone_rfq_item.php?rfq_id=<?= $rfqId ?>&item_id=<?= $itemId ?>"
-                                           class="secondary_button is-sm">Later</a>
+                                           class="btn btn-secondary btn-sm">Later</a>
                                         <a href="close_rfq_item.php?rfq_id=<?= $rfqId ?>&item_id=<?= $itemId ?>"
-                                           class="secondary_button is-sm is-danger"
+                                           class="btn btn-outline-danger btn-sm"
                                            onclick="return confirm('Close this item without award?')">Close</a>
                                     </div>
                                 </div>
@@ -576,9 +502,9 @@ function fmtQty($v): string
                         <td colspan="<?= 2 + count($suppliers) ?>">
                             <div class="d-flex align-items-center justify-content-end item-action-buttons">
                                 <a href="postpone_rfq_item.php?rfq_id=<?= $rfqId ?>&item_id=<?= $itemId ?>"
-                                   class="secondary_button is-sm">Later</a>
+                                   class="btn btn-secondary btn-sm">Later</a>
                                 <a href="close_rfq_item.php?rfq_id=<?= $rfqId ?>&item_id=<?= $itemId ?>"
-                                   class="secondary_button is-sm is-danger"
+                                   class="btn btn-outline-danger btn-sm"
                                    onclick="return confirm('Close this item without award?')">Close</a>
                             </div>
                         </td>
