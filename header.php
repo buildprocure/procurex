@@ -7,6 +7,7 @@ $username = $_SESSION['username'] ?? 'User';
 $role = $_SESSION['role'] ?? '';
 $isImpersonating = $vpab->isImpersonating();
 ?>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/svg+xml" href="<?= SITE_URL ?>img/buildprocure-icon.svg">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="//cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
@@ -79,7 +80,6 @@ $isImpersonating = $vpab->isImpersonating();
             left: -280px !important;
             width: 260px !important;
             height: 100vh !important;
-            background: #fff;
             z-index: 1045;
             overflow-y: auto;
             box-shadow: 2px 0 16px rgba(0, 0, 0, 0.15);
