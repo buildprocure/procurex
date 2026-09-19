@@ -55,7 +55,7 @@ if (empty($items)) {
     <?php if ($boq['status'] === 'DRAFT'): ?>
     <form method="POST" action="boq_lock.php" onsubmit="return confirm('Are you sure you want to Lock this BOQ- <?= $boq['id'] ?>? This action cannot be undone.')">
         <input type="hidden" name="boq_id" value="<?= $boqId ?>">
-        <button class="btn btn-success">
+        <button class="btn btn-primary">
             🚀 Lock BOQ
         </button>
         <br><br>

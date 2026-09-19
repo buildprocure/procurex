@@ -95,7 +95,7 @@ $isImpersonating = $vpab->isImpersonating();
 <nav class="navbar-horizontal">
     <div class="nav-container">
         <div class ="company-name">
-          <button class="bbtn btn-primary d-lg-none" type="button" id="mobileNavToggle" aria-expanded="false" aria-controls="sideMenu">
+          <button class="btn btn-primary d-lg-none" type="button" id="mobileNavToggle" aria-expanded="false" aria-controls="sideMenu">
             <i class="fas fa-bars"></i>
           </button>
           <a href="#" aria-label="BuildProcure home">
@@ -118,7 +118,7 @@ $isImpersonating = $vpab->isImpersonating();
           </div>
           <?php else: ?>
               <a href="login.php" class="btn btn-primary btn-sm">Log In</a>
-              <a href="Sign_up.php" class="btn btn-outline-primary btn-sm">Sign Up</a>
+              <a href="Sign_up.php" class="btn btn-secondary btn-sm">Sign Up</a>
           <?php endif; ?>
         </div>
     </div>

@@ -94,7 +94,7 @@ include_once '_config.php';
                 </div>
             <?php else: ?>
                 <a href="login.php" class="btn btn-primary btn-sm">Log In</a>
-                <a href="Sign_up.php" class="btn btn-outline-primary btn-sm">Sign Up</a>
+                <a href="Sign_up.php" class="btn btn-secondary btn-sm">Sign Up</a>
             <?php endif; ?>
         </div>
     </div>

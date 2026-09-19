@@ -77,45 +77,6 @@ function e($v): string
         }
         body { background-color: #f5f7fb; }
 
-        .primary_button, .secondary_button {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            font-family: inherit;
-            font-size: 0.875rem;
-            font-weight: 600;
-            line-height: 1.2;
-            padding: 9px 18px;
-            border-radius: 8px;
-            border: 1.5px solid transparent;
-            text-decoration: none;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: background-color .15s ease, border-color .15s ease,
-                        color .15s ease, box-shadow .15s ease, transform .05s ease;
-        }
-        .primary_button:hover, .secondary_button:hover { text-decoration: none; }
-        .primary_button:focus-visible, .secondary_button:focus-visible {
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.28);
-        }
-        .primary_button:active, .secondary_button:active { transform: translateY(1px); }
-        .primary_button {
-            background-color: var(--bp-primary);
-            border-color: var(--bp-primary);
-            color: #fff;
-            box-shadow: 0 1px 2px rgba(13, 110, 253, 0.18);
-        }
-        .primary_button:hover  { background-color: var(--bp-primary-dark); border-color: var(--bp-primary-dark); color: #fff; }
-        .primary_button:active { background-color: var(--bp-primary-darker); border-color: var(--bp-primary-darker); box-shadow: none; }
-        .primary_button:disabled { background-color: #a9cbfb; border-color: #a9cbfb; color: #fff; cursor: not-allowed; }
-        .secondary_button {
-            background-color: #fff;
-            border-color: var(--bp-primary);
-            color: var(--bp-primary-dark);
-        }
-        .secondary_button:hover { background-color: var(--bp-primary-light); border-color: var(--bp-primary-dark); color: var(--bp-primary-darker); }
 
         .rfq-page-header { text-align: center; padding: 28px 16px 20px; }
         .rfq-page-header h3 { font-weight: 700; color: var(--bp-ink); margin-bottom: 6px; }
@@ -219,7 +180,7 @@ function e($v): string
             <form method="POST">
                 <input type="hidden" name="action" value="send">
                 <input type="hidden" name="invoice_id" value="<?= (int) $detail['invoice']['id'] ?>">
-                <button type="submit" class="primary_button">Send to Customer</button>
+                <button type="submit" class="btn btn-primary">Send to Customer</button>
             </form>
         </div>
     <?php else: ?>
@@ -227,7 +188,7 @@ function e($v): string
             <form method="POST">
                 <input type="hidden" name="action" value="send">
                 <input type="hidden" name="invoice_id" value="<?= (int) $detail['invoice']['id'] ?>">
-                <button type="submit" class="secondary_button">Resend to Customer</button>
+                <button type="submit" class="btn btn-secondary">Resend to Customer</button>
             </form>
         </div>
     <?php endif; ?>
@@ -250,7 +211,7 @@ function e($v): string
             <form method="POST">
                 <input type="hidden" name="action" value="generate">
                 <input type="hidden" name="po_id" value="<?= (int) $po['id'] ?>">
-                <button type="submit" class="primary_button">Generate Invoice</button>
+                <button type="submit" class="btn btn-primary">Generate Invoice</button>
             </form>
         <?php else: ?>
             <div class="alert alert-warning mb-0">

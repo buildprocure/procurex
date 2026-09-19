@@ -543,7 +543,7 @@ if ($allQuotesReceived || $deadlinePassed) {
     </button>
 <?php else: ?>
     <a href="rfq_comparison.php?rfq_id=<?= $rfqId ?>"
-       class="btn btn-success w-100 mt-3">
+       class="btn btn-primary w-100 mt-3">
        Proceed to Quote Comparison
     </a>
 <?php endif; ?>

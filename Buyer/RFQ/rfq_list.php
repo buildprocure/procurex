@@ -68,7 +68,7 @@ $rfqs = $rfqController->getRFQsByBuyer($_SESSION['user_id']);
                                 <td><?php echo date('M d, Y', strtotime($rfq['created_at'])); ?></td>
                                 <td><?php echo date('M d, Y', strtotime($rfq['quote_deadline'])); ?></td>
                                 <td>
-                                    <a href="rfq_view.php?rfq_id=<?php echo $rfq['id']; ?>" class="btn btn-sm btn-info">View</a>
+                                    <a href="rfq_view.php?rfq_id=<?php echo $rfq['id']; ?>" class="btn btn-sm btn-tertiary">View</a>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
