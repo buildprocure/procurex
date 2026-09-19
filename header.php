@@ -177,6 +177,10 @@ $isImpersonating = $vpab->isImpersonating();
       <i class="fas fa-boxes"></i> Items
     </a>
   <?php endif; ?>
+
+  <?php if ($role == 'Buyer' || $role == 'Supplier' || $role == 'Admin' || $isImpersonating): ?>
+    <a href="<?php echo BASE_URL; ?>Returns/list.php" class="nav-link">Returns</a>
+  <?php endif; ?>
 </div>
 <script>
 document.addEventListener('DOMContentLoaded', () => {

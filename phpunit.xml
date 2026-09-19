@@ -6,6 +6,7 @@
     <testsuites>
         <testsuite name="unit">
             <file>tests/InviteTokenTest.php</file>
+            <file>tests/ReturnRulesTest.php</file>
         </testsuite>
         <testsuite name="integration">
             <directory>tests/Buyer</directory>

@@ -206,6 +206,16 @@ $paymentFlag = $_GET['payment'] ?? null;
         </div>
     <?php endif; ?>
 
+    <?php if ($detail['po']['po_status'] === 'DELIVERED' && $totalPaid > 0): ?>
+        <div class="d-flex justify-content-end align-items-center gap-3 no-print mb-4">
+            <?php if ((float) ($detail['invoice']['refunded_amount'] ?? 0) > 0): ?>
+                <span class="text-muted">Refunded: $<?= number_format((float) $detail['invoice']['refunded_amount'], 2) ?></span>
+            <?php endif; ?>
+            <a class="btn btn-secondary" href="../../Returns/list.php">View returns</a>
+            <a class="btn btn-secondary" href="../../Returns/request.php?invoice_id=<?= (int) $invoiceId ?>">Request a return</a>
+        </div>
+    <?php endif; ?>
+
     <div class="invoice-card no-print">
         <div class="invoice-eyebrow mb-2">Payments</div>
 

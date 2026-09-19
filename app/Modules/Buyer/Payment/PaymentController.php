@@ -3,6 +3,7 @@ namespace App\Modules\Buyer\Payment;
 
 use App\Core\Auth;
 use App\Core\Config;
+use App\Modules\Buyer\Returns\ReturnController;
 use App\Modules\Supplier\Invoice\InvoiceModel;
 use Exception;
 use Stripe\StripeClient;
@@ -183,6 +184,8 @@ class PaymentController
             $intent = $event->data->object;
             $message = $intent->last_payment_error->message ?? 'Payment failed.';
             $this->model->markFailed($intent->id, $message);
+        } elseif (in_array($event->type, ['refund.updated', 'refund.failed'], true)) {
+            (new ReturnController())->applyRefundEvent($event->data->object);
         }
     }
 
