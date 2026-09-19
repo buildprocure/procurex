@@ -186,8 +186,8 @@ if(!isset($_SESSION['loggedin'])|| $_SESSION['loggedin'] != true){
                         <td> <a href = 'notesDetails.php?noteID=".$row['NoteID']."'> ".$row['NoteID']." </a></td>
                         <td>".$row['Title']."</td>
                         <td>".$row['Description']."</td>
-                        <td><button type='button' class='edit btn btn-primary' data-bs-toggle='modal' data-bs-target='#editModal' id=".$row['SN'].">Edit</button>
-                        <button type='button' class='delete btn btn-primary'  id=d".$row['SN'].">Delete</button></td>
+                        <td><button type='button' class='edit btn btn-secondary' data-bs-toggle='modal' data-bs-target='#editModal' id=".$row['SN'].">Edit</button>
+                        <button type='button' class='delete btn btn-danger'  id=d".$row['SN'].">Delete</button></td>
                       </tr>";
             }
           ?> 

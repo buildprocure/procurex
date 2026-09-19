@@ -35,7 +35,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'mark_
 }
 
 $shippedPOs = $model->getShippedPOs();
-
 function e($v): string
 {
     return htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
@@ -58,25 +57,6 @@ $courierTrackingBase = [
             --bp-primary: #7C3AED;
             --bp-primary-dark: #6D28D9;
         }
-        .primary_button, .secondary_button {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            font-family: inherit;
-            font-size: 0.85rem;
-            font-weight: 600;
-            padding: 7px 14px;
-            border-radius: 8px;
-            border: 1.5px solid transparent;
-            text-decoration: none;
-            cursor: pointer;
-            white-space: nowrap;
-        }
-        .primary_button { background-color: var(--bp-primary); border-color: var(--bp-primary); color: #fff; }
-        .primary_button:hover { background-color: var(--bp-primary-dark); border-color: var(--bp-primary-dark); color: #fff; }
-        .secondary_button { background-color: #fff; border-color: var(--bp-primary); color: var(--bp-primary-dark); text-decoration: none; }
-        .secondary_button:hover { background-color: #eaf2ff; }
         table { font-size: 0.9rem; }
     </style>
 </head>
@@ -153,7 +133,7 @@ $courierTrackingBase = [
                             <form method="POST" onsubmit="return confirm('Confirm PO #<?= (int) $po['id'] ?> has actually been delivered?');">
                                 <input type="hidden" name="action" value="mark_delivered">
                                 <input type="hidden" name="po_id" value="<?= (int) $po['id'] ?>">
-                                <button type="submit" class="primary_button">Mark Delivered</button>
+                                <button type="submit" class="btn btn-primary">Mark Delivered</button>
                             </form>
                         </td>
                     </tr>

@@ -104,7 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <div class="form-actions mt-4">
                         <button type="submit" class="btn btn-primary">Create RFQ</button>
-                        <a href="../boq_view.php?boq_id=<?= $boqId ?>" class="btn btn-outline-secondary">Cancel</a>
+                        <a href="../boq_view.php?boq_id=<?= $boqId ?>" class="btn btn-secondary">Cancel</a>
                         <div class="ms-auto text-muted small">Version: <?= htmlspecialchars($boq['version_no'] ?? 'N/A') ?></div>
                     </div>
                 </form>

@@ -71,7 +71,7 @@ $invoice = $stmt->get_result()->fetch_assoc();
 
                 <?php if ($invoice && $invoice['status'] === 'SENT'): ?>
                     <a href="../Invoice/invoice_view.php?invoice_id=<?= (int) $invoice['id'] ?>"
-                       class="btn btn-outline-primary btn-sm">View Invoice</a>
+                       class="btn btn-secondary btn-sm">View Invoice</a>
                 <?php elseif ($invoice): ?>
                     <span class="badge bg-secondary">Invoice generated, not yet sent</span>
                 <?php endif; ?>
