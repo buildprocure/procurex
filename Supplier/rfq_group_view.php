@@ -300,7 +300,7 @@ data-item-id="<?= $item['id'] ?>">
 </table>
 
 <?php if (!$isQuoted && !$isExpired): ?>
-<button type="submit" class="btn btn-success">
+<button type="submit" class="btn btn-primary">
 Submit Quote
 </button>
 <?php endif; ?>

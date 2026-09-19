@@ -71,7 +71,7 @@ $po_list = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                                 <td><?php echo htmlspecialchars($po['status']); ?></td>
                                 <td><?php echo date('d M Y', strtotime($po['created_at'])); ?></td>
                                 <td>
-                                    <a href="po_view.php?po_id=<?php echo $po['id']; ?>" class="btn btn-sm btn-info">View</a> 
+                                    <a href="po_view.php?po_id=<?php echo $po['id']; ?>" class="btn btn-sm btn-tertiary">View</a> 
                                 </td>
                             </tr>
                         <?php endforeach; ?>

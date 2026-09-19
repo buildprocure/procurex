@@ -78,7 +78,7 @@ $canInvoice = $po['supplier_response'] === 'ACCEPTED'
     </p>
 
     <?php if ($existingInvoice): ?>
-        <a href="invoice_view.php?invoice_id=<?= (int) $existingInvoice['id'] ?>" class="btn btn-outline-primary btn-sm">
+        <a href="invoice_view.php?invoice_id=<?= (int) $existingInvoice['id'] ?>" class="btn btn-secondary btn-sm">
             View Invoice
         </a>
     <?php elseif ($canInvoice): ?>
@@ -128,7 +128,7 @@ $canInvoice = $po['supplier_response'] === 'ACCEPTED'
                     <label class="form-label">Message (optional)</label>
                     <textarea name="note" class="form-control"></textarea>
                 </div>
-                <button name="response" value="ACCEPTED" class="btn btn-success">
+                <button name="response" value="ACCEPTED" class="btn btn-primary">
                     Accept PO
                 </button>
                 <button name="response" value="REJECTED" class="btn btn-danger">
@@ -275,7 +275,7 @@ $canInvoice = $po['supplier_response'] === 'ACCEPTED'
                     </div>
 
                     <div class="modal-footer">
-                    <button type="submit" class="btn btn-success">Submit Shipment</button>
+                    <button type="submit" class="btn btn-primary">Submit Shipment</button>
                     </div>
 
                 </form>
