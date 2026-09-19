@@ -35,7 +35,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'mark_
 }
 
 $shippedPOs = $model->getShippedPOs();
-
 function e($v): string
 {
     return htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');

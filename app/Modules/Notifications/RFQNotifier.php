@@ -65,6 +65,9 @@ class RFQNotifier
                 'No valid email address on supplier record');
             return false;
         }
+        if(SEND_EMAILS_TO_RECEIPENT===false){ {
+            $recipient = DEFAULT_EMAIL_ADDRESS;
+        }
 
         $items = $this->fetchItems((int) $inv['rfq_item_group_id']);
 
