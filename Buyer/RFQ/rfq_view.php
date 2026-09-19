@@ -35,8 +35,20 @@ if (!$rfq) {
     die("RFQ not found");
 }
 
-// Verify ownership
-if ($rfq['created_user_id'] !== $userId) {
+// Verify access: same rule as rfq_list.php - the RFQ must have been created
+// by a user in the same company as the logged-in user.
+$creatorId = (int)$rfq['created_user_id'];
+$currentUserId = (int)$userId;
+$stmt = $conn->prepare("
+    SELECT 1
+    FROM `user` creator
+    JOIN `user` me ON me.company_id = creator.company_id
+    WHERE creator.id = ? AND me.id = ?
+    LIMIT 1
+");
+$stmt->bind_param("ii", $creatorId, $currentUserId);
+$stmt->execute();
+if (!$stmt->get_result()->fetch_assoc()) {
     die("Unauthorized access");
 }
 

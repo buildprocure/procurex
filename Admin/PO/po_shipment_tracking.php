@@ -55,8 +55,8 @@ $courierTrackingBase = [
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         :root {
-            --bp-primary: #0d6efd;
-            --bp-primary-dark: #0b5ed7;
+            --bp-primary: #7C3AED;
+            --bp-primary-dark: #6D28D9;
         }
         .primary_button, .secondary_button {
             display: inline-flex;

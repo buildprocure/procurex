@@ -66,11 +66,11 @@ function e($v): string
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         :root {
-            --bp-primary: #0d6efd;
-            --bp-primary-dark: #0b5ed7;
-            --bp-primary-darker: #0a4fb5;
-            --bp-primary-light: #eaf2ff;
-            --bp-primary-border: #cfe2ff;
+            --bp-primary: #7C3AED;
+            --bp-primary-dark: #6D28D9;
+            --bp-primary-darker: #5B21B6;
+            --bp-primary-light: rgba(124, 58, 237, 0.08);
+            --bp-primary-border: rgba(124, 58, 237, 0.22);
             --bp-danger: #dc3545;
             --bp-ink: #1f2937;
             --bp-muted: #6b7280;
